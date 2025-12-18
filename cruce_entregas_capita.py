@@ -91,6 +91,21 @@ TOKEN_POOL_TOPK = 50       # Limit search space for performance
 def setup_logging(level=logging.INFO):
     logging.basicConfig(level=level, format="%(asctime)s %(levelname)s %(message)s")
 
+MONTHS_MAP = {
+    'enero':1,'febrero':2,'marzo':3,'abril':4,'mayo':5,'junio':6,'julio':7,'agosto':8,
+    'septiembre':9,'setiembre':9,'octubre':10,'noviembre':11,'diciembre':12,
+    'jan':1,'feb':2,'mar':3,'apr':4,'may':5,'jun':6,'jul':7,'aug':8,'sep':9,'oct':10,'nov':11,'dec':12
+}
+def detect_month_from_filename(fname):
+    s = fname.lower()
+    for k,v in MONTHS_MAP.items():
+        if k in s:
+            return v, k
+    m = re.search(r'[^0-9](0?[1-9]|1[0-2])[^0-9]', '_' + s + '_')
+    if m:
+        return int(m.group(1)), m.group(1)
+    return None, None
+
 def read_csv_robust(path: Path) -> pd.DataFrame:
     last_exc = None
     for enc in ENCODINGS:
@@ -232,67 +247,19 @@ def preprocess_df(df: pd.DataFrame, mapping=None) -> (pd.DataFrame, dict): # typ
 def classify_and_accumulate_row(row, tol=TOLERANCE_RELATIVE):
     """
     Returns dict with decimals: delivered_total, delivered_partial, pending, label
+    User Request: Simplify to just 'delivered' total. No partial/pending split unless explicit.
+    If 'cantidad_entregada' exists, use it. Default to 0.
     """
     d = row.get('_cantidad_parsed')
-    r = row.get('_cantidad_solicitada_parsed')
-    tipo = str(row.get('_tipo_entrega_raw','') or '').strip().lower()
-    delivered = Decimal(d) if d is not None else None
-    requested = Decimal(r) if r is not None else None
+    delivered = Decimal(d) if d is not None else Decimal('0')
 
-    delivered_total = Decimal('0')
-    delivered_partial = Decimal('0')
-    pending = Decimal('0')
-    label = 'unknown'
-
-    # textual priority
-    if 'total' in tipo or 'complet' in tipo or 'entrega completa' in tipo:
-        # STRICT mode: only use delivered. No imputation from requested.
-        delivered_total = delivered if delivered is not None else Decimal('0')
-        label = 'total'
-    elif 'parcial' in tipo or 'parci' in tipo:
-        if delivered is not None:
-            delivered_partial = delivered
-            if requested is not None and requested > delivered:
-                pending = requested - delivered
-        else:
-            if requested is not None:
-                pending = requested
-        label = 'partial'
-    elif 'pendient' in tipo or 'pend' in tipo:
-        if requested is not None:
-            pending = requested
-        else:
-            pending = Decimal('0')
-        label = 'pending'
-    else:
-        # infer numeric
-        if requested is not None and delivered is not None:
-            if requested == 0:
-                delivered_total = delivered
-                label = 'total' if delivered != 0 else 'unknown'
-            else:
-                diff = requested - delivered
-                if delivered == requested or (abs(diff) / (requested if requested!=0 else Decimal('1'))) <= tol:
-                    delivered_total = delivered
-                    label = 'total'
-                elif delivered < requested:
-                    delivered_partial = delivered
-                    pending = requested - delivered
-                    label = 'partial'
-                else:
-                    delivered_total = requested
-                    delivered_partial = delivered - requested
-                    label = 'total_plus_extra'
-        else:
-            if delivered is not None:
-                delivered_partial = delivered
-                label = 'partial' if delivered != 0 else 'unknown'
-            elif requested is not None:
-                pending = requested
-                label = 'pending'
-            else:
-                label = 'unknown'
-    return {'delivered_total': delivered_total, 'delivered_partial': delivered_partial, 'pending': pending, 'label': label}
+    # We consolidate everything into delivered_total as requested
+    return {
+        'delivered_total': delivered,
+        'delivered_partial': Decimal('0'),
+        'pending': Decimal('0'),
+        'label': 'total'
+    }
 
 # ---------------- MATCHING LOGIC (Inverse: Find Target for Source) ----------------
 
@@ -434,21 +401,6 @@ def process_chunk_of_source(chunk_df, targets_df, token_index_targets, mode, str
 
 # ---------------- Main Aggregation Logic ----------------
 
-MONTHS_MAP = {
-    'enero':1,'febrero':2,'marzo':3,'abril':4,'mayo':5,'junio':6,'julio':7,'agosto':8,
-    'septiembre':9,'setiembre':9,'octubre':10,'noviembre':11,'diciembre':12,
-    'jan':1,'feb':2,'mar':3,'apr':4,'may':5,'jun':6,'jul':7,'aug':8,'sep':9,'oct':10,'nov':11,'dec':12
-}
-def detect_month_from_filename(fname):
-    s = fname.lower()
-    for k,v in MONTHS_MAP.items():
-        if k in s:
-            return v, k
-    m = re.search(r'[^0-9](0?[1-9]|1[0-2])[^0-9]', '_' + s + '_')
-    if m:
-        return int(m.group(1)), m.group(1)
-    return None, None
-
 def aggregate(event_files, target_df=None, mode='strict', out_csv='entregas_por_meses_resumen_tipos.csv', audit_csv_prefix=None):
 
     # 1. Prepare Targets
@@ -550,14 +502,7 @@ def aggregate(event_files, target_df=None, mode='strict', out_csv='entregas_por_
         logging.info(f"Procesando archivo: {p.name} ({label})")
 
         df_raw = read_csv_robust(p)
-
-        # DEDUPLICATION: Drop duplicate rows from source to prevent counting the same delivery twice
-        initial_len = len(df_raw)
-        df_raw = df_raw.drop_duplicates()
-        dedup_len = len(df_raw)
-        if initial_len != dedup_len:
-            logging.warning(f"Eliminadas {initial_len - dedup_len} filas duplicadas en {p.name}")
-
+        # NOTE: Do NOT drop duplicates from source. User confirmed repeated rows represent distinct dispensations.
         df, _ = preprocess_df(df_raw)
 
         # Parallel Processing of Source Rows
@@ -641,6 +586,27 @@ def aggregate(event_files, target_df=None, mode='strict', out_csv='entregas_por_
     for c in totals_cols:
         if c not in df_out.columns:
             df_out[c] = '0'
+
+    # Add Summary Row at the end
+    if not df_out.empty:
+        # Calculate sums for numeric columns
+        sum_row = {'DESCRIPCION': 'TOTALES'}
+        for col in df_out.columns:
+            if col not in ['DESCRIPCION', 'PRINCIPIO_ACTIVO', 'CODIGO_NEGOCIADO', 'CODIGO_CUM']:
+                try:
+                    # Parse as decimal to sum, handle potentially empty strings
+                    col_sum = Decimal('0')
+                    for val in df_out[col]:
+                        v_dec = parse_decimal(str(val))
+                        if v_dec is not None:
+                            col_sum += v_dec
+                    sum_row[col] = str(col_sum)
+                except Exception:
+                    sum_row[col] = ''
+
+        # Append summary row
+        df_sum = pd.DataFrame([sum_row])
+        df_out = pd.concat([df_out, df_sum], ignore_index=True)
 
     # Saving
     df_out.to_csv(out_csv, index=False, sep=';', encoding='utf-8-sig')
