@@ -1,13 +1,11 @@
 # cruce_entregas_capita.py
 """
-Cruce y agregación de entregas por medicamento (eventos por mes) y opcionalmente Capita.
-- Preserva el orden y columnas del target.csv si lo proporcionas.
-- Matching exhaustivo: token overlap, Jaccard, SequenceMatcher/rapidfuzz, keys (codigo/cum).
-- Clasifica entregas: TOTAL, PARCIAL, PENDIENTE (usa CANTIDAD_SOLICITADA cuando exista).
-- Maneja múltiples archivos evento (ej. AbrilEvento.csv, MayoEvento.csv, ...) y 0..N Capita files.
-- Salidas:
-    - entregas_por_meses_resumen_tipos.csv   (fila por target, meses como columnas, totales)
-    - matched_audit_{timestamp}.csv          (fila por match usado para auditoría)
+Cruce y agregación de entregas por medicamento.
+REFACTORIZADO:
+- En lugar de iterar por target, iteramos por fila de source para garantizar que cada entrega
+  se asigne a un ÚNICO target (el mejor match), evitando duplicación de cantidades.
+- Mantiene la lógica de limpieza de laboratorios y preservación de términos.
+- Genera el reporte final pivotado (targets x meses).
 """
 
 import re
@@ -24,9 +22,10 @@ import datetime
 import psutil 
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from tqdm import tqdm
+
 getcontext().prec = 28
 
-# Configuración de los umbrales de puntuación para el emparejamiento
+# ---------------- Configuración ----------------
 STRICT = {
     'MIN_ACCEPT_SCORE': 95, 
     'MIN_SCORE_GAP': 5,
@@ -38,9 +37,8 @@ RELAXED = {
     'MIN_JACCARD': 0.7
 }
 
-# ---------------- Intentar usar rapidfuzz si está disponible (más rápido) ----------------
 try:
-    from rapidfuzz import fuzz # type: ignore
+    from rapidfuzz import fuzz, process, utils # type: ignore
     _HAS_RAPIDFUZZ = True
     logging.info("Usando rapidfuzz para un cálculo de similitud más rápido.")
 except Exception:
@@ -48,16 +46,9 @@ except Exception:
     _HAS_RAPIDFUZZ = False
     logging.warning("rapidfuzz no está instalado, se usará difflib.SequenceMatcher. La ejecución puede ser más lenta.")
 
-# ---------------- Config por defecto (ajustables) ----------------
 ENCODINGS = ["utf-8", "latin-1", "cp1252"]
 SEPS = [';', ',', '\t', '|']
 
-# Por defecto: sin límite (None) — se puede controlar por CLI o editar aquí.
-MAX_CANDIDATES_EVAL = None
-TOKEN_POOL_TOPK = None
-TOP_N_FALLBACK = 3   # si no hay aceptados, devolver top-N para auditoría
-
-# Aumentar significativamente los pesos para códigos
 WEIGHTS = {
     'desc_exact': 220,
     'desc_substring': 150,
@@ -65,8 +56,8 @@ WEIGHTS = {
     'seq_ratio': 70,
     'token_sort_ratio': 150,
     'token_common': 12,
-    'same_codigo_neg': 1000,  # Aumentado drásticamente
-    'same_cum': 900,         # Aumentado drásticamente
+    'same_codigo_neg': 1000,
+    'same_cum': 900,
     'presentation_match': 25,
     'cantidad_exists': 5
 }
@@ -77,7 +68,6 @@ PRESENTATION_TERMS = {
     'supositorio','ovulo','ampolleta','spray','unidad','unidades'
 }
 
-# Lista de laboratorios para limpieza de nombres
 LABORATORIES = {
     'TECNOQUIMICAS', 'SIEGFRIED', 'FARMACAPSULAS', 'SANOFI AVENTIS', 'SANOFI', 'GRUNENTHAL',
     'LAPROFF', 'PROCAPS', 'NOVAMED', 'WINTHROP', 'ASTRA ZENECA', 'TECNOFARMA', 'COLMED',
@@ -90,14 +80,12 @@ LABORATORIES = {
     'ANGLO', 'PHARMA', 'CORPAUL'
 }
 
-# Pre-compile regex for laboratories to improve performance
-# Sort labs by length descending to match "SANOFI AVENTIS" before "SANOFI"
 SORTED_LABS = sorted(list(LABORATORIES), key=len, reverse=True)
-# Create a single regex pattern: \b(LAB1|LAB2|...)\b
 LABS_PATTERN = re.compile(r'\b(' + '|'.join(map(re.escape, SORTED_LABS)) + r')\b', re.IGNORECASE)
 
-# tolerancia relativa para considerar entregado == solicitado (por defecto 1%)
 TOLERANCE_RELATIVE = Decimal('0.01')
+MAX_CANDIDATES_EVAL = None # Not strictly used in new arch but kept for compat
+TOKEN_POOL_TOPK = 50       # Limit search space for performance
 
 # ---------------- Utilidades ----------------
 def setup_logging(level=logging.INFO):
@@ -131,26 +119,15 @@ def normalize_key(s):
 def clean_labs_and_extra_info(s):
     if pd.isna(s): return ""
     s_upper = str(s).upper()
-
-    # 1. Split by pipe | and take the first part
     if '|' in s_upper:
         s_upper = s_upper.split('|')[0]
-
-    # 2. Remove labs using compiled regex
     s_clean = LABS_PATTERN.sub('', s_upper)
-
-    # 3. Also remove any dangling " | " or double spaces created
     s_clean = re.sub(r'\s+', ' ', s_clean).strip()
-
     return s_clean
 
 def normalize_desc(s):
     if pd.isna(s): return ""
-
-    # Custom cleaning first
     s = clean_labs_and_extra_info(s)
-
-    # Standard normalization
     s = str(s).strip().lower()
     s = re.sub(r"[\s\W]+", " ", s)
     return s.strip()
@@ -163,7 +140,6 @@ def tokens_from_text(s, min_len=2):
 
 _THOUSANDS_CHARS_RE = re.compile(r"[\'\s\u00A0\u202F\u2007\u2009]")
 _CURRENCY_CHARS_RE = re.compile(r'[^\d\.,\-\(\)eE]')
-
 def parse_decimal(val):
     if val is None or (isinstance(val, float) and np.isnan(val)): return None
     s = str(val).strip()
@@ -212,30 +188,20 @@ def jaccard_similarity(a_tokens, b_tokens):
     return len(inter)/len(union) if union else 0.0
 
 def seq_ratio(a, b):
-    """
-    Ratio 0..1. Prefer rapidfuzz if está instalado, fallback a difflib.
-    """
     if not a and not b: return 0.0
     if _HAS_RAPIDFUZZ:
-        try:
-            return float(fuzz.ratio(a, b) / 100.0)
-        except Exception:
-            return SequenceMatcher(None, a, b).ratio()
+        return float(fuzz.ratio(a, b) / 100.0)
     else:
         return SequenceMatcher(None, a, b).ratio()
 
-# NUEVA FUNCIÓN: calcula la similitud de token ordenado
 def token_sort_ratio(a, b):
     if not a and not b: return 0.0
     if _HAS_RAPIDFUZZ:
-        try:
-            return float(fuzz.token_sort_ratio(a, b) / 100.0)
-        except Exception:
-            return 0.0 # si rapidfuzz falla, devolvemos 0
+        return float(fuzz.token_sort_ratio(a, b) / 100.0)
     else:
         return 0.0
 
-# ---------------- Preprocesado y detección de columnas ----------------
+# ---------------- Lógica de Columnas ----------------
 def detect_columns(df: pd.DataFrame) -> dict:
     cols = df.columns.tolist()
     def find(patterns):
@@ -259,246 +225,35 @@ def preprocess_df(df: pd.DataFrame, mapping=None) -> (pd.DataFrame, dict): # typ
     df = df.copy()
     if mapping is None:
         mapping = detect_columns(df)
-    # normalize columns
+
     df['_codigo_neg_norm'] = df[mapping['codigo_neg']].apply(normalize_key) if mapping['codigo_neg'] else ""
     df['_cum_norm'] = df[mapping['codigo_cum']].apply(normalize_key) if mapping['codigo_cum'] else ""
     df['_nombre_norm'] = df[mapping['nombre']].apply(normalize_desc) if mapping['nombre'] else ""
     df['_pa_norm'] = df[mapping['pa']].apply(normalize_desc) if mapping['pa'] else ""
     df['_tokens'] = df['_nombre_norm'].apply(tokens_from_text)
-    df['_presentation_tokens'] = df['_tokens'].apply(lambda t: set([x for x in t if x in PRESENTATION_TERMS]))
-    df['_token_set'] = df['_tokens'].apply(lambda t: frozenset(t) if isinstance(t, list) else frozenset())
     df['_cantidad_parsed'] = df[mapping['cantidad']].apply(parse_decimal) if mapping['cantidad'] else None
     df['_cantidad_solicitada_parsed'] = df[mapping['cantidad_solicitada']].apply(parse_decimal) if mapping['cantidad_solicitada'] else None
     df['_tipo_entrega_raw'] = df[mapping['tipo']].fillna("").astype(str) if mapping['tipo'] else ""
     return df, mapping
 
-# ---------------- Índices para búsqueda (por archivo) ----------------
-def build_token_index(df):
-    token_to_indices = defaultdict(list)
-    for idx, toks in df['_token_set'].items():
-        for tk in toks:
-            token_to_indices[tk].append(idx)
-    idx_by_codigo_neg = {k: g.index.tolist() for k,g in df.groupby('_codigo_neg_norm', sort=False)}
-    idx_by_cum = {k: g.index.tolist() for k,g in df.groupby('_cum_norm', sort=False)}
-    idx_by_pa = {k: g.index.tolist() for k,g in df.groupby('_pa_norm', sort=False)}
-    return token_to_indices, idx_by_codigo_neg, idx_by_cum, idx_by_pa
-
-# ---------------- Scoring y selección (idéntico estilo, optimizado) ----------------
-# Se agrega la nueva métrica en el score_candidate_target
-def score_candidate_target(target_desc_norm, target_pa_norm, target_codigo_neg, target_cum, df, idx):
-    pr = df.loc[idx]
-    pr_desc = pr.get('_nombre_norm','') or ''
-    pr_pa = pr.get('_pa_norm','') or ''
-    pr_codigo_neg = pr.get('_codigo_neg_norm', '') or ''
-    pr_cum = pr.get('_cum_norm', '') or ''
-    
-    score = 0.0
-    reasons = []
-
-    # PRIORIDAD 1: Coincidencia exacta de código negociado - DEVOLVER INMEDIATAMENTE
-    if target_codigo_neg and target_codigo_neg == pr_codigo_neg:
-        score = 1000  # Puntuación muy alta
-        reasons.append('exact_codigo_neg')
-        return score, {'score': score, 'reasons': reasons, 'cantidad': pr.get('_cantidad_parsed')}
-    
-    # PRIORIDAD 2: Coincidencia exacta de CUM - DEVOLVER INMEDIATAMENTE
-    if target_cum and target_cum == pr_cum:
-        score = 900  # Puntuación alta
-        reasons.append('exact_cum')
-        return score, {'score': score, 'reasons': reasons, 'cantidad': pr.get('_cantidad_parsed')}
-    
-    # PRIORIDAD 3: Solo si no hay códigos, evaluar similitudes textuales
-    t_tokens = set(tokens_from_text(target_desc_norm))
-    p_tokens = set(pr.get('_tokens',[]) or [])
-    
-    # New hybrid scoring
-    score_hybrid = 0.0
-    sim_jaccard = jaccard_similarity(t_tokens, p_tokens)
-    sim_seq_ratio = seq_ratio(target_desc_norm, pr_desc)
-    sim_token_sort = token_sort_ratio(target_desc_norm, pr_desc)
-    
-    # Nuevo puntaje híbrido ponderado
-    score_hybrid = (0.4 * sim_token_sort) + (0.3 * sim_seq_ratio) + (0.3 * sim_jaccard)
-    score = score_hybrid * 100  # Escalar para que sea comparable (0-100)
-    
-    reasons.append(f'hybrid:{score_hybrid:.3f}')
-    reasons.append(f'jacc:{sim_jaccard:.3f}')
-    reasons.append(f'seq:{sim_seq_ratio:.3f}')
-    reasons.append(f'token_sort:{sim_token_sort:.3f}')
-
-    # Sumar otros pesos
-    if target_desc_norm and pr_desc and target_desc_norm == pr_desc:
-        score += WEIGHTS['desc_exact']
-        reasons.append('desc_exact')
-    elif target_desc_norm and pr_desc and (target_desc_norm in pr_desc or pr_desc in target_desc_norm):
-        score += WEIGHTS['desc_substring']
-        reasons.append('desc_substring')
-
-    if target_pa_norm and target_pa_norm == pr_pa:
-        score += WEIGHTS['same_cum']
-        reasons.append('same_pa')
-
-    if pr.get('_cantidad_parsed') is not None:
-        score += WEIGHTS['cantidad_exists']
-        reasons.append('has_cantidad')
-
-    return score, {'score': score, 'reasons': reasons, 'jaccard': sim_jaccard, 
-                  'seq_ratio': sim_seq_ratio, 'token_sort': sim_token_sort, 
-                  'cantidad': pr.get('_cantidad_parsed')}
-
-def build_candidate_pool_for_target(df, token_to_indices, idx_by_codigo_neg, idx_by_cum, target_tokens, target_codigo_neg="", target_cum=""):
-    pool = set()
-    
-    # 1. PRIORIDAD ABSOLUTA: Buscar por código negociado (si existe)
-    if target_codigo_neg and target_codigo_neg in idx_by_codigo_neg:
-        pool.update(idx_by_codigo_neg[target_codigo_neg])
-        logging.debug(f"Encontrado por código_neg {target_codigo_neg}: {len(pool)} candidatos")
-        return list(pool)  # Devolver inmediatamente si encontramos por código
-    
-    # 2. PRIORIDAD ALTA: Buscar por CUM (si existe)
-    if target_cum and target_cum in idx_by_cum:
-        pool.update(idx_by_cum[target_cum])
-        logging.debug(f"Encontrado por CUM {target_cum}: {len(pool)} candidatos")
-        return list(pool)  # Devolver inmediatamente si encontramos por CUM
-    
-    # 3. SOLO SI NO HAY CÓDIGOS: Buscar por tokens (descripción)
-    if target_tokens:
-        counter = Counter()
-        for tk in target_tokens:
-            for idx in token_to_indices.get(tk, []):
-                counter[idx] += 1
-        if counter:
-            if TOKEN_POOL_TOPK is None:
-                top_by_tokens = [idx for idx, _ in counter.most_common()]
-            else:
-                top_by_tokens = [idx for idx, _ in counter.most_common(TOKEN_POOL_TOPK)]
-            pool.update(top_by_tokens)
-            logging.debug(f"Encontrado por tokens: {len(pool)} candidatos")
-    
-    # 4. Si todavía no hay candidatos, añadir todos los índices (último recurso)
-    if not pool:
-        pool = set(df.index)
-        logging.debug(f"Usando todos los índices: {len(pool)} candidatos")
-    
-    # Aplicar límite si es necesario
-    if MAX_CANDIDATES_EVAL is not None and len(pool) > MAX_CANDIDATES_EVAL:
-        pool = set(list(pool)[:MAX_CANDIDATES_EVAL])
-        logging.debug(f"Limitado a {MAX_CANDIDATES_EVAL} candidatos")
-    
-    return list(pool)
-
-def search_matches_for_target_in_df(df, token_to_indices, idx_by_codigo_neg, idx_by_cum,
-                                    target_desc, target_pa,
-                                    target_codigo_neg=None, target_cum=None,
-                                    mode='strict', strict_cfg=None, relaxed_cfg=None, **kwargs):
-    # compatibilidad con diferentes nombres pasados por callers
-    if not target_codigo_neg:
-        target_codigo_neg = kwargs.get('target_codigo_neg') or kwargs.get('codigo_neg_norm') or kwargs.get('codigo_neg')
-    if not target_cum:
-        target_cum = kwargs.get('target_cum') or kwargs.get('cum_norm') or kwargs.get('codigo_cum') or kwargs.get('cum')
-
-    if strict_cfg is None:
-        strict_cfg = STRICT
-    if relaxed_cfg is None:
-        relaxed_cfg = RELAXED
-
-    t_desc_norm = normalize_desc(target_desc)
-    t_pa_norm = normalize_desc(target_pa)
-    t_tokens = set(tokens_from_text(t_desc_norm))
-
-    pool = build_candidate_pool_for_target(
-        df, token_to_indices, idx_by_codigo_neg, idx_by_cum, t_tokens,
-        target_codigo_neg=target_codigo_neg, target_cum=target_cum
-    )
-
-    # --- Dedupe pool (preserva orden) ---
-    seen_order = set()
-    uniq_pool = []
-    for p in pool:
-        if p not in seen_order:
-            seen_order.add(p)
-            uniq_pool.append(p)
-    pool = uniq_pool
-    # -------------------------------
-
-    scored = []
-    for idx in pool:
-        try:
-            s, meta = score_candidate_target(t_desc_norm, t_pa_norm, target_codigo_neg, target_cum, df, idx)
-        except TypeError:
-            # fallback a versión sin códigos
-            s, meta = score_candidate_target(t_desc_norm, t_pa_norm, df, idx)
-        scored.append((idx, s, meta))
-
-    if not scored:
-        return []
-
-    # Ordenar por score descendente
-    scored.sort(key=lambda x: -x[1])
-    
-    # Si hay coincidencia exacta de código, devolver solo esa
-    exact_matches = []
-    for idx, s, meta in scored:
-        if s >= 1000:  # Coincidencia exacta de código
-            exact_matches.append((idx, s, meta))
-        elif s >= 900:   # Coincidencia exacta de CUM
-            exact_matches.append((idx, s, meta))
-    
-    if exact_matches:
-        return exact_matches
-
-    # Si no hay coincidencias exactas, aplicar reglas normales
-    cfg = strict_cfg if mode == 'strict' else relaxed_cfg
-    top_score = scored[0][1]
-    second_score = scored[1][1] if len(scored) > 1 else -1e9
-
-    results = []
-    for idx, s, meta in scored:
-        accept = False
-        if s >= cfg['MIN_ACCEPT_SCORE'] and (s - second_score) >= cfg['MIN_SCORE_GAP']:
-            accept = True
-        elif s >= relaxed_cfg['MIN_ACCEPT_SCORE']:
-            accept = True
-        
-        if accept:
-            results.append((idx, s, meta))
-
-    # FILTRAR resultados - solo mantener matches que coincidan por código
-    filtered_results = []
-    for idx, s, meta in results:
-        row = df.loc[idx]
-        row_codigo_neg = row.get('_codigo_neg_norm', '')
-        row_cum = row.get('_cum_norm', '')
-        
-        # Si tenemos código target, validar que coincida
-        if target_codigo_neg and target_codigo_neg != row_codigo_neg:
-            continue
-        if target_cum and target_cum != row_cum:
-            continue
-            
-        filtered_results.append((idx, s, meta))
-    
-    if not filtered_results and results:
-        # Si no hay matches filtrados pero sí resultados, devolver el top 1 para auditoría
-        return results[:1]
-    
-    return filtered_results if filtered_results else []
-
-# ---------------- Clasificación de fila (TOTAL / PARCIAL / PENDIENTE) ----------------
+# ---------------- Classify Row ----------------
 def classify_and_accumulate_row(row, tol=TOLERANCE_RELATIVE):
     """
-    Devuelve dic con decimales: delivered_total, delivered_partial, pending, label
+    Returns dict with decimals: delivered_total, delivered_partial, pending, label
     """
     d = row.get('_cantidad_parsed')
     r = row.get('_cantidad_solicitada_parsed')
     tipo = str(row.get('_tipo_entrega_raw','') or '').strip().lower()
     delivered = Decimal(d) if d is not None else None
     requested = Decimal(r) if r is not None else None
-    delivered_total = Decimal('0'); delivered_partial = Decimal('0'); pending = Decimal('0'); label = 'unknown'
+
+    delivered_total = Decimal('0')
+    delivered_partial = Decimal('0')
+    pending = Decimal('0')
+    label = 'unknown'
 
     # textual priority
     if 'total' in tipo or 'complet' in tipo or 'entrega completa' in tipo:
-        # if requested present, try to align, else assume delivered provided
         if requested is not None:
             if delivered is None:
                 delivered_total = requested
@@ -541,7 +296,6 @@ def classify_and_accumulate_row(row, tol=TOLERANCE_RELATIVE):
                     pending = requested - delivered
                     label = 'partial'
                 else:
-                    # delivered > requested
                     delivered_total = requested
                     delivered_partial = delivered - requested
                     label = 'total_plus_extra'
@@ -556,194 +310,146 @@ def classify_and_accumulate_row(row, tol=TOLERANCE_RELATIVE):
                 label = 'unknown'
     return {'delivered_total': delivered_total, 'delivered_partial': delivered_partial, 'pending': pending, 'label': label}
 
-# NUEVO: Worker para procesar un target de forma paralela
-def process_one_target_worker(tidx, trow, target_cols, month_data, capita_data, mode, strict_cfg, relaxed_cfg):
-    out_row = {col: trow[col] for col in target_cols}
-    desc = str(trow.get('descripcion') or trow.get('DESCRIPCION') or trow.get('nombre_producto') or trow.get('NOMBRE_PRODUCTO') or "")
-    pa = str(out_row.get('PRINCIPIO_ACTIVO') or out_row.get('principio_activo') or "")
+# ---------------- MATCHING LOGIC (Inverse: Find Target for Source) ----------------
 
-    # Extraer código negociado y CUM del target (variantes de nombre)
-    codigo_neg = str(trow.get('codigo_negociado') or trow.get('CODIGO_NEGOCIADO') or trow.get('codigo_neg') or trow.get('CODIGO_NEG') or "")
-    cum = str(trow.get('codigo_cum') or trow.get('CODIGO_CUM') or trow.get('cum') or trow.get('CUM') or "")
+def score_source_against_target(src_row, target_idx, target_data):
+    """
+    Scoring logic adapted: calculates how well `src_row` matches `target_data`.
+    target_data is a dict/row from the targets dataframe.
+    """
+    t_desc_norm = target_data['desc_norm']
+    t_pa_norm = target_data['pa_norm']
+    t_tokens = target_data['tokens']
+    t_codigo_neg = target_data['codigo_neg']
+    t_cum = target_data['cum']
 
-    # Normalizar los códigos (usa tu función normalize_key)
-    codigo_neg_norm = normalize_key(codigo_neg) if codigo_neg else ""
-    cum_norm = normalize_key(cum) if cum else ""
+    s_desc_norm = src_row.get('_nombre_norm','')
+    s_pa_norm = src_row.get('_pa_norm','')
+    s_codigo_neg = src_row.get('_codigo_neg_norm','')
+    s_cum = src_row.get('_cum_norm','')
+    s_tokens = src_row.get('_tokens', [])
 
-    # Incluyo los códigos en out_row por si quieres exportarlos
-    out_row['codigo_negociado'] = codigo_neg
-    out_row['codigo_negociado_norm'] = codigo_neg_norm
-    out_row['codigo_cum'] = cum
-    out_row['codigo_cum_norm'] = cum_norm
+    score = 0.0
+    reasons = []
 
-    # INICIALIZAR EN 0 - no valores por defecto
-    total_ent_total = Decimal('0')
-    total_ent_partial = Decimal('0')
-    total_pending = Decimal('0')
-    matched_info = {}
-    audit_rows = []
-    seen_keys = set()  # Para evitar duplicados en el mismo target
+    # 1. Exact Codes
+    if t_codigo_neg and t_codigo_neg == s_codigo_neg:
+        return 1000.0, ['exact_codigo_neg']
+    if t_cum and t_cum == s_cum:
+        return 900.0, ['exact_cum']
 
-    # events per month
-    for mn, mdata in sorted(month_data.items()):
-        df = mdata['df']; token_idx = mdata['token_index']
-        idx_by_codigo_neg = mdata.get('idx_by_codigo_neg'); idx_by_cum = mdata.get('idx_by_cum')
-        # Pasa las configuraciones y códigos normalizados a la función de búsqueda
-        matches = search_matches_for_target_in_df(
-            df, token_idx, idx_by_codigo_neg, idx_by_cum,
-            desc, pa,
-            target_codigo_neg=codigo_neg_norm, target_cum=cum_norm,
-            mode=mode, strict_cfg=strict_cfg, relaxed_cfg=relaxed_cfg
-        )
-        # INICIALIZAR EN 0 para este mes
-        month_total_total = Decimal('0')
-        month_total_partial = Decimal('0')
-        month_pending = Decimal('0')
-        matched_indices = []
+    # 2. Textual Match
+    sim_jaccard = jaccard_similarity(t_tokens, s_tokens)
+    sim_seq_ratio = seq_ratio(t_desc_norm, s_desc_norm)
+    sim_token_sort = token_sort_ratio(t_desc_norm, s_desc_norm)
 
-        for idx, s, meta in matches:
-            src_file = mdata.get('file', mdata.get('label'))
-            key = f"{src_file}::{int(idx)}"
-            if key in seen_keys:
-                # ya contado para este target -> saltar
-                continue
+    score_hybrid = (0.4 * sim_token_sort) + (0.3 * sim_seq_ratio) + (0.3 * sim_jaccard)
+    score = score_hybrid * 100
 
-            row = df.loc[idx]
-            
-            # VALIDACIÓN CRÍTICA: Verificar que el código coincida
-            row_codigo_neg = row.get('_codigo_neg_norm', '')
-            if codigo_neg_norm and row_codigo_neg != codigo_neg_norm:
-                # No coincide el código, saltar este match
-                continue
-                
+    reasons.append(f'hybrid:{score_hybrid:.3f}')
+
+    if t_desc_norm and s_desc_norm and t_desc_norm == s_desc_norm:
+        score += WEIGHTS['desc_exact']
+    elif t_desc_norm and s_desc_norm and (t_desc_norm in s_desc_norm or s_desc_norm in t_desc_norm):
+        score += WEIGHTS['desc_substring']
+
+    # Principle Active
+    if t_pa_norm and s_pa_norm and t_pa_norm == s_pa_norm:
+        score += WEIGHTS['same_cum'] # reusing weight name
+
+    return score, reasons
+
+def find_best_target_for_row(row_idx, row, targets_df, token_index_targets):
+    """
+    Finds the single best target for a given source row.
+    """
+    # 1. Try Lookup by Code
+    s_codigo_neg = row.get('_codigo_neg_norm')
+    if s_codigo_neg:
+        # Assuming targets_df has indexed lookups passed somehow,
+        # or we just scan (slow) or use a pre-built dict.
+        # For performance, we should rely on pre-built indices passed in `token_index_targets`.
+        matches = token_index_targets['by_codigo_neg'].get(s_codigo_neg, [])
+        if matches:
+            return matches[0], 1000.0, ['exact_codigo_neg']
+
+    s_cum = row.get('_cum_norm')
+    if s_cum:
+        matches = token_index_targets['by_cum'].get(s_cum, [])
+        if matches:
+            return matches[0], 900.0, ['exact_cum']
+
+    # 2. Candidate Selection by Tokens
+    s_tokens = row.get('_tokens', [])
+    if not s_tokens:
+        return None, 0.0, []
+
+    candidates = Counter()
+    for tk in s_tokens:
+        for tidx in token_index_targets['by_token'].get(tk, []):
+            candidates[tidx] += 1
+
+    if not candidates:
+        return None, 0.0, []
+
+    # Take top K candidates
+    top_candidates = [x[0] for x in candidates.most_common(TOKEN_POOL_TOPK)]
+
+    # 3. Score Candidates
+    best_score = -1.0
+    best_tidx = None
+    best_reasons = []
+
+    for tidx in top_candidates:
+        # Retrieve pre-processed target data from dict to avoid DF lookup overhead
+        t_data = token_index_targets['data'][tidx]
+
+        # Calculate score
+        score, reasons = score_source_against_target(row, tidx, t_data)
+
+        if score > best_score:
+            best_score = score
+            best_tidx = tidx
+            best_reasons = reasons
+
+    return best_tidx, best_score, best_reasons
+
+# ---------------- Processing Worker ----------------
+
+def process_chunk_of_source(chunk_df, targets_df, token_index_targets, mode, strict_cfg, relaxed_cfg):
+    """
+    Process a chunk of source rows.
+    Returns a list of results: (row_idx, assigned_target_idx, score, reasons, classification_dict)
+    """
+    results = []
+    cfg = strict_cfg if mode == 'strict' else relaxed_cfg
+    min_score = cfg['MIN_ACCEPT_SCORE']
+
+    for idx, row in chunk_df.iterrows():
+        best_tidx, best_score, best_reasons = find_best_target_for_row(idx, row, targets_df, token_index_targets)
+
+        assigned = None
+        if best_tidx is not None and best_score >= min_score:
+            assigned = best_tidx
+
+        # Special case: if mode is relaxed, check relaxed threshold
+        if assigned is None and mode == 'relaxed' and best_tidx is not None:
+             if best_score >= relaxed_cfg['MIN_ACCEPT_SCORE']:
+                 assigned = best_tidx
+
+        if assigned is not None:
             classif = classify_and_accumulate_row(row)
-            month_total_total += classif['delivered_total']
-            month_total_partial += classif['delivered_partial']
-            month_pending += classif['pending']
-
-            # marcar como visto para este target
-            seen_keys.add(key)
-            matched_indices.append(int(idx))
-
-            # opcional: marcar en df para trazabilidad (si df es modificable)
-            try:
-                prev = df.at[idx, '_matched_by'] if '_matched_by' in df.columns else None
-                df.at[idx, '_matched_by'] = f"{prev}|{tidx}" if prev else str(tidx)
-            except Exception:
-                pass
-
-            audit_rows.append({
-                'target_row': int(tidx),
-                'target_desc': desc,
-                'target_pa': pa,
-                'target_codigo_neg': codigo_neg,
-                'target_codigo_neg_norm': codigo_neg_norm,
-                'target_cum': cum,
-                'target_cum_norm': cum_norm,
-                'source_type': 'evento',
-                'source_file': src_file,
-                'source_label': mdata.get('label'),
-                'matched_index': int(idx),
-                'match_score': float(s),
-                'match_meta': str(meta),
-                'cantidad_parsed': str(row.get('_cantidad_parsed')),
-                'cantidad_solicitada_parsed': str(row.get('_cantidad_solicitada_parsed')),
-                'clasificacion_row': classif['label']
+            results.append({
+                'source_idx': idx,
+                'target_idx': assigned,
+                'score': best_score,
+                'reasons': best_reasons,
+                'classif': classif
             })
+    return results
 
-        label = mdata.get('label')
-        # SOLO asignar valores si se encontraron matches válidos
-        out_row[f'cantidad_total_{label}'] = str(month_total_total) if month_total_total != 0 else ''
-        out_row[f'cantidad_parcial_{label}'] = str(month_total_partial) if month_total_partial != 0 else ''
-        out_row[f'cantidad_pendiente_{label}'] = str(month_pending) if month_pending != 0 else ''
-        total_ent_total += month_total_total
-        total_ent_partial += month_total_partial
-        total_pending += month_pending
-        matched_info[label] = matched_indices
+# ---------------- Main Aggregation Logic ----------------
 
-    # procesa capita files
-    for cap_label, cdata in capita_data.items():
-        df = cdata['df']; token_idx = cdata['token_index']
-        idx_by_codigo_neg = cdata.get('idx_by_codigo_neg'); idx_by_cum = cdata.get('idx_by_cum')
-        matches = search_matches_for_target_in_df(
-            df, token_idx, idx_by_codigo_neg, idx_by_cum,
-            desc, pa,
-            target_codigo_neg=codigo_neg_norm, target_cum=cum_norm,
-            mode=mode, strict_cfg=strict_cfg, relaxed_cfg=relaxed_cfg
-        )
-        cap_total_total = Decimal('0'); cap_total_partial = Decimal('0'); cap_pending = Decimal('0')
-        matched_indices_cap = []
-
-        for idx, s, meta in matches:
-            src_file = cdata.get('file', cap_label)
-            key = f"{src_file}::{int(idx)}"
-            if key in seen_keys:
-                continue
-
-            row = df.loc[idx]
-            
-            # VALIDACIÓN CRÍTICA: Verificar que el código coincida
-            row_codigo_neg = row.get('_codigo_neg_norm', '')
-            if codigo_neg_norm and row_codigo_neg != codigo_neg_norm:
-                # No coincide el código, saltar este match
-                continue
-                
-            classif = classify_and_accumulate_row(row)
-            cap_total_total += classif['delivered_total']
-            cap_total_partial += classif['delivered_partial']
-            cap_pending += classif['pending']
-            seen_keys.add(key)
-            matched_indices_cap.append(int(idx))
-
-            try:
-                prev = df.at[idx, '_matched_by'] if '_matched_by' in df.columns else None
-                df.at[idx, '_matched_by'] = f"{prev}|{tidx}" if prev else str(tidx)
-            except Exception:
-                pass
-
-            audit_rows.append({
-                'target_row': int(tidx),
-                'target_desc': desc,
-                'target_pa': pa,
-                'target_codigo_neg': codigo_neg,
-                'target_codigo_neg_norm': codigo_neg_norm,
-                'target_cum': cum,
-                'target_cum_norm': cum_norm,
-                'source_type': 'capita',
-                'source_file': src_file,
-                'source_label': cap_label,
-                'matched_index': int(idx),
-                'match_score': float(s),
-                'match_meta': str(meta),
-                'cantidad_parsed': str(row.get('_cantidad_parsed')),
-                'cantidad_solicitada_parsed': str(row.get('_cantidad_solicitada_parsed')),
-                'clasificacion_row': classif['label']
-            })
-
-        out_row[f'capita_total_{cap_label}'] = str(cap_total_total) if cap_total_total != 0 else ''
-        out_row[f'capita_parcial_{cap_label}'] = str(cap_total_partial) if cap_total_partial != 0 else ''
-        out_row[f'capita_pendiente_{cap_label}'] = str(cap_pending) if cap_pending != 0 else ''
-        total_ent_total += cap_total_total
-        total_ent_partial += cap_total_partial
-        total_pending += cap_pending
-        matched_info[f'capita_{cap_label}'] = matched_indices_cap
-
-    # totales acumulados - SI NO ENCONTRÓ NADA, PONER EXPLÍCITAMENTE 0
-    if total_ent_total == 0 and total_ent_partial == 0 and total_pending == 0:
-        out_row['total_entregado_total'] = '0'
-        out_row['total_entregado_parcial'] = '0'
-        out_row['total_pendiente'] = '0'
-    else:
-        out_row['total_entregado_total'] = str(total_ent_total)
-        out_row['total_entregado_parcial'] = str(total_ent_partial)
-        out_row['total_pendiente'] = str(total_pending)
-    
-    out_row['matched_rows_per_source'] = str(matched_info)
-    out_row['index'] = tidx # Para reordenar después
-
-    return out_row, audit_rows
-
-# ---------------- Operación principal: agregar por archivos (eventos) y opcionalmente Capita ----------------
 MONTHS_MAP = {
     'enero':1,'febrero':2,'marzo':3,'abril':4,'mayo':5,'junio':6,'julio':7,'agosto':8,
     'septiembre':9,'setiembre':9,'octubre':10,'noviembre':11,'diciembre':12,
@@ -759,234 +465,224 @@ def detect_month_from_filename(fname):
         return int(m.group(1)), m.group(1)
     return None, None
 
-def aggregate(event_files, target_df=None, capita_files=None, mode='strict', out_csv='entregas_por_meses_resumen_tipos.csv', audit_csv_prefix=None):
-    """
-    event_files: list of paths (one per month/event)
-    target_df: pandas DataFrame (optional). If None, build targets unique from event+capita union.
-    capita_files: optional list of Capita file paths to also process (aggregated under label 'capita_X' per file)
-    """
-    # preprocess event files
-    month_data = {}
-    for f in event_files:
-        p = Path(f)
-        if not p.exists():
-            logging.warning(f"Archivo no encontrado: {f} -> saltando")
-            continue
-        df_raw = read_csv_robust(p)
-        df, mapping = preprocess_df(df_raw)
-        df = df.reset_index(drop=True)   # Asegurar índices únicos
-        token_idx, idx_by_codigo_neg, idx_by_cum, idx_by_pa = build_token_index(df)
-        month_num, month_key = detect_month_from_filename(p.name)
-        if month_num is None:
-            # usar secuencia incremental con etiqueta filename
-            month_num = 100 + len(month_data) + 1
-            month_key = p.stem
-        month_data[month_num] = {
-            'df': df,
-            'token_index': token_idx,
-            'idx_by_codigo_neg': idx_by_codigo_neg,
-            'idx_by_cum': idx_by_cum,
-            'label': month_key,
-            'file': str(p)
-        }
-        logging.info(f"Preprocesado evento: {p.name} -> label={month_key}, rows={len(df)}")
+def aggregate(event_files, target_df=None, mode='strict', out_csv='entregas_por_meses_resumen_tipos.csv', audit_csv_prefix=None):
 
-    # preprocess capita files if provistas
-    capita_data = {}
-    if capita_files:
-        for f in capita_files:
-            p = Path(f)
-            if not p.exists():
-                logging.warning(f"Capita file not found: {f} -> skipping")
-                continue
-            df_raw = read_csv_robust(p)
-            df, mapping = preprocess_df(df_raw)
-            df = df.reset_index(drop=True)   # Asegurar índices únicos
-            token_idx, idx_by_codigo_neg, idx_by_cum, idx_by_pa = build_token_index(df)
-            label = p.stem
-            capita_data[label] = {
-                'df': df,
-                'token_index': token_idx,
-                'idx_by_codigo_neg': idx_by_codigo_neg,
-                'idx_by_cum': idx_by_cum,
-                'file': str(p)
-            }
-            logging.info(f"Preprocesado Capita: {p.name} rows={len(df)}")
-
-    # if no targets, build from union of event+capita unique name+pa
+    # 1. Prepare Targets
     if target_df is None:
-        uniq = set()
-        for m in list(month_data.values()) + list(capita_data.values()):
-            tmp = m['df'][['_nombre_norm','_pa_norm']].drop_duplicates()
-            for _, r in tmp.iterrows():
-                uniq.add((r['_nombre_norm'], r['_pa_norm']))
-        target_list = [{'DESCRIPCION_DCI': u[0], 'PRINCIPIO_ACTIVO': u[1]} for u in uniq]
+        logging.info("Generando targets dinámicamente (scan de archivos)...")
+        uniq_set = set()
+
+        for f in (event_files or []):
+            try:
+                tmp = read_csv_robust(Path(f))
+                _, m = preprocess_df(tmp) # Just to get column mapping
+                # We need simple normalization for dedupe
+                tmp['_n'] = tmp[m['nombre']].apply(normalize_desc)
+                tmp['_p'] = tmp[m['pa']].apply(normalize_desc)
+                for _, r in tmp.iterrows():
+                    uniq_set.add((r['_n'], r['_p']))
+            except Exception:
+                pass
+        target_list = [{'DESCRIPCION': u[0], 'PRINCIPIO_ACTIVO': u[1]} for u in uniq_set]
         target_df = pd.DataFrame(target_list)
-        logging.info(f"Generados targets automáticos: {len(target_df)}")
-    else:
-        # normalizar column names access
-        if not isinstance(target_df, pd.DataFrame):
-            raise ValueError("target_df debe ser un pandas.DataFrame o None")
-        # PRESERVAR EL ORDEN ORIGINAL del target
-        target_df = target_df.copy()
-        target_df['_original_index'] = range(len(target_df))
 
-    # Preparación para el procesamiento paralelo
-    targets_iter = list(target_df.reset_index(drop=True).iterrows())
-    n_cores = psutil.cpu_count(logical=True)
-    logging.info(f"Usando {n_cores} núcleos para el procesamiento paralelo de targets.")
+    # Pre-process Targets ONE TIME
+    logging.info(f"Preprocesando {len(target_df)} targets...")
+    t_mapping = detect_columns(target_df)
 
-    out_rows = []
+    # Apply normalization to targets
+    target_df['_nombre_norm'] = target_df[t_mapping['nombre']].apply(normalize_desc) if t_mapping['nombre'] else ""
+    target_df['_pa_norm'] = target_df[t_mapping['pa']].apply(normalize_desc) if t_mapping['pa'] else ""
+    target_df['_codigo_neg_norm'] = target_df[t_mapping['codigo_neg']].apply(normalize_key) if t_mapping['codigo_neg'] else ""
+    target_df['_cum_norm'] = target_df[t_mapping['codigo_cum']].apply(normalize_key) if t_mapping['codigo_cum'] else ""
+    target_df['_tokens'] = target_df['_nombre_norm'].apply(tokens_from_text)
+
+    # Build Target Index for fast lookup
+    token_index_targets = {
+        'by_token': defaultdict(list),
+        'by_codigo_neg': defaultdict(list),
+        'by_cum': defaultdict(list),
+        'data': {} # Map idx -> pre-computed data dict
+    }
+
+    for idx, row in target_df.iterrows():
+        token_index_targets['data'][idx] = {
+            'desc_norm': row['_nombre_norm'],
+            'pa_norm': row['_pa_norm'],
+            'codigo_neg': row['_codigo_neg_norm'],
+            'cum': row['_cum_norm'],
+            'tokens': row['_tokens']
+        }
+
+        if row['_codigo_neg_norm']:
+            token_index_targets['by_codigo_neg'][row['_codigo_neg_norm']].append(idx)
+        if row['_cum_norm']:
+            token_index_targets['by_cum'][row['_cum_norm']].append(idx)
+
+        for tk in row['_tokens']:
+            token_index_targets['by_token'][tk].append(idx)
+
+    # Structure to hold results: target_idx -> column_name -> Decimal value
+    # Initialize with all targets
+    agg_results = defaultdict(lambda: defaultdict(Decimal))
+
+    # Audit list
     audit_rows = []
 
-    # IMPORTANTE: Aquí pasamos las configuraciones a la función del worker
-    with ProcessPoolExecutor(max_workers=n_cores) as executor:
-        futures = {
-            executor.submit(process_one_target_worker, tidx, trow, target_df.columns.tolist(), month_data, capita_data, mode, STRICT, RELAXED): tidx
-            for tidx, trow in targets_iter
-        }
-        for future in tqdm(as_completed(futures), total=len(futures), desc="Procesando targets", unit="target"):
-            try:
-                out_row, new_audit_rows = future.result()
-                out_rows.append(out_row)
-                audit_rows.extend(new_audit_rows)
-            except Exception as e:
-                logging.error(f"Error al procesar un target: {e}")
+    # 2. Process Files
+    all_source_files = []
     
-    # Ordenar la lista de diccionarios por el índice original
-    out_rows_sorted = sorted(out_rows, key=lambda r: r.get("index", 0))
+    # Event files
+    for f in (event_files or []):
+        p = Path(f)
+        if not p.exists(): continue
+        mn, label = detect_month_from_filename(p.name)
+        if not label: label = p.stem
+        all_source_files.append({
+            'path': p,
+            'type': 'evento',
+            'label': label,
+            'col_prefix': ''
+        })
 
-    # Crear el DataFrame de pandas a partir de la lista ordenada
-    df_out = pd.DataFrame(out_rows_sorted)
+    # Processing Loop
+    for src_info in all_source_files:
+        p = src_info['path']
+        label = src_info['label']
+        logging.info(f"Procesando archivo: {p.name} ({label})")
 
-    # Verificar si el DataFrame no está vacío y si la columna 'index' existe, y luego eliminarla.
-    if not df_out.empty and 'index' in df_out.columns:
-        df_out = df_out.drop(columns=['index'])
+        df_raw = read_csv_robust(p)
+        df, _ = preprocess_df(df_raw)
+
+        # Parallel Processing of Source Rows
+        n_cores = psutil.cpu_count(logical=True)
+        # Split source into chunks
+        chunk_size = int(np.ceil(len(df) / n_cores)) if len(df) > 0 else 1
+        chunks = [df[i:i + chunk_size] for i in range(0, len(df), chunk_size)]
+
+        file_results = []
+
+        with ProcessPoolExecutor(max_workers=n_cores) as executor:
+            futures = [
+                executor.submit(process_chunk_of_source, chunk, target_df, token_index_targets, mode, STRICT, RELAXED)
+                for chunk in chunks
+            ]
+
+            for future in tqdm(as_completed(futures), total=len(chunks), desc=f"Matching {label}"):
+                try:
+                    res = future.result()
+                    file_results.extend(res)
+                except Exception as e:
+                    logging.error(f"Error en chunk: {e}")
+
+        # Aggregating results for this file
+        count_matched = 0
+        for res in file_results:
+            tidx = res['target_idx']
+            classif = res['classif']
+
+            prefix = src_info['col_prefix']
+
+            # For totals accumulation
+            agg_results[tidx][f'{prefix}total_entregado_total'] += classif['delivered_total']
+            agg_results[tidx][f'{prefix}total_entregado_parcial'] += classif['delivered_partial']
+            agg_results[tidx][f'{prefix}total_pendiente'] += classif['pending']
+
+            col_base = f"{prefix}cantidad"
+
+            agg_results[tidx][f'{col_base}_total_{label}'] += classif['delivered_total']
+            agg_results[tidx][f'{col_base}_parcial_{label}'] += classif['delivered_partial']
+            agg_results[tidx][f'{col_base}_pendiente_{label}'] += classif['pending']
+
+            count_matched += 1
+
+            audit_rows.append({
+                'source_file': p.name,
+                'source_idx': res['source_idx'],
+                'target_idx': tidx,
+                'match_score': res['score'],
+                'match_reasons': str(res['reasons']),
+                'delivered_total': classif['delivered_total'],
+                'delivered_partial': classif['delivered_partial'],
+                'pending': classif['pending'],
+                'label': classif['label']
+            })
+
+        logging.info(f"  > Match rate: {count_matched}/{len(df)} rows assigned.")
+
+    # 3. Build Output DataFrame
+    logging.info("Construyendo reporte final...")
     
-    # Si el target tenía índice original, restaurar el orden exacto
-    if '_original_index' in target_df.columns:
-        df_out = df_out.sort_values('_original_index').drop(columns=['_original_index'])
+    final_rows = []
+    for idx, row in target_df.iterrows():
+        out = row.to_dict()
+        # cleanup internal cols
+        for k in list(out.keys()):
+            if k.startswith('_'): del out[k]
+
+        # Add aggregated data
+        if idx in agg_results:
+            data = agg_results[idx]
+            for k, v in data.items():
+                out[k] = str(v) if v != 0 else ''
+
+        final_rows.append(out)
+
+    df_out = pd.DataFrame(final_rows)
     
-    # guardar outputs
+    # Ensure specific columns exist for total accumulation if not present
+    totals_cols = ['total_entregado_total', 'total_entregado_parcial', 'total_pendiente']
+    for c in totals_cols:
+        if c not in df_out.columns:
+            df_out[c] = '0'
+
+    # Saving
     df_out.to_csv(out_csv, index=False, sep=';', encoding='utf-8-sig')
-    logging.info(f"Guardado resumen principal: {out_csv} | targets: {len(df_out)}")
+    logging.info(f"Guardado resumen: {out_csv}")
 
-    # guardar auditoría
-    if audit_csv_prefix is None:
-        audit_csv_prefix = f"matched_audit_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}"
-    audit_df = pd.DataFrame(audit_rows)
-    audit_path = f"{audit_csv_prefix}.csv"
-    audit_df.to_csv(audit_path, index=False, sep=';', encoding='utf-8-sig')
-    logging.info(f"Guardado audit CSV: {audit_path} | filas auditadas: {len(audit_df)}")
+    if audit_csv_prefix:
+        audit_path = f"{audit_csv_prefix}.csv"
+        pd.DataFrame(audit_rows).to_csv(audit_path, index=False, sep=';', encoding='utf-8-sig')
+        logging.info(f"Guardado auditoría: {audit_path}")
 
-    return df_out, audit_df
+    return df_out, pd.DataFrame(audit_rows)
 
-# ---------------- CLI y ejemplo ----------------
+
 def main(argv=None):
-    """
-    argv: list or None. Si es None, se usan sys.argv (comportamiento normal).
-    Retorna (df_out, audit_df) para poder usarlo desde notebooks.
-    """
-    parser = argparse.ArgumentParser(description="Cruce entregas por medicamento (eventos por mes) y Capita.")
-    parser.add_argument("--targets", help="Ruta a target.csv (opcional). Si no se da, se generan targets desde archivos.", default=None)
-    parser.add_argument("--event_files", nargs='+', help="Archivos evento (uno por mes).", required=False)
-    parser.add_argument("--capita_files", nargs='*', help="Archivos Capita (opcionales).", default=[])
-    parser.add_argument("--out", help="Archivo CSV de salida.", default="entregas_por_meses_resumen_tipos.csv")
-    parser.add_argument("--audit_prefix", help="Prefijo para audit CSV.", default=None)
+    parser = argparse.ArgumentParser(description="Cruce entregas (Row-based Matching).")
+    parser.add_argument("--targets", help="Ruta a target.csv", default=None)
+    parser.add_argument("--event_files", nargs='+', help="Archivos evento", required=False)
+    parser.add_argument("--out", help="Output CSV", default="entregas_por_meses_resumen_tipos.csv")
+    parser.add_argument("--audit_prefix", help="Audit Prefix", default=None)
     parser.add_argument("--mode", choices=['strict','relaxed'], default='strict')
-    parser.add_argument("--tolerance_pct", type=float, default=1.0, help="Tolerancia relativa en porcentaje (default 1%).")
+    parser.add_argument("--tolerance_pct", type=float, default=1.0)
     parser.add_argument("--loglevel", default="INFO")
-    parser.add_argument("--max_candidates", type=int, default=None, help="Máximo candidatos a evaluar por target (usa -1 para sin límite)")
-    parser.add_argument("--token_pool_topk", type=int, default=None, help="Top-K por token (usa -1 para todos)")
 
-    # Si argv fue explícitamente proporcionado (p. ej. desde notebook), úsalo (parse_args obligará los errores).
     if argv is not None:
         parsed = parser.parse_args(argv)
     else:
-        # En entornos tipo notebook/colab preferimos parse_known_args para no morir por SystemExit
-        parsed, unknown = parser.parse_known_args()
+        parsed, _ = parser.parse_known_args()
 
-    # procesar opciones de límite globales (si se pasaron)
-    global MAX_CANDIDATES_EVAL, TOKEN_POOL_TOPK
-    if parsed.max_candidates is not None:
-        if parsed.max_candidates < 0:
-            MAX_CANDIDATES_EVAL = None
-        else:
-            MAX_CANDIDATES_EVAL = int(parsed.max_candidates)
-    if parsed.token_pool_topk is not None:
-        if parsed.token_pool_topk < 0:
-            TOKEN_POOL_TOPK = None
-        else:
-            TOKEN_POOL_TOPK = int(parsed.token_pool_topk)
-
-    # Si no se proporcionaron event_files, intentamos autodetectar archivos comunes en el cwd
     if not parsed.event_files:
         from glob import glob
         candidates = []
         candidates += glob('*evento*.csv') + glob('*Evento*.csv') + glob('*EVENTO*.csv')
         candidates += glob('*abril*.csv') + glob('*mayo*.csv') + glob('*202*.csv')
-        # eliminar duplicados manteniendo orden
         seen = set(); candidates_filtered = []
         for c in candidates:
             if c not in seen:
                 seen.add(c); candidates_filtered.append(c)
-        if candidates_filtered:
-            # informar pero continuar
-            setup_logging(getattr(logging, parsed.loglevel.upper(), logging.INFO))
-            logging.warning(f"No se recibieron --event_files. Autodetectados {len(candidates_filtered)} archivos de evento: {candidates_filtered}")
-            parsed.event_files = candidates_filtered
-        else:
-            # si no hay archivos, fallamos con mensaje claro (no traceback enorme)
-            parser.print_help()
-            logging.error("No se encontraron --event_files ni archivos evento en el directorio actual. Pasa --event_files <archivo1> [archivo2 ...] o coloca archivos '*evento*.csv' en el cwd.")
-            # devolver tupla vacía para notebooks o terminar con código 2 desde terminal
-            if argv is None:
-                sys.exit(2)
-            else:
-                return None, None
+        parsed.event_files = candidates_filtered
 
-    # ahora configurar logging y tolerancia
     setup_logging(getattr(logging, parsed.loglevel.upper(), logging.INFO))
     global TOLERANCE_RELATIVE
     TOLERANCE_RELATIVE = Decimal(str(parsed.tolerance_pct/100))
 
-    # advertencia sobre rapidfuzz
-    if _HAS_RAPIDFUZZ:
-        logging.info("rapidfuzz detectado: se usará para comparaciones difusas (más rápido).")
-    else:
-        logging.warning("rapidfuzz NO detectado: se usará difflib.SequenceMatcher (más lento). Recomiendo 'pip install rapidfuzz'.")
-
-    # leer targets si se pasó
     target_df = None
     if parsed.targets:
-        tpath = Path(parsed.targets)
-        if not tpath.exists():
-            logging.error(f"Targets file not found: {parsed.targets}")
-            if argv is None:
-                sys.exit(1)
-            else:
-                raise FileNotFoundError(parsed.targets)
-        target_df = read_csv_robust(tpath)
-        logging.info(f"Leido target.csv: {len(target_df)} filas. Se preservará su orden/columnas.")
+        target_df = read_csv_robust(Path(parsed.targets))
 
-    # Ejecutar la agregación principal
-    logging.info("Iniciando agregación. Archivos evento: %s | Capita: %s", parsed.event_files, parsed.capita_files)
-    if MAX_CANDIDATES_EVAL is None:
-        logging.info("MAX_CANDIDATES_EVAL = None -> evaluando TODOS los candidatos (puede ser muy costoso).")
-    else:
-        logging.info("MAX_CANDIDATES_EVAL = %s", MAX_CANDIDATES_EVAL)
-    if TOKEN_POOL_TOPK is None:
-        logging.info("TOKEN_POOL_TOPK = None -> usando todos los candidatos encontrados por token.")
-    else:
-        logging.info("TOKEN_POOL_TOPK = %s", TOKEN_POOL_TOPK)
-
-    df_out, audit_df = aggregate(parsed.event_files, target_df=target_df, capita_files=parsed.capita_files, mode=parsed.mode, out_csv=parsed.out, audit_csv_prefix=parsed.audit_prefix)
-
-    logging.info("Proceso finalizado.")
-    print(df_out.head(10).to_string(index=False))
-    print(f"Resumen guardado en: {parsed.out} | Auditoría: {len(audit_df)} filas")
-
-    return df_out, audit_df
+    aggregate(parsed.event_files, target_df, parsed.mode, parsed.out, parsed.audit_prefix)
 
 if __name__ == "__main__":
     main()
