@@ -141,45 +141,37 @@ def tokens_from_text(s, min_len=2):
 _THOUSANDS_CHARS_RE = re.compile(r"[\'\s\u00A0\u202F\u2007\u2009]")
 _CURRENCY_CHARS_RE = re.compile(r'[^\d\.,\-\(\)eE]')
 def parse_decimal(val):
+    """
+    Parses decimal numbers assuming Colombian/LatAm format:
+    - Thousands separator: '.' (dot)
+    - Decimal separator: ',' (comma)
+    """
     if val is None or (isinstance(val, float) and np.isnan(val)): return None
     s = str(val).strip()
     if s == "": return None
+
     negative = False
     if s.startswith('(') and s.endswith(')'):
         negative = True; s = s[1:-1].strip()
-    s = _THOUSANDS_CHARS_RE.sub('', s)
-    s = _CURRENCY_CHARS_RE.sub('', s)
     if s.count('-') > 0:
         s = s.replace('-', ''); negative = True
+
+    s = _THOUSANDS_CHARS_RE.sub('', s)
+    s = _CURRENCY_CHARS_RE.sub('', s)
     if s == "": return None
+
     try:
-        if re.search(r'[eE]', s):
-            d = Decimal(s)
-        else:
-            last_dot = s.rfind('.'); last_comma = s.rfind(',')
-            if last_dot != -1 and last_comma != -1:
-                if last_comma > last_dot:
-                    s2 = s.replace('.', '').replace(',', '.')
-                else:
-                    s2 = s.replace(',', '')
-            elif last_comma != -1:
-                parts = s.split(',')
-                if len(parts[-1]) == 3 and all(len(p) <= 3 for p in parts[:-1]):
-                    s2 = ''.join(parts)
-                else:
-                    s2 = s.replace(',', '.')
-            else:
-                s2 = s
-            if s2.count('.') > 1:
-                parts = s2.split('.'); decimal_part = parts[-1]; int_part = ''.join(parts[:-1])
-                s2 = int_part + '.' + decimal_part
-            d = Decimal(s2)
+        # Strategy: Remove thousands (dot), replace decimal (comma) with dot
+        s2 = s.replace('.', '')
+        s2 = s2.replace(',', '.')
+        d = Decimal(s2)
         return -d if negative else d
     except Exception:
+        # Fallback to float conversion if something weird happens
         try:
-            return Decimal(str(float(s.replace(',','.'))))
+             return Decimal(str(float(s.replace(',','.'))))
         except Exception:
-            return None
+             return None
 
 def jaccard_similarity(a_tokens, b_tokens):
     a = set(a_tokens); b = set(b_tokens)
@@ -254,16 +246,8 @@ def classify_and_accumulate_row(row, tol=TOLERANCE_RELATIVE):
 
     # textual priority
     if 'total' in tipo or 'complet' in tipo or 'entrega completa' in tipo:
-        if requested is not None:
-            if delivered is None:
-                delivered_total = requested
-            else:
-                if requested != 0 and (abs(delivered - requested) / (requested if requested!=0 else Decimal('1'))) <= tol:
-                    delivered_total = delivered
-                else:
-                    delivered_total = delivered
-        else:
-            delivered_total = delivered if delivered is not None else Decimal('0')
+        # STRICT mode: only use delivered. No imputation from requested.
+        delivered_total = delivered if delivered is not None else Decimal('0')
         label = 'total'
     elif 'parcial' in tipo or 'parci' in tipo:
         if delivered is not None:
