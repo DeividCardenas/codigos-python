@@ -77,6 +77,25 @@ PRESENTATION_TERMS = {
     'supositorio','ovulo','ampolleta','spray','unidad','unidades'
 }
 
+# Lista de laboratorios para limpieza de nombres
+LABORATORIES = {
+    'TECNOQUIMICAS', 'SIEGFRIED', 'FARMACAPSULAS', 'SANOFI AVENTIS', 'SANOFI', 'GRUNENTHAL',
+    'LAPROFF', 'PROCAPS', 'NOVAMED', 'WINTHROP', 'ASTRA ZENECA', 'TECNOFARMA', 'COLMED',
+    'ECAR', 'LASANTE', 'GENFAR', 'AG', 'PFIZER', 'GSK', 'GLAXOSMITHKLINE', 'NOVARTIS',
+    'ROCHE', 'ABBOTT', 'BAYER', 'MERCK', 'BOEHRINGER', 'JANSSEN', 'MSD', 'LILLY',
+    'BRISTOL', 'AMGEN', 'GINEF', 'MEMPHIS', 'COASPHARMA', 'AMERICAN GENERICS', 'HUMAX',
+    'VITALIS', 'BLAU', 'BAXTER', 'B BRAUN', 'BIOSIDUS', 'MK', 'LA SANTE', 'LAFRANCOL',
+    'BIOCHEM', 'ANGLOPHARMA', 'ESPECIALIDADES FARMACEUTICAS', 'JGB', 'QUIMIDROGAS',
+    'PHARMACIDER', 'HOSPIMEDIKS', 'FRESENIUS', 'KABI', 'ITALCHEM', 'BEST', 'AMERICAN',
+    'ANGLO', 'PHARMA', 'CORPAUL'
+}
+
+# Pre-compile regex for laboratories to improve performance
+# Sort labs by length descending to match "SANOFI AVENTIS" before "SANOFI"
+SORTED_LABS = sorted(list(LABORATORIES), key=len, reverse=True)
+# Create a single regex pattern: \b(LAB1|LAB2|...)\b
+LABS_PATTERN = re.compile(r'\b(' + '|'.join(map(re.escape, SORTED_LABS)) + r')\b', re.IGNORECASE)
+
 # tolerancia relativa para considerar entregado == solicitado (por defecto 1%)
 TOLERANCE_RELATIVE = Decimal('0.01')
 
@@ -109,8 +128,29 @@ def normalize_key(s):
     s = re.sub(r'[^A-Z0-9]', '', s)
     return s
 
+def clean_labs_and_extra_info(s):
+    if pd.isna(s): return ""
+    s_upper = str(s).upper()
+
+    # 1. Split by pipe | and take the first part
+    if '|' in s_upper:
+        s_upper = s_upper.split('|')[0]
+
+    # 2. Remove labs using compiled regex
+    s_clean = LABS_PATTERN.sub('', s_upper)
+
+    # 3. Also remove any dangling " | " or double spaces created
+    s_clean = re.sub(r'\s+', ' ', s_clean).strip()
+
+    return s_clean
+
 def normalize_desc(s):
     if pd.isna(s): return ""
+
+    # Custom cleaning first
+    s = clean_labs_and_extra_info(s)
+
+    # Standard normalization
     s = str(s).strip().lower()
     s = re.sub(r"[\s\W]+", " ", s)
     return s.strip()
