@@ -536,6 +536,14 @@ def aggregate(event_files, target_df=None, mode='strict', out_csv='entregas_por_
         logging.info(f"Procesando archivo: {p.name} ({label})")
 
         df_raw = read_csv_robust(p)
+
+        # DEDUPLICATION: Drop duplicate rows from source to prevent counting the same delivery twice
+        initial_len = len(df_raw)
+        df_raw = df_raw.drop_duplicates()
+        dedup_len = len(df_raw)
+        if initial_len != dedup_len:
+            logging.warning(f"Eliminadas {initial_len - dedup_len} filas duplicadas en {p.name}")
+
         df, _ = preprocess_df(df_raw)
 
         # Parallel Processing of Source Rows
