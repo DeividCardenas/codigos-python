@@ -470,6 +470,20 @@ def aggregate(event_files, target_df=None, mode='strict', out_csv='entregas_por_
         target_list = [{'DESCRIPCION': u[0], 'PRINCIPIO_ACTIVO': u[1]} for u in uniq_set]
         target_df = pd.DataFrame(target_list)
 
+    # CLEANING: Remove quotes and duplicates from Targets
+    # This addresses "redundancia" and "comillas" issues.
+    if target_df is not None:
+        # 1. Remove quotes from string columns
+        for col in target_df.select_dtypes(include=['object', 'string']).columns:
+            target_df[col] = target_df[col].astype(str).str.replace('"', '', regex=False).str.replace("'", "", regex=False)
+
+        # 2. Deduplicate
+        len_before = len(target_df)
+        target_df = target_df.drop_duplicates()
+        len_after = len(target_df)
+        if len_before != len_after:
+            logging.info(f"Targets deduplicados: {len_before} -> {len_after} (eliminados {len_before - len_after})")
+
     # Pre-process Targets ONE TIME
     logging.info(f"Preprocesando {len(target_df)} targets...")
     t_mapping = detect_columns(target_df)
