@@ -68,6 +68,47 @@ PRESENTATION_TERMS = {
     'supositorio','ovulo','ampolleta','spray','unidad','unidades'
 }
 
+# Diccionario de abreviaturas farmacéuticas para normalización
+PHARMA_ABBREVIATIONS = {
+    'TAB': 'TABLETA', 'TABS': 'TABLETAS', 'TB': 'TABLETA',
+    'CAP': 'CAPSULA', 'CAPS': 'CAPSULAS', 'CP': 'CAPSULA',
+    'COMP': 'COMPRIMIDO', 'COM': 'COMPRIMIDO',
+    'JBE': 'JARABE', 'JRB': 'JARABE',
+    'SUSP': 'SUSPENSION', 'SUS': 'SUSPENSION',
+    'SOL': 'SOLUCION', 'SLN': 'SOLUCION',
+    'INY': 'INYECTABLE', 'INYEC': 'INYECTABLE',
+    'AMP': 'AMPOLLA', 'AMPO': 'AMPOLLA',
+    'GTS': 'GOTAS', 'GOTA': 'GOTAS',
+    'UNG': 'UNGUENTO', 'UNGU': 'UNGUENTO', 'POM': 'POMADA',
+    'CRM': 'CREMA', 'CREM': 'CREMA',
+    'VIL': 'VIAL',
+    'GRAG': 'GRAGEA', 'GRAGEAS': 'GRAGEAS',
+    'ELIX': 'ELIXIR',
+    'EMUL': 'EMULSION',
+    'SUP': 'SUPOSITORIO',
+    'OV': 'OVULO',
+    'AER': 'AEROSOL',
+    'INH': 'INHALADOR',
+    'SOB': 'SOBRE',
+    'POL': 'POLVO', 'PLV': 'POLVO',
+    'LIQ': 'LIQUIDO',
+    'GEL': 'GEL',
+    'LOC': 'LOCION',
+    'TOP': 'TOPICO',
+    'COL': 'COLIRIO',
+    'VAG': 'VAGINAL',
+    'OFT': 'OFTALMICO',
+    'NAS': 'NASAL',
+    'IM': 'INTRAMUSCULAR',
+    'IV': 'INTRAVENOSA',
+    'SC': 'SUBCUTANEA',
+    'MCG': 'MCG', # Mantener unidades estándar
+    'MG': 'MG',
+    'G': 'G',
+    'ML': 'ML',
+    'UI': 'UI'
+}
+
 LABORATORIES = {
     'TECNOQUIMICAS', 'SIEGFRIED', 'FARMACAPSULAS', 'SANOFI AVENTIS', 'SANOFI', 'GRUNENTHAL',
     'LAPROFF', 'PROCAPS', 'NOVAMED', 'WINTHROP', 'ASTRA ZENECA', 'TECNOFARMA', 'COLMED',
@@ -140,9 +181,46 @@ def clean_labs_and_extra_info(s):
     s_clean = re.sub(r'\s+', ' ', s_clean).strip()
     return s_clean
 
+def expand_abbreviations_and_units(text):
+    """
+    1. Separates numbers from letters (e.g. '500MG' -> '500 MG').
+    2. Expands abbreviations (e.g. 'TAB' -> 'TABLETA').
+    """
+    if not text: return ""
+
+    # 1. Separate numbers from letters
+    # (\d)([a-zA-Z]) -> \1 \2  (e.g. 500MG -> 500 MG)
+    # ([a-zA-Z])(\d) -> \1 \2  (e.g. MG500 -> MG 500)
+    text = re.sub(r'(\d)([a-zA-Z])', r'\1 \2', text)
+    text = re.sub(r'([a-zA-Z])(\d)', r'\1 \2', text)
+
+    # 2. Tokenize and expand
+    tokens = text.split()
+    expanded_tokens = []
+    for t in tokens:
+        # Check if token (upper) is in abbreviations
+        # Handle punctuation attached to token? Ideally we strip it first.
+        # But split() leaves punctuation. 'clean_labs' kept punctuation.
+        # Let's clean punctuation first inside normalize_desc or here.
+        # We assume input 'text' is upper from clean_labs.
+        t_clean = re.sub(r'[^A-Z0-9]', '', t)
+        if t_clean in PHARMA_ABBREVIATIONS:
+            expanded_tokens.append(PHARMA_ABBREVIATIONS[t_clean])
+        else:
+            expanded_tokens.append(t)
+
+    return " ".join(expanded_tokens)
+
 def normalize_desc(s):
     if pd.isna(s): return ""
-    s = clean_labs_and_extra_info(s)
+
+    # 1. Clean Labs and structural noise
+    s = clean_labs_and_extra_info(s) # Returns UPPER
+
+    # 2. Advanced Normalization (Units & Abbrevs)
+    s = expand_abbreviations_and_units(s)
+
+    # 3. Final cleaning (lowercase, remove non-alphanum)
     s = str(s).strip().lower()
     s = re.sub(r"[\s\W]+", " ", s)
     return s.strip()
