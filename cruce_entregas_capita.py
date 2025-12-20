@@ -481,7 +481,7 @@ def aggregate(event_files, target_df=None, mode='strict', out_csv='entregas_por_
 
     # 2. Process Files
     all_source_files = []
-    
+
     # Event files
     for f in (event_files or []):
         p = Path(f)
@@ -528,38 +528,63 @@ def aggregate(event_files, target_df=None, mode='strict', out_csv='entregas_por_
 
         # Aggregating results for this file
         count_matched = 0
+
+        # New structure for unmatched
+        unmatched_buffer = []
+
         for res in file_results:
             tidx = res['target_idx']
             classif = res['classif']
 
-            prefix = src_info['col_prefix']
+            if tidx is not None:
+                # MATCHED
+                prefix = src_info['col_prefix']
 
-            # For totals accumulation
-            agg_results[tidx][f'{prefix}total_entregado_total'] += classif['delivered_total']
-            agg_results[tidx][f'{prefix}total_entregado_parcial'] += classif['delivered_partial']
-            agg_results[tidx][f'{prefix}total_pendiente'] += classif['pending']
+                # For totals accumulation
+                agg_results[tidx][f'{prefix}total_entregado_total'] += classif['delivered_total']
+                agg_results[tidx][f'{prefix}total_entregado_parcial'] += classif['delivered_partial']
+                agg_results[tidx][f'{prefix}total_pendiente'] += classif['pending']
 
-            col_base = f"{prefix}cantidad"
+                col_base = f"{prefix}cantidad"
 
-            agg_results[tidx][f'{col_base}_total_{label}'] += classif['delivered_total']
-            agg_results[tidx][f'{col_base}_parcial_{label}'] += classif['delivered_partial']
-            agg_results[tidx][f'{col_base}_pendiente_{label}'] += classif['pending']
+                agg_results[tidx][f'{col_base}_total_{label}'] += classif['delivered_total']
+                agg_results[tidx][f'{col_base}_parcial_{label}'] += classif['delivered_partial']
+                agg_results[tidx][f'{col_base}_pendiente_{label}'] += classif['pending']
 
-            count_matched += 1
+                count_matched += 1
 
-            audit_rows.append({
-                'source_file': p.name,
-                'source_idx': res['source_idx'],
-                'target_idx': tidx,
-                'match_score': res['score'],
-                'match_reasons': str(res['reasons']),
-                'delivered_total': classif['delivered_total'],
-                'delivered_partial': classif['delivered_partial'],
-                'pending': classif['pending'],
-                'label': classif['label']
-            })
+                audit_rows.append({
+                    'source_file': p.name,
+                    'source_idx': res['source_idx'],
+                    'target_idx': tidx,
+                    'match_score': res['score'],
+                    'match_reasons': str(res['reasons']),
+                    'delivered_total': classif['delivered_total'],
+                    'delivered_partial': classif['delivered_partial'],
+                    'pending': classif['pending'],
+                    'label': classif['label']
+                })
+            else:
+                # UNMATCHED
+                # We need to collect these to report later
+                # We'll store a simple dict with file, index, and the quantity delivered
+                unmatched_buffer.append({
+                    'FILE': p.name,
+                    'ORIGINAL_INDEX': res['source_idx'],
+                    'DESCRIPCION': df.loc[res['source_idx'], '_nombre_norm'], # Normalized name for grouping
+                    'RAW_DESC': df.loc[res['source_idx']].get(mapping['nombre'], ''), # Original name
+                    'CANTIDAD': classif['delivered_total']
+                })
 
-        logging.info(f"  > Match rate: {count_matched}/{len(df)} rows assigned.")
+        logging.info(f"  > Match rate: {count_matched}/{len(df)} rows assigned. ({len(unmatched_buffer)} unmatched)")
+
+        # Aggregate unmatched by normalized description for this file/chunk
+        # Note: We append to a global unmatched list, or better, keep raw and aggregate at the end
+        audit_rows.extend(unmatched_buffer) # Reuse audit rows? No, separate list requested.
+
+        # Let's save unmatched rows to a separate list to aggregate at the end
+        if 'unmatched_rows' not in locals(): unmatched_rows = []
+        unmatched_rows.extend(unmatched_buffer)
 
     # 3. Build Output DataFrame
     logging.info("Construyendo reporte final...")
@@ -614,8 +639,29 @@ def aggregate(event_files, target_df=None, mode='strict', out_csv='entregas_por_
 
     if audit_csv_prefix:
         audit_path = f"{audit_csv_prefix}.csv"
+        # Filter audit rows to only include relevant fields for CSV
+        # (Audit rows now contains mixed data if we extended it, but we didn't extend it with unmatched yet in this block)
         pd.DataFrame(audit_rows).to_csv(audit_path, index=False, sep=';', encoding='utf-8-sig')
         logging.info(f"Guardado auditoría: {audit_path}")
+
+    # Generate Unmatched Report
+    if 'unmatched_rows' in locals() and unmatched_rows:
+        logging.info(f"Generando reporte de no encontrados ({len(unmatched_rows)} filas)...")
+        df_unmatched = pd.DataFrame(unmatched_rows)
+        # Aggregate by Description
+        # We sum CANTIDAD
+        df_unmatched_agg = df_unmatched.groupby('DESCRIPCION').agg({
+            'CANTIDAD': 'sum',
+            'RAW_DESC': 'first', # Keep one example
+            'FILE': 'count' # Count occurrences
+        }).reset_index().rename(columns={'FILE': 'NUM_REGISTROS', 'CANTIDAD': 'TOTAL_CANTIDAD'})
+
+        # Sort by total quantity descending
+        df_unmatched_agg = df_unmatched_agg.sort_values(by='TOTAL_CANTIDAD', ascending=False)
+
+        unmatched_path = f"no_encontrados_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+        df_unmatched_agg.to_csv(unmatched_path, index=False, sep=';', encoding='utf-8-sig')
+        logging.info(f"Guardado reporte no encontrados: {unmatched_path}")
 
     return df_out, pd.DataFrame(audit_rows)
 
