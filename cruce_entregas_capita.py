@@ -646,11 +646,16 @@ def aggregate(event_files, target_df=None, mode='strict', out_csv='entregas_por_
                 # UNMATCHED
                 # We need to collect these to report later
                 # We'll store a simple dict with file, index, and the quantity delivered
+
+                # Fetch optional source code if available for report
+                src_code_neg = df.loc[res['source_idx']].get(mapping['codigo_neg'], '')
+
                 unmatched_buffer.append({
                     'FILE': p.name,
                     'ORIGINAL_INDEX': res['source_idx'],
                     'DESCRIPCION': df.loc[res['source_idx'], '_nombre_norm'], # Normalized name for grouping
                     'RAW_DESC': df.loc[res['source_idx']].get(mapping['nombre'], ''), # Original name
+                    'CODIGO_NEGOCIADO_EVENTO': src_code_neg,
                     'CANTIDAD': classif['delivered_total']
                 })
 
@@ -726,9 +731,9 @@ def aggregate(event_files, target_df=None, mode='strict', out_csv='entregas_por_
     if 'unmatched_rows' in locals() and unmatched_rows:
         logging.info(f"Generando reporte de no encontrados ({len(unmatched_rows)} filas)...")
         df_unmatched = pd.DataFrame(unmatched_rows)
-        # Aggregate by Description
+        # Aggregate by Description and Code
         # We sum CANTIDAD
-        df_unmatched_agg = df_unmatched.groupby('DESCRIPCION').agg({
+        df_unmatched_agg = df_unmatched.groupby(['DESCRIPCION', 'CODIGO_NEGOCIADO_EVENTO']).agg({
             'CANTIDAD': 'sum',
             'RAW_DESC': 'first', # Keep one example
             'FILE': 'count' # Count occurrences
