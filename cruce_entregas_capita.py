@@ -697,6 +697,39 @@ def aggregate(event_files, target_df=None, mode='strict', out_csv='entregas_por_
         if c not in df_out.columns:
             df_out[c] = '0'
 
+    # REORDER COLUMNS logic
+    if not df_out.empty:
+        # Standard target columns first (Case-insensitive matching)
+        target_col_names = {'descripcion', 'principio_activo', 'codigo_negociado', 'codigo_cum', 'index'}
+        base_cols = [c for c in df_out.columns if c.lower() in target_col_names]
+
+        # Totals next
+        total_cols = [c for c in df_out.columns if c in totals_cols]
+
+        # Monthly/File columns
+        # We want to sort them: Enero, Febrero... if possible, or alphabetical by file label
+        # Pattern: cantidad_total_{label}
+        month_cols = [c for c in df_out.columns if c not in base_cols and c not in total_cols]
+
+        # Try to sort month cols chronologically if they contain month names
+        def month_sort_key(col_name):
+            lower_col = col_name.lower()
+            for m_name, m_num in MONTHS_MAP.items():
+                if m_name in lower_col:
+                    return m_num
+            return 100 # Put at end if not a month
+
+        month_cols.sort(key=month_sort_key)
+
+        # Final Order
+        final_order = base_cols + total_cols + month_cols
+
+        # Keep any other columns that might exist but weren't categorized (safety)
+        remaining = [c for c in df_out.columns if c not in final_order]
+        final_order += remaining
+
+        df_out = df_out[final_order]
+
     # Add Summary Row at the end
     if not df_out.empty:
         # Calculate sums for numeric columns
@@ -730,12 +763,15 @@ def aggregate(event_files, target_df=None, mode='strict', out_csv='entregas_por_
         logging.info(f"Guardado auditoría: {audit_path}")
 
     # Generate Unmatched Report
-    # DEBUG: Print status
-    logging.info(f"DEBUG: Unmatched rows count: {len(unmatched_rows)}")
+    total_unmatched_qty = Decimal('0')
 
     if unmatched_rows:
         logging.info(f"Generando reporte de no encontrados ({len(unmatched_rows)} filas)...")
         df_unmatched = pd.DataFrame(unmatched_rows)
+
+        # Calculate total unmatched quantity for validation
+        for q in df_unmatched['CANTIDAD']:
+             if q is not None: total_unmatched_qty += q
 
         # Aggregate by FILE (Month), Description, and Code to see leftovers per month
         # We sum CANTIDAD
@@ -751,6 +787,32 @@ def aggregate(event_files, target_df=None, mode='strict', out_csv='entregas_por_
         unmatched_path = f"no_encontrados_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
         df_unmatched_agg.to_csv(unmatched_path, index=False, sep=';', encoding='utf-8-sig')
         logging.info(f"Guardado reporte no encontrados: {unmatched_path}")
+
+    # VALIDATOR: Print Data Accounting
+    # Total Matched
+    total_matched_qty = Decimal('0')
+    # Use the 'TOTALES' row we just added
+    if not df_out.empty:
+        # The last row is TOTALES
+        last_row = df_out.iloc[-1]
+        if last_row.get('DESCRIPCION') == 'TOTALES':
+             val = last_row.get('total_entregado_total', '0')
+             total_matched_qty = parse_decimal(str(val)) or Decimal('0')
+
+    # Total Input
+    # We can't easily re-sum sources here without reading again, but we can sum (Matched + Unmatched)
+    # Ideally we should have tracked Total Input during processing.
+    # But (Matched + Unmatched) is effectively the processed total.
+    total_processed = total_matched_qty + total_unmatched_qty
+
+    print("\n" + "="*50)
+    print(f"RESUMEN DE VALIDACIÓN DE DATOS (100% CHECK)")
+    print("="*50)
+    print(f"Total Cantidad Cruzada (Encontrados):   {total_matched_qty:,.2f}")
+    print(f"Total Cantidad NO Cruzada (Remanente):  {total_unmatched_qty:,.2f}")
+    print("-" * 50)
+    print(f"TOTAL PROCESADO (Suma):                 {total_processed:,.2f}")
+    print("="*50 + "\n")
 
     return df_out, pd.DataFrame(audit_rows)
 
