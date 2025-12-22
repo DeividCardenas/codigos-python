@@ -466,15 +466,15 @@ def process_chunk_of_source(chunk_df, targets_df, token_index_targets, mode, str
              if best_score >= relaxed_cfg['MIN_ACCEPT_SCORE']:
                  assigned = best_tidx
 
-        if assigned is not None:
-            classif = classify_and_accumulate_row(row)
-            results.append({
-                'source_idx': idx,
-                'target_idx': assigned,
-                'score': best_score,
-                'reasons': best_reasons,
-                'classif': classif
-            })
+        # Always return result, matched or not
+        classif = classify_and_accumulate_row(row)
+        results.append({
+            'source_idx': idx,
+            'target_idx': assigned, # None if unmatched
+            'score': best_score,
+            'reasons': best_reasons,
+            'classif': classif
+        })
     return results
 
 # ---------------- Main Aggregation Logic ----------------
@@ -557,6 +557,9 @@ def aggregate(event_files, target_df=None, mode='strict', out_csv='entregas_por_
     # Audit list
     audit_rows = []
 
+    # Unmatched list
+    unmatched_rows = []
+
     # 2. Process Files
     all_source_files = []
 
@@ -581,7 +584,7 @@ def aggregate(event_files, target_df=None, mode='strict', out_csv='entregas_por_
 
         df_raw = read_csv_robust(p)
         # NOTE: Do NOT drop duplicates from source. User confirmed repeated rows represent distinct dispensations.
-        df, _ = preprocess_df(df_raw)
+        df, mapping = preprocess_df(df_raw)
 
         # Parallel Processing of Source Rows
         n_cores = psutil.cpu_count(logical=True)
@@ -646,11 +649,16 @@ def aggregate(event_files, target_df=None, mode='strict', out_csv='entregas_por_
                 # UNMATCHED
                 # We need to collect these to report later
                 # We'll store a simple dict with file, index, and the quantity delivered
+
+                # Fetch optional source code if available for report
+                src_code_neg = df.loc[res['source_idx']].get(mapping['codigo_neg'], '')
+
                 unmatched_buffer.append({
                     'FILE': p.name,
                     'ORIGINAL_INDEX': res['source_idx'],
                     'DESCRIPCION': df.loc[res['source_idx'], '_nombre_norm'], # Normalized name for grouping
                     'RAW_DESC': df.loc[res['source_idx']].get(mapping['nombre'], ''), # Original name
+                    'CODIGO_NEGOCIADO_EVENTO': src_code_neg,
                     'CANTIDAD': classif['delivered_total']
                 })
 
@@ -661,7 +669,6 @@ def aggregate(event_files, target_df=None, mode='strict', out_csv='entregas_por_
         audit_rows.extend(unmatched_buffer) # Reuse audit rows? No, separate list requested.
 
         # Let's save unmatched rows to a separate list to aggregate at the end
-        if 'unmatched_rows' not in locals(): unmatched_rows = []
         unmatched_rows.extend(unmatched_buffer)
 
     # 3. Build Output DataFrame
@@ -683,7 +690,7 @@ def aggregate(event_files, target_df=None, mode='strict', out_csv='entregas_por_
         final_rows.append(out)
 
     df_out = pd.DataFrame(final_rows)
-    
+
     # Ensure specific columns exist for total accumulation if not present
     totals_cols = ['total_entregado_total', 'total_entregado_parcial', 'total_pendiente']
     for c in totals_cols:
@@ -723,19 +730,23 @@ def aggregate(event_files, target_df=None, mode='strict', out_csv='entregas_por_
         logging.info(f"Guardado auditoría: {audit_path}")
 
     # Generate Unmatched Report
-    if 'unmatched_rows' in locals() and unmatched_rows:
+    # DEBUG: Print status
+    logging.info(f"DEBUG: Unmatched rows count: {len(unmatched_rows)}")
+
+    if unmatched_rows:
         logging.info(f"Generando reporte de no encontrados ({len(unmatched_rows)} filas)...")
         df_unmatched = pd.DataFrame(unmatched_rows)
-        # Aggregate by Description
+
+        # Aggregate by FILE (Month), Description, and Code to see leftovers per month
         # We sum CANTIDAD
-        df_unmatched_agg = df_unmatched.groupby('DESCRIPCION').agg({
+        df_unmatched_agg = df_unmatched.groupby(['FILE', 'DESCRIPCION', 'CODIGO_NEGOCIADO_EVENTO']).agg({
             'CANTIDAD': 'sum',
             'RAW_DESC': 'first', # Keep one example
-            'FILE': 'count' # Count occurrences
-        }).reset_index().rename(columns={'FILE': 'NUM_REGISTROS', 'CANTIDAD': 'TOTAL_CANTIDAD'})
+            'ORIGINAL_INDEX': 'count' # Count occurrences
+        }).reset_index().rename(columns={'ORIGINAL_INDEX': 'NUM_REGISTROS', 'CANTIDAD': 'TOTAL_CANTIDAD'})
 
-        # Sort by total quantity descending
-        df_unmatched_agg = df_unmatched_agg.sort_values(by='TOTAL_CANTIDAD', ascending=False)
+        # Sort by File and then Quantity
+        df_unmatched_agg = df_unmatched_agg.sort_values(by=['FILE', 'TOTAL_CANTIDAD'], ascending=[True, False])
 
         unmatched_path = f"no_encontrados_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
         df_unmatched_agg.to_csv(unmatched_path, index=False, sep=';', encoding='utf-8-sig')
