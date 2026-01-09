@@ -18,9 +18,7 @@ from collections import Counter, defaultdict
 import pandas as pd 
 import numpy as np 
 import datetime
-import psutil 
 import unicodedata
-from concurrent.futures import ProcessPoolExecutor, as_completed
 from tqdm import tqdm
 
 # Intentar importar librerías avanzadas
@@ -337,12 +335,13 @@ class SmartMatcher:
              return results
 
         # Re-ranking normal para candidatos TF-IDF
-        for local_idx in unmatched_indices:
+        for i, local_idx in enumerate(unmatched_indices):
             candidates = candidates_map.get(local_idx, [])
             if not candidates:
                 continue
 
-            clean_desc = clean_descs_unmatched[unmatched_indices.index(local_idx)] # Un poco ineficiente lookup, optimizable
+            # Acceso directo por índice en lugar de .index()
+            clean_desc = clean_descs_unmatched[i]
             src_feats = extract_features(clean_desc)
 
             best_score = 0.0
