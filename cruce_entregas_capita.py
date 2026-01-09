@@ -450,7 +450,11 @@ def main():
     parser = argparse.ArgumentParser(description="Cruce Farmacéutico Avanzado")
     parser.add_argument("--targets", default="Targets.csv", help="Archivo maestro de productos")
     parser.add_argument("--files", nargs='+', help="Archivos de movimiento (meses)")
+    parser.add_argument("--batch_size", type=int, default=5000, help="Tamaño del lote de procesamiento")
     args = parser.parse_args()
+
+    global BATCH_SIZE
+    BATCH_SIZE = args.batch_size
 
     # 1. Cargar Targets
     target_path = Path(args.targets)
