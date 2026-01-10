@@ -54,12 +54,12 @@ SEPS = [';', ',', '\t', '|']
 PHARMA_ABBREVIATIONS = {
     'TAB': 'TABLETA', 'TABS': 'TABLETAS', 'TB': 'TABLETA', 'COM': 'TABLETA', 'COMP': 'TABLETA',
     'CAP': 'CAPSULA', 'CAPS': 'CAPSULAS', 'CP': 'CAPSULA',
-    'JBE': 'JARABE', 'JRB': 'JARABE', 'SYR': 'JARABE',
+    'JBE': 'SOLUCION', 'JRB': 'SOLUCION', 'SYR': 'SOLUCION', # Jarabe -> Solucion
     'SUSP': 'SUSPENSION', 'SUS': 'SUSPENSION',
     'SOL': 'SOLUCION', 'SLN': 'SOLUCION', 'LIQ': 'LIQUIDO',
     'INY': 'INYECTABLE', 'INYEC': 'INYECTABLE',
     'AMP': 'AMPOLLA', 'AMPO': 'AMPOLLA', 'VIA': 'VIAL',
-    'GTS': 'GOTAS', 'GOTA': 'GOTAS',
+    'GTS': 'SOLUCION', 'GOTA': 'SOLUCION', 'GOTAS': 'SOLUCION', # Gotas -> Solucion
     'UNG': 'UNGUENTO', 'POM': 'POMADA', 'CRM': 'CREMA', 'CREM': 'CREMA',
     'SUP': 'SUPOSITORIO', 'OV': 'OVULO',
     'INH': 'INHALADOR', 'AER': 'AEROSOL', 'PFF': 'PUFF',
@@ -130,15 +130,39 @@ def extract_features(text):
     - Set de números (dosis).
     - Set de unidades/tokens clave.
     """
-    # Buscar números (enteros o decimales)
     nums = set()
-    matches = re.findall(r'\b\d+(?:[\.,]\d+)?\b', text)
+
+    # Solo buscar números asociados a unidades de potencia/concentración
+    # Regex: numero seguido (opcionalmente con espacio) de unidad
+    # Unidades: MG, MCG, G, UI, IU, %, GR (evitar ML si no es parte de algo mas complejo, pero aqui simplificamos)
+    # Tambien extraemos numeros sueltos SI el texto es muy corto? No.
+
+    # Patrones específicos
+    # 1. X MG/ML o X %
+    # 2. X MG
+    # 3. X MCG
+
+    # Estrategia: Buscar todos los pares (Numero, Unidad)
+    # Si la unidad es MG, MCG, G, UI, IU -> Guardar Numero
+    # Si la unidad es ML -> Ignorar (a menos que sea concentracion? dificil saber)
+    # Si la unidad es % -> Guardar Numero
+
+    # Primero normalizamos espacios alrededor de unidades para regex simple
+    # clean_text ya separa numeros de letras (500 MG)
+
+    # Buscar: \bNUMBER\s+(MG|MCG|G|UI|IU|GR|%)\b
+    matches = re.findall(r'\b(\d+(?:[\.,]\d+)?)\s+(MG|MCG|G|UI|IU|GR|%)\b', text)
     for m in matches:
-        m_norm = m.replace(',', '.')
+        val_str = m[0]
+        # unit = m[1]
+        val_norm = val_str.replace(',', '.')
         try:
-            nums.add(float(m_norm))
+            nums.add(float(val_norm))
         except:
             pass
+
+    # Caso especial: Si no encontramos nada, quiza buscar numeros muy grandes (>25) que suelen ser mg?
+    # No, peligroso (podria ser cantidad de tabletas).
 
     return {'nums': nums}
 
@@ -151,6 +175,7 @@ def check_feature_compatibility(src_feats, tgt_feats):
     s_nums = src_feats['nums']
     t_nums = tgt_feats['nums']
 
+    # Si alguno no tiene numeros extraidos (porque no tenia unidad explicita), no penalizar.
     if not s_nums or not t_nums:
         return 1.0
 
@@ -357,7 +382,10 @@ class SmartMatcher:
 
                 base_score = 0
                 if _HAS_RAPIDFUZZ:
-                    base_score = fuzz.token_sort_ratio(clean_desc, tgt_clean)
+                    # Usar Token Set Ratio (mejor para palabras reordenadas o subconjuntos)
+                    # Antes: token_sort_ratio
+                    # Ahora: token_set_ratio es mas flexible con "Gotas" que faltan
+                    base_score = fuzz.token_set_ratio(clean_desc, tgt_clean)
                 else:
                     # Fallback sin rapidfuzz
                     base_score = 50 if clean_desc in tgt_clean else 0
