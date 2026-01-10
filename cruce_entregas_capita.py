@@ -773,20 +773,29 @@ def aggregate(event_files, target_df=None, mode='strict', out_csv='entregas_por_
         for q in df_unmatched['CANTIDAD']:
              if q is not None: total_unmatched_qty += q
 
-        # Aggregate by FILE (Month), Description, and Code to see leftovers per month
-        # We sum CANTIDAD
-        df_unmatched_agg = df_unmatched.groupby(['FILE', 'DESCRIPCION', 'CODIGO_NEGOCIADO_EVENTO']).agg({
-            'CANTIDAD': 'sum',
-            'RAW_DESC': 'first', # Keep one example
-            'ORIGINAL_INDEX': 'count' # Count occurrences
-        }).reset_index().rename(columns={'ORIGINAL_INDEX': 'NUM_REGISTROS', 'CANTIDAD': 'TOTAL_CANTIDAD'})
+        # Pivot Report: Rows=Medications, Cols=Months (Files), Values=Quantity
+        # This allows seeing month-by-month gaps in a matrix format.
 
-        # Sort by File and then Quantity
-        df_unmatched_agg = df_unmatched_agg.sort_values(by=['FILE', 'TOTAL_CANTIDAD'], ascending=[True, False])
+        # 1. Pivot
+        pivot_unmatched = pd.pivot_table(
+            df_unmatched,
+            index=['DESCRIPCION', 'CODIGO_NEGOCIADO_EVENTO', 'RAW_DESC'],
+            columns='FILE',
+            values='CANTIDAD',
+            aggfunc='sum',
+            fill_value=0
+        )
 
-        unmatched_path = f"no_encontrados_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
-        df_unmatched_agg.to_csv(unmatched_path, index=False, sep=';', encoding='utf-8-sig')
-        logging.info(f"Guardado reporte no encontrados: {unmatched_path}")
+        # 2. Add Row Total
+        pivot_unmatched['TOTAL_GENERAL_NO_ENCONTRADO'] = pivot_unmatched.sum(axis=1)
+
+        # 3. Sort by Total Descending
+        pivot_unmatched = pivot_unmatched.sort_values(by='TOTAL_GENERAL_NO_ENCONTRADO', ascending=False)
+
+        # 4. Save
+        unmatched_path = f"no_encontrados_pivot_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+        pivot_unmatched.to_csv(unmatched_path, sep=';', encoding='utf-8-sig')
+        logging.info(f"Guardado reporte no encontrados (Matriz): {unmatched_path}")
 
     # VALIDATOR: Print Data Accounting
     # Total Matched
