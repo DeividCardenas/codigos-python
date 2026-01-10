@@ -63,10 +63,13 @@ PHARMA_ABBREVIATIONS = {
     'UNG': 'UNGUENTO', 'POM': 'POMADA', 'CRM': 'CREMA', 'CREM': 'CREMA',
     'SUP': 'SUPOSITORIO', 'OV': 'OVULO',
     'INH': 'INHALADOR', 'AER': 'AEROSOL', 'PFF': 'PUFF',
-    'SOB': 'SOBRE', 'PLV': 'POLVO', 'POL': 'POLVO',
+    'SOB': 'SOBRE', 'PLV': 'SOLUCION', 'POL': 'SOLUCION', 'POLVO': 'SOLUCION', # Polvo -> Solucion (simplicacion)
     'MCG': 'MCG', 'UG': 'MCG', 'UI': 'UI', 'IU': 'UI',
     'MG': 'MG', 'G': 'G', 'ML': 'ML', 'L': 'L',
-    'GRAG': 'GRAGEA', 'GRAGEAS': 'GRAGEAS'
+    'GRAG': 'GRAGEA', 'GRAGEAS': 'GRAGEAS',
+    'LEUPROLIDE': 'LEUPRORELINA', 'JERINGA': 'INYECTABLE', 'PRELLENADA': '',
+    'IMPLANTE': 'INYECTABLE', 'VIAL': '', 'AMPOLLA': '', 'AMPO': '', 'AMP': '',
+    'ESTERIL': '', 'RECONSTITUIR': '', 'PARA': '', 'DE': ''
 }
 
 LABORATORIES = {
@@ -108,6 +111,9 @@ def clean_text_advanced(text):
     # 3. Quitar acentos
     text = remove_accents(text)
 
+    # 3.5 Normalizar decimales (coma a punto)
+    text = text.replace(',', '.')
+
     # 4. Separar números de letras (500MG -> 500 MG) y porcentajes
     # Ex: 500MG -> 500 MG, 10ML -> 10 ML, 0.5% -> 0.5 %
     text = re.sub(r'(\d)\s*([A-Z%]+)', r'\1 \2', text)
@@ -120,7 +126,9 @@ def clean_text_advanced(text):
     tokens = text.split()
     expanded = []
     for t in tokens:
-        expanded.append(PHARMA_ABBREVIATIONS.get(t, t))
+        val = PHARMA_ABBREVIATIONS.get(t, t)
+        if val:
+            expanded.append(val)
 
     return " ".join(expanded).strip()
 
