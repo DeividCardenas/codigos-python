@@ -54,7 +54,7 @@ SEPS = [';', ',', '\t', '|']
 PHARMA_ABBREVIATIONS = {
     'TAB': 'TABLETA', 'TABS': 'TABLETAS', 'TB': 'TABLETA', 'COM': 'TABLETA', 'COMP': 'TABLETA',
     'CAP': 'CAPSULA', 'CAPS': 'CAPSULAS', 'CP': 'CAPSULA',
-    'JBE': 'SOLUCION', 'JRB': 'SOLUCION', 'SYR': 'SOLUCION', # Jarabe -> Solucion
+    'JBE': 'SOLUCION', 'JRB': 'SOLUCION', 'SYR': 'SOLUCION', 'JARABE': 'SOLUCION', # Jarabe -> Solucion
     'SUSP': 'SUSPENSION', 'SUS': 'SUSPENSION',
     'SOL': 'SOLUCION', 'SLN': 'SOLUCION', 'LIQ': 'LIQUIDO',
     'INY': 'INYECTABLE', 'INYEC': 'INYECTABLE',
@@ -108,13 +108,13 @@ def clean_text_advanced(text):
     # 3. Quitar acentos
     text = remove_accents(text)
 
-    # 4. Separar números de letras (500MG -> 500 MG)
-    # Ex: 500MG -> 500 MG, 10ML -> 10 ML
-    text = re.sub(r'(\d)\s*([A-Z]+)', r'\1 \2', text)
-    text = re.sub(r'([A-Z]+)\s*(\d)', r'\1 \2', text) # T3 -> T 3 (raro pero pasa)
+    # 4. Separar números de letras (500MG -> 500 MG) y porcentajes
+    # Ex: 500MG -> 500 MG, 10ML -> 10 ML, 0.5% -> 0.5 %
+    text = re.sub(r'(\d)\s*([A-Z%]+)', r'\1 \2', text)
+    text = re.sub(r'([A-Z%]+)\s*(\d)', r'\1 \2', text) # T3 -> T 3 (raro pero pasa)
 
     # 5. Normalizar espacios y caracteres
-    text = re.sub(r'[^A-Z0-9\s\.]', ' ', text) # Dejar puntos para decimales si los hay, aunque parseamos nums aparte
+    text = re.sub(r'[^A-Z0-9\s\.\%]', ' ', text) # Dejar puntos para decimales si los hay, aunque parseamos nums aparte
 
     # 6. Expandir abreviaturas
     tokens = text.split()
@@ -145,19 +145,26 @@ def extract_features(text):
     # Estrategia: Buscar todos los pares (Numero, Unidad)
     # Si la unidad es MG, MCG, G, UI, IU -> Guardar Numero
     # Si la unidad es ML -> Ignorar (a menos que sea concentracion? dificil saber)
-    # Si la unidad es % -> Guardar Numero
+    # Si la unidad es % -> Guardar Numero Y convertir a mg/ml (x10) para ophthalmic drops
 
     # Primero normalizamos espacios alrededor de unidades para regex simple
     # clean_text ya separa numeros de letras (500 MG)
 
     # Buscar: \bNUMBER\s+(MG|MCG|G|UI|IU|GR|%)\b
-    matches = re.findall(r'\b(\d+(?:[\.,]\d+)?)\s+(MG|MCG|G|UI|IU|GR|%)\b', text)
+    # Nota: % no tiene word boundary \b al final necesariamente
+    matches = re.findall(r'\b(\d+(?:[\.,]\d+)?)\s+(?:(MG|MCG|G|UI|IU|GR)\b|(%))', text)
     for m in matches:
         val_str = m[0]
-        # unit = m[1]
+        unit = m[1] if m[1] else m[2]
         val_norm = val_str.replace(',', '.')
         try:
-            nums.add(float(val_norm))
+            val_float = float(val_norm)
+            nums.add(val_float)
+
+            # Conversion Percentage -> mg/ml (assuming w/v)
+            if unit == '%':
+                # 1% = 10 mg/ml
+                nums.add(val_float * 10.0)
         except:
             pass
 
@@ -499,8 +506,8 @@ def main():
     files = args.files
     if not files:
         import glob
-        files = glob.glob("*Evento*.csv") + glob('*evento*.csv') + glob('*EVENTO*.csv')
-        files += glob('*abril*.csv') + glob('*mayo*.csv') + glob('*202*.csv')
+        files = glob.glob("*Evento*.csv") + glob.glob('*evento*.csv') + glob.glob('*EVENTO*.csv')
+        files += glob.glob('*abril*.csv') + glob.glob('*mayo*.csv') + glob.glob('*202*.csv')
         # Eliminar duplicados manteniendo orden
         files = sorted(list(set(files)))
         print(f"Archivos detectados automáticamente: {len(files)}")
