@@ -69,7 +69,8 @@ PHARMA_ABBREVIATIONS = {
     'GRAG': 'GRAGEA', 'GRAGEAS': 'GRAGEAS',
     'LEUPROLIDE': 'LEUPRORELINA', 'JERINGA': 'INYECTABLE', 'PRELLENADA': '',
     'IMPLANTE': 'INYECTABLE', 'VIAL': '', 'AMPOLLA': '', 'AMPO': '', 'AMP': '',
-    'ESTERIL': '', 'RECONSTITUIR': '', 'PARA': '', 'DE': ''
+    'ESTERIL': '', 'RECONSTITUIR': '', 'PARA': '', 'DE': '',
+    'ADAPALENE': 'ADAPALENO'
 }
 
 LABORATORIES = {
@@ -132,6 +133,9 @@ def clean_text_advanced(text):
 
     return " ".join(expanded).strip()
 
+def remove_numbers(text):
+    return re.sub(r'\d+', '', text)
+
 def extract_features(text):
     """
     Extrae características clave:
@@ -173,6 +177,19 @@ def extract_features(text):
             if unit == '%':
                 # 1% = 10 mg/ml
                 nums.add(val_float * 10.0)
+        except:
+            pass
+
+    # 2. Detección de Concentración Implícita (X MG / Y ML)
+    # Aunque '/' se elimina en limpieza, queda "X MG Y ML"
+    matches_conc = re.findall(r'\b(\d+(?:[\.,]\d+)?)\s+MG\s+(\d+(?:[\.,]\d+)?)\s+ML\b', text)
+    for m in matches_conc:
+        try:
+            mg = float(m[0].replace(',', '.'))
+            ml = float(m[1].replace(',', '.'))
+            if ml > 0:
+                # Calcular concentración mg/ml
+                nums.add(mg / ml)
         except:
             pass
 
@@ -280,6 +297,7 @@ class SmartMatcher:
 
         # Limpieza previa
         self.target_df['_clean'] = self.target_df[self.col_desc].apply(clean_text_advanced)
+        self.target_df['_clean_no_nums'] = self.target_df['_clean'].apply(remove_numbers)
         self.target_df['_features'] = self.target_df['_clean'].apply(extract_features)
 
         # Indexar códigos para match exacto (rápido)
@@ -382,6 +400,7 @@ class SmartMatcher:
 
             # Acceso directo por índice en lugar de .index()
             clean_desc = clean_descs_unmatched[i]
+            clean_desc_no_nums = remove_numbers(clean_desc)
             src_feats = extract_features(clean_desc)
 
             best_score = 0.0
@@ -396,16 +415,30 @@ class SmartMatcher:
                 compatibility = check_feature_compatibility(src_feats, tgt_feats)
 
                 base_score = 0
-                if _HAS_RAPIDFUZZ:
-                    # Usar Token Set Ratio (mejor para palabras reordenadas o subconjuntos)
-                    # Antes: token_sort_ratio
-                    # Ahora: token_set_ratio es mas flexible con "Gotas" que faltan
-                    base_score = fuzz.token_set_ratio(clean_desc, tgt_clean)
-                else:
-                    # Fallback sin rapidfuzz
-                    base_score = 50 if clean_desc in tgt_clean else 0
+                final_score = 0
 
-                final_score = base_score * compatibility
+                # Lógica Avanzada: Si hay compatibilidad numérica perfecta, ignorar números en texto
+                if compatibility == 1.0:
+                    tgt_clean_no_nums = tgt_row['_clean_no_nums']
+                    score_no_nums = 0
+                    score_with_nums = 0
+
+                    if _HAS_RAPIDFUZZ:
+                        score_no_nums = fuzz.token_set_ratio(clean_desc_no_nums, tgt_clean_no_nums)
+                        score_with_nums = fuzz.token_set_ratio(clean_desc, tgt_clean)
+                    else:
+                        score_no_nums = 50 if clean_desc_no_nums in tgt_clean_no_nums else 0
+                        score_with_nums = 50 if clean_desc in tgt_clean else 0
+
+                    # Usar el mejor de los dos mundos
+                    final_score = max(score_no_nums, score_with_nums)
+                else:
+                    # Compatibilidad dudosa o mala, usar texto completo y penalizar
+                    if _HAS_RAPIDFUZZ:
+                        base_score = fuzz.token_set_ratio(clean_desc, tgt_clean)
+                    else:
+                        base_score = 50 if clean_desc in tgt_clean else 0
+                    final_score = base_score * compatibility
 
                 if final_score > best_score:
                     best_score = final_score
