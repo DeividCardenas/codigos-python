@@ -384,7 +384,7 @@ def process_file(filepath, matcher, output_audit_list, output_unmatched_list):
 
     cols = detect_columns(df)
     if not cols['cantidad']:
-        print("  -> ERROR: No se encontró columna de cantidad. Saltando.")
+        print("   -> ERROR: No se encontró columna de cantidad. Saltando.")
         return {}, Decimal('0'), Decimal('0')
 
     col_nom = cols['nombre']
@@ -441,7 +441,7 @@ def process_file(filepath, matcher, output_audit_list, output_unmatched_list):
                 })
 
     pct = (matched_qty / total_qty * 100) if total_qty > 0 else 0
-    print(f"  -> Total: {total_qty:,.0f} | Cruzado: {matched_qty:,.0f} | Cobertura: {pct:.2f}%")
+    print(f"   -> Total: {total_qty:,.0f} | Cruzado: {matched_qty:,.0f} | Cobertura: {pct:.2f}%")
     
     return local_results, total_qty, matched_qty
 
@@ -471,7 +471,9 @@ def main():
     files = args.files
     if not files:
         import glob
-        files = glob.glob("*Evento*.csv") + glob.glob("*evento*.csv")
+        files = glob.glob("*Evento*.csv") + glob('*evento*.csv') + glob('*EVENTO*.csv')
+        files += glob('*abril*.csv') + glob('*mayo*.csv') + glob('*202*.csv')
+        # Eliminar duplicados manteniendo orden
         files = sorted(list(set(files)))
         print(f"Archivos detectados automáticamente: {len(files)}")
 
@@ -518,6 +520,8 @@ def main():
 
     # Reporte Cruzado (Pivot)
     final_rows = []
+    
+    # Obtener todos los nombres de meses/archivos encontrados
     all_months = sorted([Path(f).stem for f in files])
 
     for tidx, month_dict in pivot_data.items():
@@ -535,9 +539,13 @@ def main():
         final_rows.append(row)
 
     df_final = pd.DataFrame(final_rows)
+    # Ordenar columnas para que queden Descripcion, Codigo, ...Meses..., Total
     cols_order = ['DESCRIPCION_TARGET', 'CODIGO_TARGET'] + all_months + ['TOTAL_ACUMULADO']
+    # Asegurar que solo usemos columnas que existen
     cols_order = [c for c in cols_order if c in df_final.columns]
-    df_final = df_final[cols_order]
+    
+    if not df_final.empty:
+        df_final = df_final[cols_order]
 
     out_file = "reporte_cruce_avanzado.csv"
     df_final.to_csv(out_file, index=False, sep=';', encoding='utf-8-sig')
