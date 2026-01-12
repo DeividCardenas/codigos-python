@@ -1,11 +1,11 @@
 # cruce_entregas_capita.py
 """
 Cruce y agregación de entregas por medicamento.
-VERSION AVANZADA (State-of-the-Art):
-- Usa TF-IDF con N-gramas para búsqueda semántica robusta a errores ortográficos.
-- Validación de unidades y dosis para evitar falsos positivos.
-- Reporte detallado de cobertura.
-- Optimizado para alto volumen (procesamiento por lotes).
+REFACTORIZADO:
+- En lugar de iterar por target, iteramos por fila de source para garantizar que cada entrega
+  se asigne a un ÚNICO target (el mejor match), evitando duplicación de cantidades.
+- Mantiene la lógica de limpieza de laboratorios y preservación de términos.
+- Genera el reporte final pivotado (targets x meses).
 """
 
 import re
@@ -15,549 +15,988 @@ import logging
 from pathlib import Path
 from decimal import Decimal, getcontext
 from collections import Counter, defaultdict
+from difflib import SequenceMatcher
 import pandas as pd 
 import numpy as np 
 import datetime
-import unicodedata
+import psutil
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from tqdm import tqdm
-
-# Intentar importar librerías avanzadas
-try:
-    from rapidfuzz import fuzz, utils, process
-    _HAS_RAPIDFUZZ = True
-except ImportError:
-    _HAS_RAPIDFUZZ = False
-    print("ADVERTENCIA: rapidfuzz no instalado. El rendimiento será menor.")
-
-try:
-    from sklearn.feature_extraction.text import TfidfVectorizer
-    from sklearn.metrics.pairwise import cosine_similarity
-    from sklearn.neighbors import NearestNeighbors
-    _HAS_SKLEARN = True
-except ImportError:
-    _HAS_SKLEARN = False
-    print("ADVERTENCIA: scikit-learn no instalado. Se usará modo básico (lento).")
 
 getcontext().prec = 28
 
 # ---------------- Configuración ----------------
-# Umbrales
-THRESHOLD_CONFIDENT = 88.0  # Coincidencia muy segura
-THRESHOLD_RELAXED = 75.0    # Coincidencia probable (revisar si es crítico)
-PENALTY_MISMATCH_UNIT = 50.0 # Penalización masiva si la dosis no coincide
-BATCH_SIZE = 5000 # Tamaño del lote para procesamiento vectorizado
+STRICT = {
+    'MIN_ACCEPT_SCORE': 95,
+    'MIN_SCORE_GAP': 5,
+    'MIN_JACCARD': 0.8
+}
+RELAXED = {
+    'MIN_ACCEPT_SCORE': 85,
+    'MIN_SCORE_GAP': 2,
+    'MIN_JACCARD': 0.7
+}
 
-ENCODINGS = ["utf-8", "latin-1", "cp1252", "ISO-8859-1"]
+try:
+    from rapidfuzz import fuzz, process, utils # type: ignore
+    _HAS_RAPIDFUZZ = True
+    logging.info("Usando rapidfuzz para un cálculo de similitud más rápido.")
+except Exception:
+    fuzz = None
+    _HAS_RAPIDFUZZ = False
+    logging.warning("rapidfuzz no está instalado, se usará difflib.SequenceMatcher. La ejecución puede ser más lenta.")
+
+# Import scikit-learn for advanced TF-IDF matching
+try:
+    from sklearn.feature_extraction.text import TfidfVectorizer
+    from sklearn.neighbors import NearestNeighbors
+    _HAS_SKLEARN = True
+    logging.info("Usando scikit-learn para búsqueda semántica (TF-IDF).")
+except ImportError:
+    _HAS_SKLEARN = False
+    logging.warning("scikit-learn no instalado. Se desactivará el matching avanzado por TF-IDF.")
+
+ENCODINGS = ["utf-8", "latin-1", "cp1252"]
 SEPS = [';', ',', '\t', '|']
 
-# Diccionario ampliado de abreviaturas farmacéuticas
+WEIGHTS = {
+    'desc_exact': 220,
+    'desc_substring': 150,
+    'jaccard': 110,
+    'seq_ratio': 70,
+    'token_sort_ratio': 150,
+    'token_common': 12,
+    'same_codigo_neg': 1000,
+    'same_cum': 900,
+    'presentation_match': 25,
+    'cantidad_exists': 5
+}
+
+PRESENTATION_TERMS = {
+    'tableta','tabletas','tablet','comprimido','comprimidos','capsula','capsulas','ampolla','ampollas',
+    'caja','frasco','ml','mg','g','mcg','ug','tubo','sobre','solucion','suspension','inhalador','crema','gel','jarabe',
+    'supositorio','ovulo','ampolleta','spray','unidad','unidades'
+}
+
+# Diccionario de abreviaturas farmacéuticas para normalización
 PHARMA_ABBREVIATIONS = {
-    'TAB': 'TABLETA', 'TABS': 'TABLETAS', 'TB': 'TABLETA', 'COM': 'TABLETA', 'COMP': 'TABLETA',
+    'TAB': 'TABLETA', 'TABS': 'TABLETAS', 'TB': 'TABLETA',
     'CAP': 'CAPSULA', 'CAPS': 'CAPSULAS', 'CP': 'CAPSULA',
-    'JBE': 'JARABE', 'JRB': 'JARABE', 'SYR': 'JARABE',
+    'COMP': 'COMPRIMIDO', 'COM': 'COMPRIMIDO',
+    'JBE': 'JARABE', 'JRB': 'JARABE',
     'SUSP': 'SUSPENSION', 'SUS': 'SUSPENSION',
-    'SOL': 'SOLUCION', 'SLN': 'SOLUCION', 'LIQ': 'LIQUIDO',
+    'SOL': 'SOLUCION', 'SLN': 'SOLUCION',
     'INY': 'INYECTABLE', 'INYEC': 'INYECTABLE',
-    'AMP': 'AMPOLLA', 'AMPO': 'AMPOLLA', 'VIA': 'VIAL',
+    'AMP': 'AMPOLLA', 'AMPO': 'AMPOLLA',
     'GTS': 'GOTAS', 'GOTA': 'GOTAS',
-    'UNG': 'UNGUENTO', 'POM': 'POMADA', 'CRM': 'CREMA', 'CREM': 'CREMA',
-    'SUP': 'SUPOSITORIO', 'OV': 'OVULO',
-    'INH': 'INHALADOR', 'AER': 'AEROSOL', 'PFF': 'PUFF',
-    'SOB': 'SOBRE', 'PLV': 'POLVO', 'POL': 'POLVO',
-    'MCG': 'MCG', 'UG': 'MCG', 'UI': 'UI', 'IU': 'UI',
-    'MG': 'MG', 'G': 'G', 'ML': 'ML', 'L': 'L',
-    'GRAG': 'GRAGEA', 'GRAGEAS': 'GRAGEAS'
+    'UNG': 'UNGUENTO', 'UNGU': 'UNGUENTO', 'POM': 'POMADA',
+    'CRM': 'CREMA', 'CREM': 'CREMA',
+    'VIL': 'VIAL',
+    'GRAG': 'GRAGEA', 'GRAGEAS': 'GRAGEAS',
+    'ELIX': 'ELIXIR',
+    'EMUL': 'EMULSION',
+    'SUP': 'SUPOSITORIO',
+    'OV': 'OVULO',
+    'AER': 'AEROSOL',
+    'INH': 'INHALADOR',
+    'SOB': 'SOBRE',
+    'POL': 'POLVO', 'PLV': 'POLVO',
+    'LIQ': 'LIQUIDO',
+    'GEL': 'GEL',
+    'LOC': 'LOCION',
+    'TOP': 'TOPICO',
+    'COL': 'COLIRIO',
+    'VAG': 'VAGINAL',
+    'OFT': 'OFTALMICO',
+    'NAS': 'NASAL',
+    'IM': 'INTRAMUSCULAR',
+    'IV': 'INTRAVENOSA',
+    'SC': 'SUBCUTANEA',
+    'MCG': 'MCG', # Mantener unidades estándar
+    'MG': 'MG',
+    'G': 'G',
+    'ML': 'ML',
+    'UI': 'UI'
 }
 
 LABORATORIES = {
-    'TECNOQUIMICAS', 'SIEGFRIED', 'FARMACAPSULAS', 'SANOFI', 'GRUNENTHAL',
-    'PROCAPS', 'NOVAMED', 'WINTHROP', 'ASTRAZENECA', 'TECNOFARMA', 'COLMED',
-    'ECAR', 'GENFAR', 'PFIZER', 'GSK', 'NOVARTIS', 'ROCHE', 'ABBOTT', 'BAYER',
-    'MERCK', 'BOEHRINGER', 'JANSSEN', 'MSD', 'LILLY', 'BRISTOL', 'AMGEN',
-    'HUMAX', 'VITALIS', 'BAXTER', 'B BRAUN', 'BIOSIDUS', 'MK', 'LA SANTE',
-    'LAFRANCOL', 'ANGLOPHARMA', 'JGB', 'QUIMIDROGAS', 'MEMPHIS', 'COASPHARMA'
+    'TECNOQUIMICAS', 'SIEGFRIED', 'FARMACAPSULAS', 'SANOFI AVENTIS', 'SANOFI', 'GRUNENTHAL',
+    'LAPROFF', 'PROCAPS', 'NOVAMED', 'WINTHROP', 'ASTRA ZENECA', 'TECNOFARMA', 'COLMED',
+    'ECAR', 'LASANTE', 'GENFAR', 'AG', 'PFIZER', 'GSK', 'GLAXOSMITHKLINE', 'NOVARTIS',
+    'ROCHE', 'ABBOTT', 'BAYER', 'MERCK', 'BOEHRINGER', 'JANSSEN', 'MSD', 'LILLY',
+    'BRISTOL', 'AMGEN', 'GINEF', 'MEMPHIS', 'COASPHARMA', 'AMERICAN GENERICS', 'HUMAX',
+    'VITALIS', 'BLAU', 'BAXTER', 'B BRAUN', 'BIOSIDUS', 'MK', 'LA SANTE', 'LAFRANCOL',
+    'BIOCHEM', 'ANGLOPHARMA', 'ESPECIALIDADES FARMACEUTICAS', 'JGB', 'QUIMIDROGAS',
+    'PHARMACIDER', 'HOSPIMEDIKS', 'FRESENIUS', 'KABI', 'ITALCHEM', 'BEST', 'AMERICAN',
+    'ANGLO', 'PHARMA', 'CORPAUL'
 }
-LABS_PATTERN = re.compile(r'\b(' + '|'.join(map(re.escape, sorted(LABORATORIES, key=len, reverse=True))) + r')\b', re.IGNORECASE)
 
-# ---------------- Utilidades de Texto ----------------
+SORTED_LABS = sorted(list(LABORATORIES), key=len, reverse=True)
+LABS_PATTERN = re.compile(r'\b(' + '|'.join(map(re.escape, SORTED_LABS)) + r')\b', re.IGNORECASE)
 
-def remove_accents(input_str):
-    if not input_str: return ""
-    nfkd_form = unicodedata.normalize('NFKD', str(input_str))
-    return "".join([c for c in nfkd_form if not unicodedata.combining(c)])
+TOLERANCE_RELATIVE = Decimal('0.01')
+MAX_CANDIDATES_EVAL = None # Not strictly used in new arch but kept for compat
+TOKEN_POOL_TOPK = 50       # Limit search space for performance
 
-def clean_text_advanced(text):
-    """
-    Limpieza profunda:
-    1. Mayúsculas.
-    2. Quitar acentos.
-    3. Separar números de letras (500MG -> 500 MG).
-    4. Expandir abreviaturas.
-    5. Quitar caracteres especiales.
-    """
-    if pd.isna(text) or text == "": return ""
+# ---------------- Utilidades ----------------
+def setup_logging(level=logging.INFO):
+    logging.basicConfig(level=level, format="%(asctime)s %(levelname)s %(message)s")
 
-    # 1. Mayúsculas y pipe check
-    text = str(text).upper()
-    if '|' in text:
-        text = text.split('|')[0] # Tomar primera parte si hay pipes
-
-    # 2. Quitar Labs (ruido)
-    text = LABS_PATTERN.sub('', text)
-
-    # 3. Quitar acentos
-    text = remove_accents(text)
-
-    # 4. Separar números de letras (500MG -> 500 MG)
-    # Ex: 500MG -> 500 MG, 10ML -> 10 ML
-    text = re.sub(r'(\d)\s*([A-Z]+)', r'\1 \2', text)
-    text = re.sub(r'([A-Z]+)\s*(\d)', r'\1 \2', text) # T3 -> T 3 (raro pero pasa)
-
-    # 5. Normalizar espacios y caracteres
-    text = re.sub(r'[^A-Z0-9\s\.]', ' ', text) # Dejar puntos para decimales si los hay, aunque parseamos nums aparte
-
-    # 6. Expandir abreviaturas
-    tokens = text.split()
-    expanded = []
-    for t in tokens:
-        expanded.append(PHARMA_ABBREVIATIONS.get(t, t))
-
-    return " ".join(expanded).strip()
-
-def extract_features(text):
-    """
-    Extrae características clave:
-    - Set de números (dosis).
-    - Set de unidades/tokens clave.
-    """
-    # Buscar números (enteros o decimales)
-    nums = set()
-    matches = re.findall(r'\b\d+(?:[\.,]\d+)?\b', text)
-    for m in matches:
-        m_norm = m.replace(',', '.')
-        try:
-            nums.add(float(m_norm))
-        except:
-            pass
-
-    return {'nums': nums}
-
-def check_feature_compatibility(src_feats, tgt_feats):
-    """
-    Devuelve un factor de penalización (0.0 a 1.0).
-    1.0 = Compatible.
-    0.1 = Incompatible (dosis diferente).
-    """
-    s_nums = src_feats['nums']
-    t_nums = tgt_feats['nums']
-
-    if not s_nums or not t_nums:
-        return 1.0
-
-    # Si hay intersección de números, es bueno.
-    intersection = s_nums.intersection(t_nums)
-    if len(intersection) > 0:
-        return 1.0
-
-    # Penalizar si los números son completamente disjuntos
-    return 0.5
-
-# ---------------- Utilidades IO ----------------
+MONTHS_MAP = {
+    'enero':1,'febrero':2,'marzo':3,'abril':4,'mayo':5,'junio':6,'julio':7,'agosto':8,
+    'septiembre':9,'setiembre':9,'octubre':10,'noviembre':11,'diciembre':12,
+    'jan':1,'feb':2,'mar':3,'apr':4,'may':5,'jun':6,'jul':7,'aug':8,'sep':9,'oct':10,'nov':11,'dec':12
+}
+def detect_month_from_filename(fname):
+    s = fname.lower()
+    for k,v in MONTHS_MAP.items():
+        if k in s:
+            return v, k
+    m = re.search(r'[^0-9](0?[1-9]|1[0-2])[^0-9]', '_' + s + '_')
+    if m:
+        return int(m.group(1)), m.group(1)
+    return None, None
 
 def read_csv_robust(path: Path) -> pd.DataFrame:
-    """
-    Intenta leer CSV probando separadores y encodings.
-    Prioriza el separador que genere más columnas.
-    """
-    best_df = None
-    max_cols = 0
-
+    last_exc = None
     for enc in ENCODINGS:
         for sep in SEPS:
             try:
-                df = pd.read_csv(path, encoding=enc, sep=sep, engine='python', on_bad_lines='skip')
-
-                # Si encontramos un formato con más columnas, es mejor candidato
-                if df.shape[1] > max_cols:
-                    max_cols = df.shape[1]
-                    best_df = df
-            except:
-                continue
-
-        # Si con este encoding encontramos algo decente (>1 col), probablemente es el encoding correcto
-        if best_df is not None and max_cols > 1:
-            break
-
-    if best_df is not None:
-        # Limpiar nombres de columnas
-        best_df.columns = [str(c).strip().replace('"', '') for c in best_df.columns]
-        return best_df
-
-    raise Exception(f"No se pudo leer el archivo {path}")
-
-def parse_decimal(val):
-    if pd.isna(val) or val == '': return Decimal('0')
-    s = str(val).strip()
-    s = s.replace('$', '').replace(' ', '')
-    if ',' in s and '.' in s:
-        if s.find('.') < s.find(','): # 1.000,00
-            s = s.replace('.', '').replace(',', '.')
-        else: # 1,000.00
-            s = s.replace(',', '')
-    elif ',' in s:
-        s = s.replace(',', '.')
-
-    try:
-        return Decimal(s)
-    except:
-        return Decimal('0')
-
-# ---------------- Detección de Columnas ----------------
-def detect_columns(df):
-    cols = [c.lower() for c in df.columns]
-    mapping = {
-        'nombre': next((c for c in cols if any(x in c for x in ['descripcion', 'nombre', 'producto', 'medicamento'])), None),
-        'codigo': next((c for c in cols if any(x in c for x in ['codigo', 'cod_neg', 'cum', 'cums', 'ap'])), None),
-        'cantidad': next((c for c in cols if any(x in c for x in ['cantidad_entregada', 'cant', 'entregad', 'unidades'])), None)
-    }
-    # Fallback para Targets (que tiene headers fijos usualmente)
-    if 'descripcion' in cols: mapping['nombre'] = 'descripcion'
-    if 'codigo_neg' in cols: mapping['codigo'] = 'codigo_neg'
-
-    return mapping
-
-# ---------------- CLASE MATCHER INTELIGENTE ----------------
-
-class SmartMatcher:
-    def __init__(self, target_df):
-        self.target_df = target_df.copy()
-        print("Preprocesando targets...")
-
-        # 1. Normalización
-        cols = detect_columns(self.target_df)
-        self.col_desc = cols['nombre'] or self.target_df.columns[0]
-        self.col_code = cols['codigo']
-
-        # Limpieza previa
-        self.target_df['_clean'] = self.target_df[self.col_desc].apply(clean_text_advanced)
-        self.target_df['_features'] = self.target_df['_clean'].apply(extract_features)
-
-        # Indexar códigos para match exacto (rápido)
-        self.code_index = {}
-        if self.col_code:
-            # Limpiar códigos
-            self.target_df['_code_clean'] = self.target_df[self.col_code].astype(str).str.strip().str.upper()
-            for idx, row in self.target_df.iterrows():
-                c = row['_code_clean']
-                if c and c != 'NAN':
-                    self.code_index[c] = idx
-
-        # 2. Vectorización TF-IDF
-        if _HAS_SKLEARN:
-            print("Entrenando vectorizador TF-IDF (3-gramas)...")
-            self.vectorizer = TfidfVectorizer(analyzer='char_wb', ngram_range=(3, 3), min_df=1, strip_accents='unicode')
-            self.tfidf_matrix = self.vectorizer.fit_transform(self.target_df['_clean'].tolist())
-
-            # Nearest Neighbors para búsqueda rápida
-            self.nn = NearestNeighbors(n_neighbors=5, metric='cosine', n_jobs=-1)
-            self.nn.fit(self.tfidf_matrix)
-        else:
-            self.vectorizer = None
-
-    def match_batch(self, descriptions, codes):
-        """
-        Procesa un lote de filas.
-        descriptions: lista de strings crudos.
-        codes: lista de códigos crudos (o None).
-        Retorna lista de tuplas: (target_idx, score, method)
-        """
-        results = [(None, 0.0, "NONE")] * len(descriptions)
-
-        # 1. Match Exacto por Código (Prioridad Absoluta)
-        unmatched_indices = []
-        clean_descs_unmatched = []
-
-        for i, (desc, code) in enumerate(zip(descriptions, codes)):
-            # Intento match por código
-            matched_by_code = False
-            if code:
-                rc = str(code).strip().upper()
-                if rc in self.code_index:
-                    results[i] = (self.code_index[rc], 100.0, "CODE_EXACT")
-                    matched_by_code = True
-
-            if not matched_by_code:
-                if desc:
-                    unmatched_indices.append(i)
-                    clean_descs_unmatched.append(clean_text_advanced(desc))
-                else:
-                    results[i] = (None, 0.0, "EMPTY")
-
-        if not unmatched_indices:
-            return results
-
-        # 2. Búsqueda Semántica (Batch)
-        candidates_map = {} # i -> [target_indices]
-
-        if _HAS_SKLEARN and self.vectorizer and clean_descs_unmatched:
-            try:
-                # Transformar todo el lote a la vez (Mucho más rápido)
-                vec_batch = self.vectorizer.transform(clean_descs_unmatched)
-                distances_batch, indices_batch = self.nn.kneighbors(vec_batch)
-
-                for k, local_idx in enumerate(unmatched_indices):
-                    # Obtener candidatos para esta fila
-                    # indices_batch[k] son los indices en target_df
-                    cands = []
-                    for j, tgt_idx in enumerate(indices_batch[k]):
-                        sim = 1 - distances_batch[k][j]
-                        if sim > 0.3: # Threshold de filtrado
-                            cands.append(tgt_idx)
-                    candidates_map[local_idx] = cands
+                df = pd.read_csv(path, encoding=enc, sep=sep, engine='python', header=0)
+                if df.shape[1] >= 2:
+                    logging.debug(f"Leido {path} con encoding={enc} sep='{sep}'")
+                    return df
             except Exception as e:
-                logging.error(f"Error en batch vectorization: {e}")
-
-        # 3. Re-ranking (CPU intensive but on small candidate set)
-        # Si no hay SKLEARN, esto será muy lento (fallback a scan completo o nada)
-        if not _HAS_SKLEARN:
-             # Fallback simple: usar RapidFuzz process.extract si disponible para cada fila
-             # Esto es lento O(N*M), pero mejor que nada.
-             if _HAS_RAPIDFUZZ:
-                 choices = self.target_df['_clean'].tolist()
-                 for local_idx, txt in zip(unmatched_indices, clean_descs_unmatched):
-                     # ExtractOne es lento contra toda la lista, pero necesario sin TF-IDF
-                     res = process.extractOne(txt, choices, scorer=fuzz.token_sort_ratio, score_cutoff=60)
-                     if res:
-                         # res es (match_str, score, index)
-                         target_idx = res[2]
-                         score = res[1]
-                         results[local_idx] = (target_idx, score, "FUZZ_FALLBACK")
-             return results
-
-        # Re-ranking normal para candidatos TF-IDF
-        for i, local_idx in enumerate(unmatched_indices):
-            candidates = candidates_map.get(local_idx, [])
-            if not candidates:
-                continue
-
-            # Acceso directo por índice en lugar de .index()
-            clean_desc = clean_descs_unmatched[i]
-            src_feats = extract_features(clean_desc)
-
-            best_score = 0.0
-            best_idx = None
-            best_method = "TFIDF+FUZZ"
-
-            for idx in candidates:
-                tgt_row = self.target_df.iloc[idx]
-                tgt_clean = tgt_row['_clean']
-                tgt_feats = tgt_row['_features']
-
-                compatibility = check_feature_compatibility(src_feats, tgt_feats)
-
-                base_score = 0
-                if _HAS_RAPIDFUZZ:
-                    base_score = fuzz.token_sort_ratio(clean_desc, tgt_clean)
-                else:
-                    # Fallback sin rapidfuzz
-                    base_score = 50 if clean_desc in tgt_clean else 0
-
-                final_score = base_score * compatibility
-
-                if final_score > best_score:
-                    best_score = final_score
-                    best_idx = idx
-
-            results[local_idx] = (best_idx, best_score, best_method)
-
-        return results
-
-# ---------------- PROCESAMIENTO PRINCIPAL ----------------
-
-def process_file(filepath, matcher, output_audit_list, output_unmatched_list):
-    print(f"\nProcesando archivo: {filepath.name}")
+                last_exc = e
     try:
-        df = read_csv_robust(filepath)
-    except Exception as e:
-        print(f"Error leyendo {filepath}: {e}")
-        return {}, Decimal('0'), Decimal('0')
+        df = pd.read_csv(path, engine='python', on_bad_lines='skip')
+        return df
+    except Exception:
+        raise last_exc if last_exc is not None else Exception(f"No se pudo leer {path}")
 
-    cols = detect_columns(df)
-    if not cols['cantidad']:
-        print("   -> ERROR: No se encontró columna de cantidad. Saltando.")
-        return {}, Decimal('0'), Decimal('0')
+def normalize_key(s):
+    if pd.isna(s): return ""
+    s = str(s).strip().upper()
+    s = s.replace(',', '.')
+    s = re.sub(r'\.0+$', '', s)
+    s = re.sub(r'[^A-Z0-9]', '', s)
+    return s
 
-    col_nom = cols['nombre']
-    col_cod = cols['codigo']
-    col_cant = cols['cantidad']
+def clean_labs_and_extra_info(s):
+    if pd.isna(s): return ""
+    s_upper = str(s).upper()
+    if '|' in s_upper:
+        s_upper = s_upper.split('|')[0]
+    s_clean = LABS_PATTERN.sub('', s_upper)
+    s_clean = re.sub(r'\s+', ' ', s_clean).strip()
+    return s_clean
 
-    total_qty = Decimal('0')
-    matched_qty = Decimal('0')
-    local_results = defaultdict(Decimal)
+def expand_abbreviations_and_units(text):
+    """
+    1. Separates numbers from letters (e.g. '500MG' -> '500 MG').
+    2. Expands abbreviations (e.g. 'TAB' -> 'TABLETA').
+    """
+    if not text: return ""
 
-    # Procesar por lotes
-    num_rows = len(df)
+    # 1. Separate numbers from letters
+    # (\d)([a-zA-Z]) -> \1 \2  (e.g. 500MG -> 500 MG)
+    # ([a-zA-Z])(\d) -> \1 \2  (e.g. MG500 -> MG 500)
+    text = re.sub(r'(\d)([a-zA-Z])', r'\1 \2', text)
+    text = re.sub(r'([a-zA-Z])(\d)', r'\1 \2', text)
 
-    # Preparar datos crudos
-    raw_descs = df[col_nom].fillna("").astype(str).tolist() if col_nom else [""] * num_rows
-    raw_codes = df[col_cod].fillna("").astype(str).tolist() if col_cod else [None] * num_rows
-    raw_qties = df[col_cant].tolist()
+    # 2. Tokenize and expand
+    tokens = text.split()
+    expanded_tokens = []
+    for t in tokens:
+        # Check if token (upper) is in abbreviations
+        # Handle punctuation attached to token? Ideally we strip it first.
+        # But split() leaves punctuation. 'clean_labs' kept punctuation.
+        # Let's clean punctuation first inside normalize_desc or here.
+        # We assume input 'text' is upper from clean_labs.
+        t_clean = re.sub(r'[^A-Z0-9]', '', t)
+        if t_clean in PHARMA_ABBREVIATIONS:
+            expanded_tokens.append(PHARMA_ABBREVIATIONS[t_clean])
+        else:
+            expanded_tokens.append(t)
 
-    # Iterar en chunks
-    for i in tqdm(range(0, num_rows, BATCH_SIZE), desc="Cruzando por lotes"):
-        end_ix = min(i + BATCH_SIZE, num_rows)
+    return " ".join(expanded_tokens)
 
-        batch_descs = raw_descs[i:end_ix]
-        batch_codes = raw_codes[i:end_ix]
-        batch_qties = raw_qties[i:end_ix]
-
-        # Match Batch
-        match_results = matcher.match_batch(batch_descs, batch_codes)
-
-        # Procesar resultados del lote
-        for j, (tidx, score, method) in enumerate(match_results):
-            qty_val = parse_decimal(batch_qties[j])
-            total_qty += qty_val
-
-            is_match = False
-            if tidx is not None:
-                if score >= THRESHOLD_CONFIDENT:
-                    is_match = True
-                elif score >= THRESHOLD_RELAXED:
-                    is_match = True
-
-            if is_match:
-                matched_qty += qty_val
-                local_results[tidx] += qty_val
-            else:
-                # Guardar no encontrado
-                output_unmatched_list.append({
-                    'Archivo': filepath.name,
-                    'Descripcion_Original': batch_descs[j],
-                    'Codigo_Original': batch_codes[j],
-                    'Cantidad': qty_val,
-                    'Mejor_Candidato_Idx': tidx if tidx is not None else '',
-                    'Score': score
-                })
-
-    pct = (matched_qty / total_qty * 100) if total_qty > 0 else 0
-    print(f"   -> Total: {total_qty:,.0f} | Cruzado: {matched_qty:,.0f} | Cobertura: {pct:.2f}%")
-    
-    return local_results, total_qty, matched_qty
-
-def main():
-    parser = argparse.ArgumentParser(description="Cruce Farmacéutico Avanzado")
-    parser.add_argument("--targets", default="Targets.csv", help="Archivo maestro de productos")
-    parser.add_argument("--files", nargs='+', help="Archivos de movimiento (meses)")
-    parser.add_argument("--batch_size", type=int, default=5000, help="Tamaño del lote de procesamiento")
-    args = parser.parse_args()
-
-    global BATCH_SIZE
-    BATCH_SIZE = args.batch_size
-
-    # 1. Cargar Targets
-    target_path = Path(args.targets)
-    if not target_path.exists():
-        print("Error: No existe Targets.csv")
-        return
-
-    print(f"Cargando maestro: {target_path}")
-    target_df = read_csv_robust(target_path)
-
-    # Inicializar Matcher (entrena modelos)
-    matcher = SmartMatcher(target_df)
-
-    # 2. Buscar archivos si no se pasan
-    files = args.files
-    if not files:
-        import glob
-        files = glob.glob("*Evento*.csv") + glob('*evento*.csv') + glob('*EVENTO*.csv')
-        files += glob('*abril*.csv') + glob('*mayo*.csv') + glob('*202*.csv')
-        # Eliminar duplicados manteniendo orden
-        files = sorted(list(set(files)))
-        print(f"Archivos detectados automáticamente: {len(files)}")
-
-    # 3. Procesar
-    audit_unmatched = []
-
-    target_info = {}
-    for idx, row in target_df.iterrows():
-        desc = row[matcher.col_desc] if matcher.col_desc else ""
-        code = row[matcher.col_code] if matcher.col_code else ""
-        target_info[idx] = {'desc': desc, 'code': code}
-
-    pivot_data = defaultdict(dict)
-
-    global_total = Decimal('0')
-    global_matched = Decimal('0')
-
-    for fname in files:
-        fpath = Path(fname)
-        results, f_total, f_matched = process_file(fpath, matcher, None, audit_unmatched)
-
-        global_total += f_total
-        global_matched += f_matched
-
-        col_name = fpath.stem
-        for tidx, qty in results.items():
-            pivot_data[tidx][col_name] = qty
-
-    # 4. Generar Reportes
-    print("\nGenerando reporte final...")
-
-    # Reporte No Encontrados
-    if audit_unmatched:
-        df_unmatched = pd.DataFrame(audit_unmatched)
-        unmatched_file = f"no_encontrados_avanzado_{datetime.datetime.now().strftime('%Y%m%d')}.csv"
-        df_unmatched.to_csv(unmatched_file, index=False, sep=';', encoding='utf-8-sig')
-        print(f"Reporte de NO cruzados guardado en: {unmatched_file}")
+# Smart Dosage Extractor
+def extract_dosage_features(text):
+    """
+    Extracts numeric dosage features to validate matches.
+    Returns a set of tuples: ('500', 'MG'), ('1', '%')
+    """
+    if not text: return set()
+    # Pattern: Number + space? + Unit
+    # Units: MG, G, ML, MCG, %, UI
+    # We normalized text to lower, so use lower units
+    pattern = r'(\d+(?:[\.,]\d+)?)\s*(mg|g|ml|mcg|ui|%)'
+    matches = re.findall(pattern, text)
+    features = set()
+    for num, unit in matches:
+        # Normalize number: 1.0 -> 1
         try:
-            top_missed = df_unmatched.groupby('Codigo_Original')['Cantidad'].sum().sort_values(ascending=False).head(20)
-            print("\nTop 20 Productos NO encontrados (por código/cantidad):")
-            print(top_missed)
+            val = float(num.replace(',', '.'))
+            features.add((val, unit))
         except:
             pass
+    return features
 
-    # Reporte Cruzado (Pivot)
-    final_rows = []
+def is_dosage_compatible(src_text, target_text):
+    """
+    Returns True if dosages are compatible or ambiguous.
+    Returns False ONLY if there is a direct conflict (e.g. 500mg vs 1000mg).
+    """
+    src_feat = extract_dosage_features(src_text)
+    tgt_feat = extract_dosage_features(target_text)
+
+    if not src_feat or not tgt_feat:
+        return True # Ambiguous, allow match
+
+    # Check for direct conflict
+    # Conflict if they share the same UNIT but have different numbers
+    src_units = {u: v for v, u in src_feat}
+    tgt_units = {u: v for v, u in tgt_feat}
+
+    common_units = set(src_units.keys()) & set(tgt_units.keys())
+    for u in common_units:
+        if src_units[u] != tgt_units[u]:
+            return False # CONFLICT! (e.g. 500 mg vs 100 mg)
+
+    return True
+
+def normalize_desc(s):
+    if pd.isna(s): return ""
+
+    # 1. Clean Labs and structural noise
+    s = clean_labs_and_extra_info(s) # Returns UPPER
+
+    # 2. Advanced Normalization (Units & Abbrevs)
+    s = expand_abbreviations_and_units(s)
+
+    # 3. Final cleaning (lowercase, remove non-alphanum)
+    s = str(s).strip().lower()
+    s = re.sub(r"[\s\W]+", " ", s)
+    return s.strip()
+
+_word_re = re.compile(r'\w+')
+def tokens_from_text(s, min_len=2):
+    if not s: return []
+    toks = _word_re.findall(s.lower())
+    return [t for t in toks if len(t) >= min_len]
+
+_THOUSANDS_CHARS_RE = re.compile(r"[\'\s\u00A0\u202F\u2007\u2009]")
+_CURRENCY_CHARS_RE = re.compile(r'[^\d\.,\-\(\)eE]')
+def parse_decimal(val):
+    """
+    Parses decimal numbers assuming Colombian/LatAm format:
+    - Thousands separator: '.' (dot)
+    - Decimal separator: ',' (comma)
+    """
+    if val is None or (isinstance(val, float) and np.isnan(val)): return None
+    s = str(val).strip()
+    if s == "": return None
+
+    negative = False
+    if s.startswith('(') and s.endswith(')'):
+        negative = True; s = s[1:-1].strip()
+    if s.count('-') > 0:
+        s = s.replace('-', ''); negative = True
+
+    s = _THOUSANDS_CHARS_RE.sub('', s)
+    s = _CURRENCY_CHARS_RE.sub('', s)
+    if s == "": return None
+
+    try:
+        # Strategy: Remove thousands (dot), replace decimal (comma) with dot
+        s2 = s.replace('.', '')
+        s2 = s2.replace(',', '.')
+        d = Decimal(s2)
+        return -d if negative else d
+    except Exception:
+        # Fallback to float conversion if something weird happens
+        try:
+             return Decimal(str(float(s.replace(',','.'))))
+        except Exception:
+             return None
+
+def jaccard_similarity(a_tokens, b_tokens):
+    a = set(a_tokens); b = set(b_tokens)
+    if not a and not b: return 0.0
+    inter = a & b; union = a | b
+    return len(inter)/len(union) if union else 0.0
+
+def seq_ratio(a, b):
+    if not a and not b: return 0.0
+    if _HAS_RAPIDFUZZ:
+        return float(fuzz.ratio(a, b) / 100.0)
+    else:
+        return SequenceMatcher(None, a, b).ratio()
+
+def token_sort_ratio(a, b):
+    if not a and not b: return 0.0
+    if _HAS_RAPIDFUZZ:
+        return float(fuzz.token_sort_ratio(a, b) / 100.0)
+    else:
+        return 0.0
+
+# ---------------- Lógica de Columnas ----------------
+def detect_columns(df: pd.DataFrame) -> dict:
+    cols = df.columns.tolist()
+    def find(patterns):
+        for p in patterns:
+            for c in cols:
+                if p.lower() in c.lower():
+                    return c
+        return None
+    mapping = {
+        'codigo_neg': find(['codigo_negociado','codigo negociado','codigo_neg','cod_neg', 'codigo_ap', 'ap']),
+        'codigo_cum': find(['codigo_cum','cum','codigo cum']),
+        'nombre': find(['nombre_producto','nombre producto','descripcion_dci','descripcion dci','descripcion','producto','nombre']),
+        'pa': find(['principio_activo','principio activo','dci','activo','principio']),
+        'cantidad': find(['cantidad_entregada','cantidad','cantidad entregada','entregado','cantidad_entrega']),
+        'cantidad_solicitada': find(['cantidad_solicitada','cantidad solicitada','cantidad_pedida','cantidad pedido','cantidad_ped']),
+        'tipo': find(['tipo de entrega','tipo_entrega','tipo entrega','tipo','estado_entrega','estado'])
+    }
+    return mapping
+
+def preprocess_df(df: pd.DataFrame, mapping=None) -> (pd.DataFrame, dict): # type: ignore
+    df = df.copy()
+    if mapping is None:
+        mapping = detect_columns(df)
+
+    df['_codigo_neg_norm'] = df[mapping['codigo_neg']].apply(normalize_key) if mapping['codigo_neg'] else ""
+    df['_cum_norm'] = df[mapping['codigo_cum']].apply(normalize_key) if mapping['codigo_cum'] else ""
+    df['_nombre_norm'] = df[mapping['nombre']].apply(normalize_desc) if mapping['nombre'] else ""
+    df['_pa_norm'] = df[mapping['pa']].apply(normalize_desc) if mapping['pa'] else ""
+    df['_tokens'] = df['_nombre_norm'].apply(tokens_from_text)
+    df['_cantidad_parsed'] = df[mapping['cantidad']].apply(parse_decimal) if mapping['cantidad'] else None
+    df['_cantidad_solicitada_parsed'] = df[mapping['cantidad_solicitada']].apply(parse_decimal) if mapping['cantidad_solicitada'] else None
+    df['_tipo_entrega_raw'] = df[mapping['tipo']].fillna("").astype(str) if mapping['tipo'] else ""
+    return df, mapping
+
+# ---------------- Classify Row ----------------
+def classify_and_accumulate_row(row, tol=TOLERANCE_RELATIVE):
+    """
+    Returns dict with decimals: delivered_total, delivered_partial, pending, label
+    User Request: Simplify to just 'delivered' total. No partial/pending split unless explicit.
+    If 'cantidad_entregada' exists, use it. Default to 0.
+    """
+    d = row.get('_cantidad_parsed')
+    delivered = Decimal(d) if d is not None else Decimal('0')
+
+    # We consolidate everything into delivered_total as requested
+    return {
+        'delivered_total': delivered,
+        'delivered_partial': Decimal('0'),
+        'pending': Decimal('0'),
+        'label': 'total'
+    }
+
+# ---------------- MATCHING LOGIC (Inverse: Find Target for Source) ----------------
+
+def score_source_against_target(src_row, target_idx, target_data):
+    """
+    Scoring logic adapted: calculates how well `src_row` matches `target_data`.
+    target_data is a dict/row from the targets dataframe.
+    """
+    t_desc_norm = target_data['desc_norm']
+    t_pa_norm = target_data['pa_norm']
+    t_tokens = target_data['tokens']
+    t_codigo_neg = target_data['codigo_neg']
+    t_cum = target_data['cum']
+
+    s_desc_norm = src_row.get('_nombre_norm','')
+    s_pa_norm = src_row.get('_pa_norm','')
+    s_codigo_neg = src_row.get('_codigo_neg_norm','')
+    s_cum = src_row.get('_cum_norm','')
+    s_tokens = src_row.get('_tokens', [])
+
+    score = 0.0
+    reasons = []
+
+    # 0. Safety Check: Dosage Compatibility
+    # We must run this first or penalize heavily if incompatible.
+    if not is_dosage_compatible(s_desc_norm, t_desc_norm):
+        return 0.0, ['dosage_mismatch']
+
+    # 1. Exact Codes
+    if t_codigo_neg and t_codigo_neg == s_codigo_neg:
+        return 1000.0, ['exact_codigo_neg']
+    if t_cum and t_cum == s_cum:
+        return 900.0, ['exact_cum']
+
+    # 2. Textual Match
+    sim_jaccard = jaccard_similarity(t_tokens, s_tokens)
+    sim_seq_ratio = seq_ratio(t_desc_norm, s_desc_norm)
+    sim_token_sort = token_sort_ratio(t_desc_norm, s_desc_norm)
+
+    score_hybrid = (0.4 * sim_token_sort) + (0.3 * sim_seq_ratio) + (0.3 * sim_jaccard)
+    score = score_hybrid * 100
+
+    reasons.append(f'hybrid:{score_hybrid:.3f}')
+
+    if t_desc_norm and s_desc_norm and t_desc_norm == s_desc_norm:
+        score += WEIGHTS['desc_exact']
+    elif t_desc_norm and s_desc_norm and (t_desc_norm in s_desc_norm or s_desc_norm in t_desc_norm):
+        score += WEIGHTS['desc_substring']
+
+    # Principle Active
+    if t_pa_norm and s_pa_norm and t_pa_norm == s_pa_norm:
+        score += WEIGHTS['same_cum'] # reusing weight name
+
+    return score, reasons
+
+def find_best_target_for_row(row_idx, row, targets_df, token_index_targets):
+    """
+    Finds the single best target for a given source row.
+    """
+    # 1. Try Lookup by Code
+    s_codigo_neg = row.get('_codigo_neg_norm')
+    if s_codigo_neg:
+        # Assuming targets_df has indexed lookups passed somehow,
+        # or we just scan (slow) or use a pre-built dict.
+        # For performance, we should rely on pre-built indices passed in `token_index_targets`.
+        matches = token_index_targets['by_codigo_neg'].get(s_codigo_neg, [])
+        if matches:
+            return matches[0], 1000.0, ['exact_codigo_neg']
+
+    s_cum = row.get('_cum_norm')
+    if s_cum:
+        matches = token_index_targets['by_cum'].get(s_cum, [])
+        if matches:
+            return matches[0], 900.0, ['exact_cum']
+
+    # 2. Candidate Selection by Tokens
+    s_tokens = row.get('_tokens', [])
+    if not s_tokens:
+        return None, 0.0, []
+
+    candidates = Counter()
+    for tk in s_tokens:
+        for tidx in token_index_targets['by_token'].get(tk, []):
+            candidates[tidx] += 1
+
+    if not candidates:
+        return None, 0.0, []
+
+    # Take top K candidates
+    top_candidates = [x[0] for x in candidates.most_common(TOKEN_POOL_TOPK)]
+
+    # 3. Score Candidates (Token/Fuzzy)
+    best_score = -1.0
+    best_tidx = None
+    best_reasons = []
+
+    for tidx in top_candidates:
+        t_data = token_index_targets['data'][tidx]
+        score, reasons = score_source_against_target(row, tidx, t_data)
+        if score > best_score:
+            best_score = score
+            best_tidx = tidx
+            best_reasons = reasons
+
+    # 4. TF-IDF Fallback (If score is weak)
+    # Threshold to try advanced search. If best_score < 85 (RELAXED default), try semantic.
+    # Note: If no token candidates were found, best_score is -1.
+    if best_score < 85 and token_index_targets.get('tfidf_engine'):
+        engine = token_index_targets['tfidf_engine']
+        s_desc = row.get('_nombre_norm', '')
+
+        if s_desc:
+            try:
+                # Vectorize source
+                vec = engine['vectorizer'].transform([s_desc])
+                # Find neighbors
+                dists, indices = engine['nn'].kneighbors(vec)
+
+                # Iterate neighbors
+                for i, dist in enumerate(dists[0]):
+                    # dist is cosine distance (0=identical, 1=different)
+                    # Convert to score: (1 - dist) * 100 roughly
+                    # Cosine sim = 1 - cosine dist
+                    sim = 1.0 - dist
+                    tfidf_score = sim * 100
+
+                    if tfidf_score < 60: continue # Too far
+
+                    idx_in_matrix = indices[0][i]
+                    real_tidx = engine['indices_map'][idx_in_matrix]
+
+                    # Validate Dosage Compatibility
+                    t_data = token_index_targets['data'][real_tidx]
+                    if not is_dosage_compatible(s_desc, t_data['desc_norm']):
+                        continue # Skip this neighbor, dosage conflict
+
+                    # Calculate Full Hybrid Score to confirm
+                    # We use the standard scorer to be consistent with weights
+                    score, reasons = score_source_against_target(row, real_tidx, t_data)
+
+                    # Bonus for TF-IDF discovery
+                    score += 5
+                    reasons.append(f'tfidf_found:{tfidf_score:.1f}')
+
+                    if score > best_score:
+                        best_score = score
+                        best_tidx = real_tidx
+                        best_reasons = reasons
+            except Exception:
+                pass
+
+    return best_tidx, best_score, best_reasons
+
+# ---------------- Processing Worker ----------------
+
+def process_chunk_of_source(chunk_df, targets_df, token_index_targets, mode, strict_cfg, relaxed_cfg):
+    """
+    Process a chunk of source rows.
+    Returns a list of results: (row_idx, assigned_target_idx, score, reasons, classification_dict)
+    """
+    results = []
+    cfg = strict_cfg if mode == 'strict' else relaxed_cfg
+    min_score = cfg['MIN_ACCEPT_SCORE']
+
+    for idx, row in chunk_df.iterrows():
+        best_tidx, best_score, best_reasons = find_best_target_for_row(idx, row, targets_df, token_index_targets)
+
+        assigned = None
+        if best_tidx is not None and best_score >= min_score:
+            assigned = best_tidx
+
+        # Special case: if mode is relaxed, check relaxed threshold
+        if assigned is None and mode == 'relaxed' and best_tidx is not None:
+             if best_score >= relaxed_cfg['MIN_ACCEPT_SCORE']:
+                 assigned = best_tidx
+
+        # Always return result, matched or not
+        classif = classify_and_accumulate_row(row)
+        results.append({
+            'source_idx': idx,
+            'target_idx': assigned, # None if unmatched
+            'score': best_score,
+            'reasons': best_reasons,
+            'classif': classif
+        })
+    return results
+
+# ---------------- Main Aggregation Logic ----------------
+
+def aggregate(event_files, target_df=None, mode='strict', out_csv='entregas_por_meses_resumen_tipos.csv', audit_csv_prefix=None):
+
+    # 1. Prepare Targets
+    if target_df is None:
+        logging.info("Generando targets dinámicamente (scan de archivos)...")
+        uniq_set = set()
+
+        for f in (event_files or []):
+            try:
+                tmp = read_csv_robust(Path(f))
+                _, m = preprocess_df(tmp) # Just to get column mapping
+                # We need simple normalization for dedupe
+                tmp['_n'] = tmp[m['nombre']].apply(normalize_desc)
+                tmp['_p'] = tmp[m['pa']].apply(normalize_desc)
+                for _, r in tmp.iterrows():
+                    uniq_set.add((r['_n'], r['_p']))
+            except Exception:
+                pass
+        target_list = [{'DESCRIPCION': u[0], 'PRINCIPIO_ACTIVO': u[1]} for u in uniq_set]
+        target_df = pd.DataFrame(target_list)
+
+    # CLEANING: Remove quotes and duplicates from Targets
+    # This addresses "redundancia" and "comillas" issues.
+    if target_df is not None:
+        # 1. Remove quotes from string columns
+        for col in target_df.select_dtypes(include=['object', 'string']).columns:
+            target_df[col] = target_df[col].astype(str).str.replace('"', '', regex=False).str.replace("'", "", regex=False)
+
+        # 2. Deduplicate
+        len_before = len(target_df)
+        target_df = target_df.drop_duplicates()
+        len_after = len(target_df)
+        if len_before != len_after:
+            logging.info(f"Targets deduplicados: {len_before} -> {len_after} (eliminados {len_before - len_after})")
+
+    # Pre-process Targets ONE TIME
+    logging.info(f"Preprocesando {len(target_df)} targets...")
+    t_mapping = detect_columns(target_df)
     
-    # Obtener todos los nombres de meses/archivos encontrados
-    all_months = sorted([Path(f).stem for f in files])
+    # Apply normalization to targets
+    target_df['_nombre_norm'] = target_df[t_mapping['nombre']].apply(normalize_desc) if t_mapping['nombre'] else ""
+    target_df['_pa_norm'] = target_df[t_mapping['pa']].apply(normalize_desc) if t_mapping['pa'] else ""
+    target_df['_codigo_neg_norm'] = target_df[t_mapping['codigo_neg']].apply(normalize_key) if t_mapping['codigo_neg'] else ""
+    target_df['_cum_norm'] = target_df[t_mapping['codigo_cum']].apply(normalize_key) if t_mapping['codigo_cum'] else ""
+    target_df['_tokens'] = target_df['_nombre_norm'].apply(tokens_from_text)
 
-    for tidx, month_dict in pivot_data.items():
-        row = {
-            'DESCRIPCION_TARGET': target_info[tidx]['desc'],
-            'CODIGO_TARGET': target_info[tidx]['code']
+    # Build Target Index for fast lookup
+    token_index_targets = {
+        'by_token': defaultdict(list),
+        'by_codigo_neg': defaultdict(list),
+        'by_cum': defaultdict(list),
+        'data': {}, # Map idx -> pre-computed data dict
+        'tfidf_engine': None # Will hold vectorizer and neighbors
+    }
+
+    # 1. Standard Indexing
+    target_descs_for_tfidf = []
+    target_indices_for_tfidf = [] # Map position in matrix to real idx
+
+    for idx, row in target_df.iterrows():
+        token_index_targets['data'][idx] = {
+            'desc_norm': row['_nombre_norm'],
+            'pa_norm': row['_pa_norm'],
+            'codigo_neg': row['_codigo_neg_norm'],
+            'cum': row['_cum_norm'],
+            'tokens': row['_tokens']
         }
-        total_row = Decimal('0')
-        for m in all_months:
-            qty = month_dict.get(m, Decimal('0'))
-            row[m] = str(qty).replace('.', ',') if qty > 0 else '0'
-            total_row += qty
 
-        row['TOTAL_ACUMULADO'] = str(total_row).replace('.', ',')
-        final_rows.append(row)
+        if row['_codigo_neg_norm']:
+            token_index_targets['by_codigo_neg'][row['_codigo_neg_norm']].append(idx)
+        if row['_cum_norm']:
+            token_index_targets['by_cum'][row['_cum_norm']].append(idx)
 
-    df_final = pd.DataFrame(final_rows)
-    # Ordenar columnas para que queden Descripcion, Codigo, ...Meses..., Total
-    cols_order = ['DESCRIPCION_TARGET', 'CODIGO_TARGET'] + all_months + ['TOTAL_ACUMULADO']
-    # Asegurar que solo usemos columnas que existen
-    cols_order = [c for c in cols_order if c in df_final.columns]
+        for tk in row['_tokens']:
+            token_index_targets['by_token'][tk].append(idx)
+
+        # Prepare for TF-IDF
+        if row['_nombre_norm']:
+            target_descs_for_tfidf.append(row['_nombre_norm'])
+            target_indices_for_tfidf.append(idx)
+
+    # 2. Build TF-IDF Index (Batch Mode)
+    if _HAS_SKLEARN and target_descs_for_tfidf:
+        logging.info("Entrenando motor TF-IDF con n-gramas...")
+        try:
+            # Analyzer char_wb with 3-grams catches typos effectively
+            vectorizer = TfidfVectorizer(analyzer='char_wb', ngram_range=(3, 3), min_df=1, max_df=0.9)
+            tfidf_matrix = vectorizer.fit_transform(target_descs_for_tfidf)
+
+            # Nearest Neighbors for fast querying
+            # metric='cosine' is standard for TF-IDF
+            nn = NearestNeighbors(n_neighbors=20, metric='cosine', n_jobs=-1)
+            nn.fit(tfidf_matrix)
+
+            token_index_targets['tfidf_engine'] = {
+                'vectorizer': vectorizer,
+                'nn': nn,
+                'matrix': tfidf_matrix,
+                'indices_map': target_indices_for_tfidf
+            }
+            logging.info("Motor TF-IDF listo.")
+        except Exception as e:
+            logging.error(f"Fallo al entrenar TF-IDF: {e}")
+
+    # Structure to hold results: target_idx -> column_name -> Decimal value
+    # Initialize with all targets
+    agg_results = defaultdict(lambda: defaultdict(Decimal))
+
+    # Audit list
+    audit_rows = []
+
+    # Unmatched list
+    unmatched_rows = []
+
+    # 2. Process Files
+    all_source_files = []
+
+    # Event files
+    for f in (event_files or []):
+        p = Path(f)
+        if not p.exists(): continue
+        mn, label = detect_month_from_filename(p.name)
+        if not label: label = p.stem
+        all_source_files.append({
+            'path': p,
+            'type': 'evento',
+            'label': label,
+            'col_prefix': ''
+        })
+
+    # Processing Loop
+    for src_info in all_source_files:
+        p = src_info['path']
+        label = src_info['label']
+        logging.info(f"Procesando archivo: {p.name} ({label})")
+
+        df_raw = read_csv_robust(p)
+        # NOTE: Do NOT drop duplicates from source. User confirmed repeated rows represent distinct dispensations.
+        df, mapping = preprocess_df(df_raw)
+
+        # Parallel Processing of Source Rows
+        n_cores = psutil.cpu_count(logical=True)
+        # Split source into chunks
+        chunk_size = int(np.ceil(len(df) / n_cores)) if len(df) > 0 else 1
+        chunks = [df[i:i + chunk_size] for i in range(0, len(df), chunk_size)]
+
+        file_results = []
+
+        with ProcessPoolExecutor(max_workers=n_cores) as executor:
+            futures = [
+                executor.submit(process_chunk_of_source, chunk, target_df, token_index_targets, mode, STRICT, RELAXED)
+                for chunk in chunks
+            ]
+
+            for future in tqdm(as_completed(futures), total=len(chunks), desc=f"Matching {label}"):
+                try:
+                    res = future.result()
+                    file_results.extend(res)
+                except Exception as e:
+                    logging.error(f"Error en chunk: {e}")
+
+        # Aggregating results for this file
+        count_matched = 0
+
+        # New structure for unmatched
+        unmatched_buffer = []
+
+        for res in file_results:
+            tidx = res['target_idx']
+            classif = res['classif']
+
+            if tidx is not None:
+                # MATCHED
+                prefix = src_info['col_prefix']
+
+                # For totals accumulation
+                agg_results[tidx][f'{prefix}total_entregado_total'] += classif['delivered_total']
+                agg_results[tidx][f'{prefix}total_entregado_parcial'] += classif['delivered_partial']
+                agg_results[tidx][f'{prefix}total_pendiente'] += classif['pending']
+
+                col_base = f"{prefix}cantidad"
+
+                agg_results[tidx][f'{col_base}_total_{label}'] += classif['delivered_total']
+                agg_results[tidx][f'{col_base}_parcial_{label}'] += classif['delivered_partial']
+                agg_results[tidx][f'{col_base}_pendiente_{label}'] += classif['pending']
+
+                count_matched += 1
+
+                audit_rows.append({
+                    'source_file': p.name,
+                    'source_idx': res['source_idx'],
+                    'target_idx': tidx,
+                    'match_score': res['score'],
+                    'match_reasons': str(res['reasons']),
+                    'delivered_total': classif['delivered_total'],
+                    'delivered_partial': classif['delivered_partial'],
+                    'pending': classif['pending'],
+                    'label': classif['label']
+                })
+            else:
+                # UNMATCHED
+                # We need to collect these to report later
+                # We'll store a simple dict with file, index, and the quantity delivered
+
+                # Fetch optional source code if available for report
+                src_code_neg = df.loc[res['source_idx']].get(mapping['codigo_neg'], '')
+
+                unmatched_buffer.append({
+                    'FILE': p.name,
+                    'ORIGINAL_INDEX': res['source_idx'],
+                    'DESCRIPCION': df.loc[res['source_idx'], '_nombre_norm'], # Normalized name for grouping
+                    'RAW_DESC': df.loc[res['source_idx']].get(mapping['nombre'], ''), # Original name
+                    'CODIGO_NEGOCIADO_EVENTO': src_code_neg,
+                    'CANTIDAD': classif['delivered_total']
+                })
+
+        logging.info(f"  > Match rate: {count_matched}/{len(df)} rows assigned. ({len(unmatched_buffer)} unmatched)")
+
+        # Aggregate unmatched by normalized description for this file/chunk
+        # Note: We append to a global unmatched list, or better, keep raw and aggregate at the end
+        audit_rows.extend(unmatched_buffer) # Reuse audit rows? No, separate list requested.
+
+        # Let's save unmatched rows to a separate list to aggregate at the end
+        unmatched_rows.extend(unmatched_buffer)
+
+    # 3. Build Output DataFrame
+    logging.info("Construyendo reporte final...")
+
+    final_rows = []
+    for idx, row in target_df.iterrows():
+        out = row.to_dict()
+        # cleanup internal cols
+        for k in list(out.keys()):
+            if k.startswith('_'): del out[k]
+
+        # Add aggregated data
+        if idx in agg_results:
+            data = agg_results[idx]
+            for k, v in data.items():
+                out[k] = str(v) if v != 0 else ''
+
+        final_rows.append(out)
+
+    df_out = pd.DataFrame(final_rows)
+
+    # Ensure specific columns exist for total accumulation if not present
+    totals_cols = ['total_entregado_total', 'total_entregado_parcial', 'total_pendiente']
+    for c in totals_cols:
+        if c not in df_out.columns:
+            df_out[c] = '0'
+
+    # REORDER COLUMNS logic
+    if not df_out.empty:
+        # Standard target columns first (Case-insensitive matching)
+        target_col_names = {'descripcion', 'principio_activo', 'codigo_negociado', 'codigo_cum', 'index'}
+        base_cols = [c for c in df_out.columns if c.lower() in target_col_names]
+
+        # Totals next
+        total_cols = [c for c in df_out.columns if c in totals_cols]
+
+        # Monthly/File columns
+        # We want to sort them: Enero, Febrero... if possible, or alphabetical by file label
+        # Pattern: cantidad_total_{label}
+        month_cols = [c for c in df_out.columns if c not in base_cols and c not in total_cols]
+
+        # Try to sort month cols chronologically if they contain month names
+        def month_sort_key(col_name):
+            lower_col = col_name.lower()
+            for m_name, m_num in MONTHS_MAP.items():
+                if m_name in lower_col:
+                    return m_num
+            return 100 # Put at end if not a month
+
+        month_cols.sort(key=month_sort_key)
+
+        # Final Order
+        final_order = base_cols + total_cols + month_cols
+
+        # Keep any other columns that might exist but weren't categorized (safety)
+        remaining = [c for c in df_out.columns if c not in final_order]
+        final_order += remaining
+
+        df_out = df_out[final_order]
+
+    # Add Summary Row at the end
+    if not df_out.empty:
+        # Calculate sums for numeric columns
+        sum_row = {'DESCRIPCION': 'TOTALES'}
+        for col in df_out.columns:
+            if col not in ['DESCRIPCION', 'PRINCIPIO_ACTIVO', 'CODIGO_NEGOCIADO', 'CODIGO_CUM']:
+                try:
+                    # Parse as decimal to sum, handle potentially empty strings
+                    col_sum = Decimal('0')
+                    for val in df_out[col]:
+                        v_dec = parse_decimal(str(val))
+                        if v_dec is not None:
+                            col_sum += v_dec
+                    sum_row[col] = str(col_sum)
+                except Exception:
+                    sum_row[col] = ''
+
+        # Append summary row
+        df_sum = pd.DataFrame([sum_row])
+        df_out = pd.concat([df_out, df_sum], ignore_index=True)
+
+    # Saving
+    df_out.to_csv(out_csv, index=False, sep=';', encoding='utf-8-sig')
+    logging.info(f"Guardado resumen: {out_csv}")
+
+    if audit_csv_prefix:
+        audit_path = f"{audit_csv_prefix}.csv"
+        # Filter audit rows to only include relevant fields for CSV
+        # (Audit rows now contains mixed data if we extended it, but we didn't extend it with unmatched yet in this block)
+        pd.DataFrame(audit_rows).to_csv(audit_path, index=False, sep=';', encoding='utf-8-sig')
+        logging.info(f"Guardado auditoría: {audit_path}")
+
+    # Generate Unmatched Report
+    total_unmatched_qty = Decimal('0')
     
-    if not df_final.empty:
-        df_final = df_final[cols_order]
+    if unmatched_rows:
+        logging.info(f"Generando reporte de no encontrados ({len(unmatched_rows)} filas)...")
+        df_unmatched = pd.DataFrame(unmatched_rows)
 
-    out_file = "reporte_cruce_avanzado.csv"
-    df_final.to_csv(out_file, index=False, sep=';', encoding='utf-8-sig')
+        # Calculate total unmatched quantity for validation
+        for q in df_unmatched['CANTIDAD']:
+             if q is not None: total_unmatched_qty += q
 
-    print("\n" + "="*60)
-    print(f"RESUMEN FINAL")
-    print(f"Total Cantidad Procesada: {global_total:,.2f}")
-    print(f"Total Cantidad Cruzada:   {global_matched:,.2f}")
-    pct_global = (global_matched / global_total * 100) if global_total > 0 else 0
-    print(f"Porcentaje de Éxito:      {pct_global:.2f}%")
-    print(f"Reporte guardado en:      {out_file}")
-    print("="*60)
+        # Pivot Report: Rows=Medications, Cols=Months (Files), Values=Quantity
+        # This allows seeing month-by-month gaps in a matrix format.
+
+        # 1. Pivot
+        pivot_unmatched = pd.pivot_table(
+            df_unmatched,
+            index=['DESCRIPCION', 'CODIGO_NEGOCIADO_EVENTO', 'RAW_DESC'],
+            columns='FILE',
+            values='CANTIDAD',
+            aggfunc='sum',
+            fill_value=0
+        )
+
+        # 2. Add Row Total
+        pivot_unmatched['TOTAL_GENERAL_NO_ENCONTRADO'] = pivot_unmatched.sum(axis=1)
+
+        # 3. Sort by Total Descending
+        pivot_unmatched = pivot_unmatched.sort_values(by='TOTAL_GENERAL_NO_ENCONTRADO', ascending=False)
+
+        # 4. Save
+        unmatched_path = f"no_encontrados_pivot_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+        pivot_unmatched.to_csv(unmatched_path, sep=';', encoding='utf-8-sig')
+        logging.info(f"Guardado reporte no encontrados (Matriz): {unmatched_path}")
+
+    # VALIDATOR: Print Data Accounting
+    # Total Matched
+    total_matched_qty = Decimal('0')
+    # Use the 'TOTALES' row we just added
+    if not df_out.empty:
+        # The last row is TOTALES
+        last_row = df_out.iloc[-1]
+        if last_row.get('DESCRIPCION') == 'TOTALES':
+             val = last_row.get('total_entregado_total', '0')
+             total_matched_qty = parse_decimal(str(val)) or Decimal('0')
+    
+    # Total Input
+    # We can't easily re-sum sources here without reading again, but we can sum (Matched + Unmatched)
+    # Ideally we should have tracked Total Input during processing.
+    # But (Matched + Unmatched) is effectively the processed total.
+    total_processed = total_matched_qty + total_unmatched_qty
+
+    print("\n" + "="*50)
+    print(f"RESUMEN DE VALIDACIÓN DE DATOS (100% CHECK)")
+    print("="*50)
+    print(f"Total Cantidad Cruzada (Encontrados):   {total_matched_qty:,.2f}")
+    print(f"Total Cantidad NO Cruzada (Remanente):  {total_unmatched_qty:,.2f}")
+    print("-" * 50)
+    print(f"TOTAL PROCESADO (Suma):                 {total_processed:,.2f}")
+    print("="*50 + "\n")
+
+    return df_out, pd.DataFrame(audit_rows)
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description="Cruce entregas (Row-based Matching).")
+    parser.add_argument("--targets", help="Ruta a target.csv", default=None)
+    parser.add_argument("--event_files", nargs='+', help="Archivos evento", required=False)
+    parser.add_argument("--out", help="Output CSV", default="entregas_por_meses_resumen_tipos.csv")
+    parser.add_argument("--audit_prefix", help="Audit Prefix", default=None)
+    parser.add_argument("--mode", choices=['strict','relaxed'], default='strict')
+    parser.add_argument("--tolerance_pct", type=float, default=1.0)
+    parser.add_argument("--loglevel", default="INFO")
+
+    if argv is not None:
+        parsed = parser.parse_args(argv)
+    else:
+        parsed, _ = parser.parse_known_args()
+
+    if not parsed.event_files:
+        from glob import glob
+        candidates = []
+        candidates += glob('*evento*.csv') + glob('*Evento*.csv') + glob('*EVENTO*.csv')
+        candidates += glob('*abril*.csv') + glob('*mayo*.csv') + glob('*202*.csv')
+        seen = set(); candidates_filtered = []
+        for c in candidates:
+            if c not in seen:
+                seen.add(c); candidates_filtered.append(c)
+        parsed.event_files = candidates_filtered
+
+    setup_logging(getattr(logging, parsed.loglevel.upper(), logging.INFO))
+    global TOLERANCE_RELATIVE
+    TOLERANCE_RELATIVE = Decimal(str(parsed.tolerance_pct/100))
+
+    target_df = None
+    if parsed.targets:
+        target_df = read_csv_robust(Path(parsed.targets))
+
+    aggregate(parsed.event_files, target_df, parsed.mode, parsed.out, parsed.audit_prefix)
 
 if __name__ == "__main__":
     main()
