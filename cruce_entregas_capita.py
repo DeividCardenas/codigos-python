@@ -900,8 +900,21 @@ def main():
     if not df_final.empty:
         df_final = df_final[cols_order]
 
-    out_file = "reporte_cruce_avanzado.csv"
-    df_final.to_csv(out_file, index=False, sep=';', encoding='utf-8-sig')
+    # out_file = "reporte_cruce_avanzado.csv"
+    # df_final.to_csv(out_file, index=False, sep=';', encoding='utf-8-sig')
+
+    # Separar en Primarios y Secundarios
+    df_primary = df_final[df_final['FUENTE_MATCH'] == 'PRIMARY']
+    df_secondary = df_final[df_final['FUENTE_MATCH'] == 'SECONDARY']
+
+    file_primary = "reporte_matches_primary.csv"
+    file_secondary = "reporte_matches_secondary.csv"
+
+    if not df_primary.empty:
+        df_primary.to_csv(file_primary, index=False, sep=';', encoding='utf-8-sig')
+
+    if not df_secondary.empty:
+        df_secondary.to_csv(file_secondary, index=False, sep=';', encoding='utf-8-sig')
 
     print("\n" + "="*60)
     print(f"RESUMEN FINAL")
@@ -909,7 +922,9 @@ def main():
     print(f"Total Cantidad Cruzada:   {global_matched:,.2f}")
     pct_global = (global_matched / global_total * 100) if global_total > 0 else 0
     print(f"Porcentaje de Éxito:      {pct_global:.2f}%")
-    print(f"Reporte guardado en:      {out_file}")
+    print("-" * 60)
+    print(f"Reporte Primarios:        {file_primary} (Filas: {len(df_primary)})")
+    print(f"Reporte Secundarios:      {file_secondary} (Filas: {len(df_secondary)})")
     print("="*60)
 
 if __name__ == "__main__":
