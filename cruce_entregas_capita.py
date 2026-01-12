@@ -753,15 +753,19 @@ def main():
 
     print(f"Cargando maestro PRIMARIO: {target_path}")
     target_df = read_csv_robust(target_path)
+    print(f" -> Filas Primarias: {len(target_df)}")
     matcher = SmartMatcher(target_df)
 
     # 2. Cargar Targets Secundarios
     matcher_secondary = None
     target_sec_path = Path(args.targets_secondary)
+    target_sec_df = pd.DataFrame()
+
     if target_sec_path.exists():
         print(f"Cargando maestro SECUNDARIO: {target_sec_path}")
         try:
             target_sec_df = read_csv_robust(target_sec_path)
+            print(f" -> Filas Secundarias: {len(target_sec_df)}")
             if not target_sec_df.empty:
                 matcher_secondary = SmartMatcher(target_sec_df)
                 print(" -> Matcher Secundario Activo")
@@ -932,55 +936,55 @@ def main():
     print("-" * 60)
     print("Generando REPORTE_SABANA_TARGETS.csv (Estructura Master preservada)...")
 
+    # Crear DF Unificado (Concatenación sin filtrar)
+    # Esto asegura que len(df_all) == len(primary) + len(secondary)
+    df_all_targets = pd.concat(
+        [target_df, target_sec_df],
+        keys=['PRIMARY', 'SECONDARY'],
+        names=['FUENTE_LISTA', 'INDICE_ORIGINAL']
+    )
+
+    total_expected = len(target_df) + len(target_sec_df)
+    total_actual = len(df_all_targets)
+    print(f"Validación de Integridad: Esperados={total_expected}, Reales={total_actual}")
+
     sabana_rows = []
 
-    # 1. Procesar Targets Primarios (Orden original)
-    for idx, row in target_df.iterrows():
-        # Recuperar columnas originales clave (nombre/codigo)
-        # Usamos los nombres detectados por matcher para consistencia
-        desc_val = row[matcher.col_desc] if matcher.col_desc else ""
-        code_val = row[matcher.col_code] if matcher.col_code else ""
+    # Iterar sobre el DF unificado
+    # idx es un MultiIndex (FUENTE_LISTA, INDICE_ORIGINAL)
+    for idx, row in df_all_targets.iterrows():
+        src_type, original_idx = idx
+
+        # Determinar que matcher usar para nombres de columnas
+        # (Aunque row tiene las columnas, usamos logic de matcher para saber cual es desc/code)
+        current_matcher = matcher if src_type == 'PRIMARY' else matcher_secondary
+
+        desc_val = ""
+        code_val = ""
+
+        if current_matcher:
+            desc_val = row[current_matcher.col_desc] if current_matcher.col_desc in row else ""
+            code_val = row[current_matcher.col_code] if current_matcher.col_code in row else ""
+        else:
+            # Fallback si no hay matcher (raro, target secundario vacio?)
+            desc_val = str(row.iloc[0]) if not row.empty else ""
 
         out_row = {
-            'FUENTE_LISTA': 'PRIMARY',
-            'INDICE_ORIGINAL': idx, # Util para debugging
+            'FUENTE_LISTA': src_type,
+            'INDICE_ORIGINAL': original_idx,
             'DESCRIPCION_MASTER': desc_val,
             'CODIGO_MASTER': code_val
         }
 
         row_total = Decimal('0')
-        # Llenar meses
+        # Llenar meses usando la llave compuesta (ID, Source)
         for m in all_months:
-            # Buscar en pivot usando la llave compuesta (ID, 'PRIMARY')
-            qty = pivot_data.get((idx, 'PRIMARY'), {}).get(m, Decimal('0'))
+            qty = pivot_data.get((original_idx, src_type), {}).get(m, Decimal('0'))
             out_row[m] = str(qty).replace('.', ',') if qty > 0 else '0'
             row_total += qty
 
         out_row['TOTAL_GENERAL'] = str(row_total).replace('.', ',')
         sabana_rows.append(out_row)
-
-    # 2. Procesar Targets Secundarios (si existen)
-    if matcher_secondary:
-        for idx, row in matcher_secondary.target_df.iterrows():
-            desc_val = row[matcher_secondary.col_desc] if matcher_secondary.col_desc else ""
-            code_val = row[matcher_secondary.col_code] if matcher_secondary.col_code else ""
-
-            out_row = {
-                'FUENTE_LISTA': 'SECONDARY',
-                'INDICE_ORIGINAL': idx,
-                'DESCRIPCION_MASTER': desc_val,
-                'CODIGO_MASTER': code_val
-            }
-
-            row_total = Decimal('0')
-            for m in all_months:
-                # Buscar en pivot usando la llave compuesta (ID, 'SECONDARY')
-                qty = pivot_data.get((idx, 'SECONDARY'), {}).get(m, Decimal('0'))
-                out_row[m] = str(qty).replace('.', ',') if qty > 0 else '0'
-                row_total += qty
-
-            out_row['TOTAL_GENERAL'] = str(row_total).replace('.', ',')
-            sabana_rows.append(out_row)
 
     # Crear DataFrame y Exportar
     if sabana_rows:
