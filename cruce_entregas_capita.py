@@ -447,7 +447,12 @@ class SmartMatcher:
             self.tfidf_matrix = self.vectorizer.fit_transform(self.target_df['_clean'].tolist())
 
             # Nearest Neighbors para búsqueda rápida
-            self.nn = NearestNeighbors(n_neighbors=5, metric='cosine', n_jobs=-1)
+            # Ajustar n_neighbors dinámicamente si hay pocos targets (caso Secondary)
+            n_samples = self.target_df.shape[0]
+            k_neighbors = min(5, n_samples)
+            if k_neighbors < 1: k_neighbors = 1
+
+            self.nn = NearestNeighbors(n_neighbors=k_neighbors, metric='cosine', n_jobs=-1)
             self.nn.fit(self.tfidf_matrix)
         else:
             self.vectorizer = None
@@ -592,18 +597,18 @@ class SmartMatcher:
 
 # ---------------- PROCESAMIENTO PRINCIPAL ----------------
 
-def process_file(filepath, matcher, rescued_matches_list, output_unmatched_list):
+def process_file(filepath, matcher, matcher_secondary, rescued_matches_list, output_unmatched_list):
     print(f"\nProcesando archivo: {filepath.name}")
     try:
         df = read_csv_robust(filepath)
     except Exception as e:
         print(f"Error leyendo {filepath}: {e}")
-        return {}, Decimal('0'), Decimal('0')
+        return {}, {}, Decimal('0'), Decimal('0') # source_tracker, results, total, matched
 
     cols = detect_columns(df)
     if not cols['cantidad']:
         print("   -> ERROR: No se encontró columna de cantidad. Saltando.")
-        return {}, Decimal('0'), Decimal('0')
+        return {}, {}, Decimal('0'), Decimal('0')
 
     col_nom = cols['nombre']
     col_cod = cols['codigo']
@@ -611,7 +616,7 @@ def process_file(filepath, matcher, rescued_matches_list, output_unmatched_list)
 
     total_qty = Decimal('0')
     matched_qty = Decimal('0')
-    local_results = defaultdict(Decimal)
+    local_results = defaultdict(Decimal) # (TargetID, SourceType) -> Qty
 
     # Procesar por lotes
     num_rows = len(df)
@@ -629,34 +634,88 @@ def process_file(filepath, matcher, rescued_matches_list, output_unmatched_list)
         batch_codes = raw_codes[i:end_ix]
         batch_qties = raw_qties[i:end_ix]
 
-        # Match Batch
+        # 1. Match Batch PRIMARIO
         match_results = matcher.match_batch(batch_descs, batch_codes)
 
-        # Procesar resultados del lote
+        # 2. Match Batch SECUNDARIO (Cascade)
+        # Identificar indices que fallaron en primario
+        secondary_indices = []
+        secondary_inputs_desc = []
+        secondary_inputs_code = []
+
+        # Pre-scan results to find what needs secondary
+        for j, (tidx, score, method) in enumerate(match_results):
+             is_match = False
+             if tidx is not None:
+                if score >= THRESHOLD_CONFIDENT or score >= THRESHOLD_RELAXED:
+                    is_match = True
+
+             if not is_match and matcher_secondary:
+                 secondary_indices.append(j)
+                 secondary_inputs_desc.append(batch_descs[j])
+                 secondary_inputs_code.append(batch_codes[j])
+
+        secondary_results = []
+        if secondary_indices and matcher_secondary:
+             secondary_results = matcher_secondary.match_batch(secondary_inputs_desc, secondary_inputs_code)
+
+        # Procesar resultados del lote (Merge Primary + Secondary)
+        sec_ptr = 0
         for j, (tidx, score, method) in enumerate(match_results):
             qty_val = parse_decimal(batch_qties[j])
             total_qty += qty_val
 
+            final_tidx = tidx
+            final_score = score
+            final_method = method
+            source_type = "PRIMARY"
+
+            # Check if Primary was success
             is_match = False
-            if tidx is not None:
-                if score >= THRESHOLD_CONFIDENT:
+            if final_tidx is not None:
+                if final_score >= THRESHOLD_CONFIDENT or final_score >= THRESHOLD_RELAXED:
                     is_match = True
-                elif score >= THRESHOLD_RELAXED:
+
+            # If not matched in primary, check secondary
+            if not is_match and matcher_secondary and sec_ptr < len(secondary_results):
+                # Check secondary result
+                s_tidx, s_score, s_method = secondary_results[sec_ptr]
+                sec_ptr += 1
+
+                # Check threshold for secondary
+                is_sec_match = False
+                if s_tidx is not None:
+                     if s_score >= THRESHOLD_CONFIDENT or s_score >= THRESHOLD_RELAXED:
+                        is_sec_match = True
+
+                if is_sec_match:
+                    final_tidx = s_tidx
+                    final_score = s_score
+                    final_method = s_method
+                    source_type = "SECONDARY"
                     is_match = True
 
             if is_match:
                 matched_qty += qty_val
-                local_results[tidx] += qty_val
+                # Key for aggregation needs to be unique across primary/secondary or handled downstream
+                # Since Target IDs might overlap (0, 1, 2...), we need to disambiguate or ensure IDs are unique.
+                # Here we will store tuple (ID, SourceType)
+                local_results[(final_tidx, source_type)] += qty_val
 
-                # Capture rescued matches for audit
-                if "RESCUED" in method and rescued_matches_list is not None:
-                     tgt_desc = matcher.target_df.iloc[tidx][matcher.col_desc] if tidx is not None else ""
+                # Capture rescued matches for audit (Primary or Secondary)
+                if "RESCUED" in final_method and rescued_matches_list is not None:
+                     # Fetch description from correct dataframe
+                     if source_type == "PRIMARY":
+                         tgt_desc = matcher.target_df.iloc[final_tidx][matcher.col_desc]
+                     else:
+                         tgt_desc = matcher_secondary.target_df.iloc[final_tidx][matcher_secondary.col_desc]
+
                      rescued_matches_list.append({
                         'Archivo': filepath.name,
                         'Descripcion_Original': batch_descs[j],
                         'Match_Target': tgt_desc,
-                        'Score': score,
-                        'Method': method
+                        'Score': final_score,
+                        'Method': final_method + f" ({source_type})"
                      })
             else:
                 # Guardar no encontrado
@@ -672,11 +731,13 @@ def process_file(filepath, matcher, rescued_matches_list, output_unmatched_list)
     pct = (matched_qty / total_qty * 100) if total_qty > 0 else 0
     print(f"   -> Total: {total_qty:,.0f} | Cruzado: {matched_qty:,.0f} | Cobertura: {pct:.2f}%")
     
+    # Track sources count just for summary
     return local_results, total_qty, matched_qty
 
 def main():
     parser = argparse.ArgumentParser(description="Cruce Farmacéutico Avanzado")
-    parser.add_argument("--targets", default="Targets.csv", help="Archivo maestro de productos")
+    parser.add_argument("--targets", default="Targets.csv", help="Archivo maestro de productos (PRIMARIO)")
+    parser.add_argument("--targets_secondary", default="Targets_Secondary.csv", help="Archivo maestro de productos (SECUNDARIO)")
     parser.add_argument("--files", nargs='+', help="Archivos de movimiento (meses)")
     parser.add_argument("--batch_size", type=int, default=5000, help="Tamaño del lote de procesamiento")
     args = parser.parse_args()
@@ -684,19 +745,32 @@ def main():
     global BATCH_SIZE
     BATCH_SIZE = args.batch_size
 
-    # 1. Cargar Targets
+    # 1. Cargar Targets Primarios
     target_path = Path(args.targets)
     if not target_path.exists():
         print("Error: No existe Targets.csv")
         return
 
-    print(f"Cargando maestro: {target_path}")
+    print(f"Cargando maestro PRIMARIO: {target_path}")
     target_df = read_csv_robust(target_path)
-
-    # Inicializar Matcher (entrena modelos)
     matcher = SmartMatcher(target_df)
 
-    # 2. Buscar archivos si no se pasan
+    # 2. Cargar Targets Secundarios
+    matcher_secondary = None
+    target_sec_path = Path(args.targets_secondary)
+    if target_sec_path.exists():
+        print(f"Cargando maestro SECUNDARIO: {target_sec_path}")
+        try:
+            target_sec_df = read_csv_robust(target_sec_path)
+            if not target_sec_df.empty:
+                matcher_secondary = SmartMatcher(target_sec_df)
+                print(" -> Matcher Secundario Activo")
+        except Exception as e:
+            print(f"Advertencia: Error cargando targets secundarios: {e}")
+    else:
+        print(" -> No se encontró targets secundarios (Targets_Secondary.csv), modo simple.")
+
+    # 3. Buscar archivos si no se pasan
     files = args.files
     if not files:
         import glob
@@ -706,31 +780,42 @@ def main():
         files = sorted(list(set(files)))
         print(f"Archivos detectados automáticamente: {len(files)}")
 
-    # 3. Procesar
+    # 4. Procesar
     audit_unmatched = []
     rescued_matches = []
 
-    target_info = {}
+    # Map ID -> Info (Need separate maps for Primary and Secondary)
+    # Aggregated Pivot: Key = (ID, SourceType)
+
+    target_info_primary = {}
     for idx, row in target_df.iterrows():
         desc = row[matcher.col_desc] if matcher.col_desc else ""
         code = row[matcher.col_code] if matcher.col_code else ""
-        target_info[idx] = {'desc': desc, 'code': code}
+        target_info_primary[idx] = {'desc': desc, 'code': code, 'source': 'PRIMARY'}
 
-    pivot_data = defaultdict(dict)
+    target_info_secondary = {}
+    if matcher_secondary:
+        for idx, row in matcher_secondary.target_df.iterrows():
+            desc = row[matcher_secondary.col_desc] if matcher_secondary.col_desc else ""
+            code = row[matcher_secondary.col_code] if matcher_secondary.col_code else ""
+            target_info_secondary[idx] = {'desc': desc, 'code': code, 'source': 'SECONDARY'}
+
+    pivot_data = defaultdict(dict) # (ID, SourceType) -> {Month: Qty}
 
     global_total = Decimal('0')
     global_matched = Decimal('0')
 
     for fname in files:
         fpath = Path(fname)
-        results, f_total, f_matched = process_file(fpath, matcher, rescued_matches, audit_unmatched)
+        results, f_total, f_matched = process_file(fpath, matcher, matcher_secondary, rescued_matches, audit_unmatched)
 
         global_total += f_total
         global_matched += f_matched
 
         col_name = fpath.stem
-        for tidx, qty in results.items():
-            pivot_data[tidx][col_name] = qty
+        # results keys are (tidx, source_type)
+        for (tidx, src_type), qty in results.items():
+            pivot_data[(tidx, src_type)][col_name] = qty
 
     # 4. Generar Reportes
     print("\nGenerando reporte final...")
@@ -785,10 +870,17 @@ def main():
     # Obtener todos los nombres de meses/archivos encontrados
     all_months = sorted([Path(f).stem for f in files])
 
-    for tidx, month_dict in pivot_data.items():
+    for (tidx, src_type), month_dict in pivot_data.items():
+        info = None
+        if src_type == 'PRIMARY':
+            info = target_info_primary.get(tidx, {'desc':'?', 'code':'?'})
+        else:
+            info = target_info_secondary.get(tidx, {'desc':'?', 'code':'?'})
+
         row = {
-            'DESCRIPCION_TARGET': target_info[tidx]['desc'],
-            'CODIGO_TARGET': target_info[tidx]['code']
+            'FUENTE_MATCH': src_type,
+            'DESCRIPCION_TARGET': info['desc'],
+            'CODIGO_TARGET': info['code']
         }
         total_row = Decimal('0')
         for m in all_months:
@@ -800,8 +892,8 @@ def main():
         final_rows.append(row)
 
     df_final = pd.DataFrame(final_rows)
-    # Ordenar columnas para que queden Descripcion, Codigo, ...Meses..., Total
-    cols_order = ['DESCRIPCION_TARGET', 'CODIGO_TARGET'] + all_months + ['TOTAL_ACUMULADO']
+    # Ordenar columnas
+    cols_order = ['FUENTE_MATCH', 'DESCRIPCION_TARGET', 'CODIGO_TARGET'] + all_months + ['TOTAL_ACUMULADO']
     # Asegurar que solo usemos columnas que existen
     cols_order = [c for c in cols_order if c in df_final.columns]
     
