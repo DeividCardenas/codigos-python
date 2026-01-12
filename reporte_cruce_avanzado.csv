@@ -41,11 +41,11 @@ Valproico acido 250mg Capsula dura;;47956;27525;34864;47138;27642;34201;219326
 Valproico acido 5% [250mg/5mL] Jarabe;;238;342;185;683;793;327;2568
 Zoledronico acido [4mg/5mL] Solucion inyectable Ampolla x 5mL;;13;25;4;2;3;4;51
 Aguja para lapicero insulina;;73713;52341;90;28301;21081;22745;198271
-Albendazol 2% [100mg/5mL] Suspension oral;;8;12;0;3;7;15;45
+Albendazol 2% [100mg/5mL] Suspension oral;;50;57;13;73;28;46;267
 Albendazol 200mg Tableta;;796;834;672;871;971;846;4990
 Alendronico acido 70mg Tableta;;1612;1304;667;1010;829;1269;6691
 Alfametildopa 250mg Tableta;;420;280;0;270;390;270;1630
-Alginato de sodio + Bicarbonato de sodio + Calcio carbonato 5% + 2,13% + 3,25% [250mg + 106,5mg + 162,5mg/5mL] Suspension oral;;7;0;0;1;0;0;8
+Alginato de sodio + Bicarbonato de sodio + Calcio carbonato 5% + 2,13% + 3,25% [250mg + 106,5mg + 162,5mg/5mL] Suspension oral;;31;366;270;482;180;68;1397
 Alimento en polvo a base de multivitaminas y minerales (Vitamix) sobre x 1g;;1920;1140;961;2400;1260;1290;8971
 Alizaprida 12mg/mL Solucion oral;;10;4;8;7;4;9;42
 Alopurinol 300mg Tableta;;2025;345;180;546;666;815;4577
@@ -54,12 +54,12 @@ Amantadina clorhidrato 100mg Capsula dura;;6810;5190;2280;4290;5850;8700;33120
 Amikacina [500mg/2mL] Solucion inyectable;;26;20;11;10;0;9;76
 Amiodarona clorhidrato 200mg Tableta;;2417;1767;1532;2646;1530;2723;12615
 Amitriptilina clorhidrato 25mg Tableta;;6324;5416;3275;6305;5876;5564;32760
-Amlodipino + Hidroclorotiazida + Valsartan 10mg + 12,5mg + 160mg Tableta;;2351;1610;2366;2312;1043;2594;12276
+Amlodipino + Hidroclorotiazida + Valsartan 10mg + 12,5mg + 160mg Tableta;;8557;2432;14276;15227;9223;13301;63016
 Amlodipino + Hidroclorotiazida + Valsartan 10mg + 25mg + 320mg Tableta;;3975;2986;2564;3340;3134;3602;19601
-Hidroclorotiazida + Valsartan 12,5mg + 160mg Tableta;;9388;2632;13505;14976;10069;13488;64058
 Amlodipino 10mg Tableta;;27148;17189;21155;35313;26525;32134;159464
 Amlodipino 5mg Tableta;;48064;27909;45435;66423;50309;81052;319192
 Amoxicilina + Clavulanico acido 500mg + 125mg Tableta;;86;77;0;71;123;112;469
+Amoxicilina 5% [250mg/5mL] Polvo para reconstituir a solucion oral;;79;70;144;61;68;98;520
 Amoxicilina 500mg Capsula dura;;12163;10735;2956;8111;7114;11222;52301
 Ampicilina 500mg Capsula dura;;930;346;1089;445;481;473;3764
 Alprazolam 1mg Tableta;;364;90;2160;2976;364;252;6206
@@ -88,7 +88,7 @@ Betahistina 24mg Tableta;;3496;3792;1920;4810;3866;4083;21967
 Betahistina 8mg Tableta;;1863;2089;1546;1035;2034;1962;10529
 Betametasona valerato + Clotrimazol + Neomicina 0,04% + 1% + 0,5% [4mg + 100mg + 50mg/10g] Crema topica;;35;27;15;29;42;21;169
 Betametasona valerato 0,05% [5mg/10g] Crema topica;;317;318;155;235;254;329;1608
-Betametasona valerato 0,1% [10mg/10g] Crema topica;;109;80;42;127;32;108;498
+Betametasona valerato 0,1% [10mg/10g] Crema topica;;110;83;42;132;32;116;515
 Betametasona sodio fosfato [8mg/2mL] Solucion inyectable;;9;3;11;11;22;14;70
 Betametildigoxina 0,1mg Tableta;;30;0;0;0;40;30;100
 Bevacizumab 25mg/mL [100mg/4mL] Solucion inyectable Vial x 4mL;;317;320;241;229;177;270;1554
@@ -130,7 +130,7 @@ Carbamazepina 400mg Tableta de liberacion prolongada;;740;150;840;220;0;120;2070
 Carbidopa + Levodopa 25mg + 100mg Tableta;;4403;4360;0;2310;1395;5710;18178
 Carbidopa + Levodopa 25mg + 250mg Tableta;;10250;8530;5280;8665;6655;16350;55730
 Calcio carbonato + Vitamina D3 500mg + 330UI Tableta;;12581;12866;4710;7589;5289;12130;55165
-Calcio carbonato 1500mg (600mg calcio) Tableta;;56125;34744;34699;56630;41673;55863;279734
+Calcio carbonato 1500mg (600mg calcio) Tableta;;56125;35104;34699;56630;41673;55863;280094
 Litio carbonato 300mg Tableta;;8369;4895;10850;7260;5490;7450;44314
 Carboplatino 10mg/mL [450mg/45mL] Solucion inyectable;;86;137;35;75;62;76;471
 Carboximetilcelulosa sodica + Glicerina 5mg + 9mg/mL Solucion oftalmica;;54;35;309;380;45;73;896
@@ -181,8 +181,7 @@ Clorfeniramina maleato 4mg Tableta;;628;205;0;202;257;285;1577
 Cloroquina fosfato 150mg Tableta;;585;585;720;565;810;1014;4279
 Clortalidona 12.5mg Tableta;;270;0;0;0;0;480;750
 Clortalidona 25mg Tableta;;90;0;90;0;180;0;360
-Sodio cloruro 0,9% [250mL] Solucion inyectable;;17;33;0;18;0;0;68
-Sodio cloruro 0,9% [100mL] Solucion inyectable;;1251;1370;175;668;542;1336;5342
+Sodio cloruro 0,9% [100mL] Solucion inyectable;;1268;1403;175;686;542;1336;5410
 Clotrimazol 1% [100mg/10g] Crema topica;;159;161;154;173;175;199;1021
 Clotrimazol 1% [100mg/10g] Crema vaginal;;55;47;57;74;64;59;356
 Clotrimazol 1% [100mg/10g] Solucion topica;;34;13;16;13;29;27;132
@@ -241,7 +240,7 @@ Docetaxel [80mg/4mL] Solucion inyectable concentrada Vial x 4mL;;56;79;10;12;26;
 Domperidona 10mg Tableta;;430;810;240;460;150;828;2918
 Domperidona 0.1% [5mg/5mL] Suspension oral;;18;8;12;19;3;20;80
 Donepecilo 5mg Tableta;;120;0;0;0;0;0;120
-Dornasa alfa [2,5mg/2,5mL] Solucion para inhalacion Ampula x 2,5mL;;60;0;0;0;0;0;60
+Dornasa alfa [2,5mg/2,5mL] Solucion para inhalacion Ampula x 2,5mL;;150;0;0;0;90;0;240
 Brimonidina tartrato + Dorzolamina + Timolol 2mg + 20mg + 5mg/mL Solucion oftalmica Frasco gotero x 5mL;;173;212;215;199;165;275;1239
 Dorzolamida + Timolol maleato 20mg + 5mg/mL Solucion oftalmica Frasco gotero x 5mL;;42;11;26;16;14;19;128
 Doxazosina 4mg Tableta;;540;390;0;220;150;180;1480
@@ -258,7 +257,7 @@ Empagliflozina + Metformina 12,5mg + 1000mg Tableta;;3750;3000;0;3480;4410;3510;
 Empagliflozina + Metformina 12,5mg + 850mg Tableta;;850;360;0;240;960;420;2830
 Empagliflozina 10mg Tableta;;2970;1500;210;4620;6420;3738;19458
 Empagliflozina 25mg Tableta;;3720;1710;0;5760;5954;4800;21944
-Emtricitabina + Tenofovir disoproxil fumarato 200mg + 300mg Tableta;;60;0;0;60;60;0;180
+Emtricitabina + Tenofovir alafenamida 200mg + 25mg Tableta;;60;0;0;60;60;0;180
 Enalapril maleato 20mg Tableta;;42518;52408;29896;28412;17412;40050;210696
 Enalapril maleato 5mg Tableta;;10190;7506;6160;17170;13270;13930;68226
 Enoxaparina sodica 4000UI [40mg/0,4mL] Solucion inyectable Jeringa prellenada x 0,4mL;;3170;1686;2040;3501;2192;2858;15447
@@ -308,10 +307,10 @@ Fluorouracilo [500mg/10mL] Solucion inyectable;;602;984;101;324;198;343;2552
 Fluoxetina 20mg Tableta;;20079;8685;5651;7223;16440;19158;77236
 Fluoxetina 0,4% [20mg/5mL] Jarabe;;246;214;300;273;205;243;1481
 Fluvoxamina maleato 100mg Tableta;;6030;1650;2430;270;0;3690;14070
-Folinato de calcio [50mg/5mL] Solucion inyectable;;750;1312;134;428;178;455;3257
+Folinato de calcio [50mg/5mL] Solucion inyectable;;752;1317;134;428;178;457;3266
 Fosaprepitant 150mg Polvo esteril para reconstituir Vial;;247;334;69;161;118;165;1094
 Fosfomicina 3g Polvo para reconstituir a solucion oral Sobre x 8g;;212;316;241;231;204;249;1453
-Testosterona enantato [250mg/mL] Solucion inyectable;;17;21;14;43;15;30;140
+Testosterona enantato [250mg/mL] Solucion inyectable;;19;21;17;43;15;30;145
 Fluticasona + Vilanterol 200mcg + 25mcg/puff Polvo para inhalacion Inhalador x 30 dosis;;20;15;0;0;29;22;86
 Fluticasona 27,5mcg/puff Solucion intranasal Inhalador x 120 dosis;;35;30;84;119;101;41;410
 Furosemida 20mg/2mL Solucion inyectable;;252;176;48;136;101;93;806
@@ -325,9 +324,8 @@ Glibenclamida 5mg Tableta;;440;90;360;90;0;300;1280
 Glimepirida 2mg Tableta;;3660;870;1620;3120;1740;3510;14520
 Glimepirida 4mg Tableta;;1220;1230;150;30;0;600;3230
 Glucometro digital;;136;83;77;94;98;124;612
-Morfina [10mg/mL] Solucion inyectable;;605;313;422;420;450;722;2932
 Guante de examen de nitrilo L Caja x 100 Unidades;;1;0;0;0;0;0;1
-Guante esteril No. 7,5 con talco - Par;;1;0;0;0;0;0;1
+Guante esteril No. 7,5 con talco - Par;;58;0;0;0;0;740;798
 Haloperidol 10mg Tableta;;90;0;0;149;60;0;299
 Haloperidol 2mg/mL Solucion oral;;70;71;111;63;24;41;380
 Haloperidol 5mg Tableta;;902;120;805;270;90;90;2277
@@ -381,8 +379,7 @@ Ivermectina 0,6% [6mg/mL] Solucion oral;;81;46;21;45;36;56;285
 Jeringa esteril de 10mL - Unidad;;350;94;168;382;0;629;1623
 Jeringa esteril de 20mL - Unidad;;275;482;83;197;0;309;1346
 Jeringa esteril de 3mL - Unidad;;10;1;0;15;0;25;51
-Jeringa esteril de 1mL - Unidad;;221;790;60;19;0;155;1245
-Jeringa esteril de 50mL - Unidad;;131;10;0;0;0;0;141
+Jeringa esteril de 1mL - Unidad;;352;800;60;19;0;155;1386
 Jeringa punta cateter esteril de 60mL - Unidad;;4;0;0;0;0;0;4
 Ketoconazol 200mg Tableta;;77;255;40;188;259;59;878
 Ketotifeno 0,02% [1mg/5mL] Jarabe;;59;41;57;97;58;99;411
@@ -423,11 +420,11 @@ Levotiroxina sodica 50mcg Tableta;;21235;39759;64988;77419;45886;24526;273813
 Levotiroxina sodica 62mcg Tableta;;330;30;180;330;120;330;1320
 Levotiroxina sodica 75mcg Tableta;;20706;25156;27030;21194;26167;35615;155868
 Levotiroxina sodica 88mcg Tableta;;3070;1070;2340;1335;1098;2685;11598
-Hidrocortisona 10mg Tableta;;40;33;4;10;6;46;139
+Hidrocortisona acetato + Lidocaina 0.25% + 5% [25mg + 500mg] Unguento rectal;;42;45;4;10;6;46;153
 Hidrocortisona acetato + Lidocaina 5mg + 60mg Supositorio;;28;24;0;0;26;0;78
-Hidrocortisona acetato + Lidocaina 0.25% + 5% [25mg + 500mg] Unguento rectal;;2;12;0;0;0;0;14
 Lidocaina 2% [20mg/mL] Jalea topica;;306;252;212;171;280;308;1529
 Lidocaina 5% [700mg/10cm] Parche trasdermico;;125;433;976;610;1900;335;4379
+Morfina [10mg/mL] Solucion inyectable;;603;308;422;420;450;720;2923
 Linagliptina + Metformina 2,5mg + 850mg Tableta;;120;0;0;60;0;60;240
 Linagliptina 5mg Tableta;;3180;1740;30;2595;5820;4530;17895
 Linezolid 600mg Tableta;;172;0;0;0;0;0;172
@@ -487,6 +484,7 @@ Morfina 3% [150mg/5mL] Solucion oral;;22;31;0;7;24;29;113
 Mosaprida 5mg Tableta;;2420;1510;1440;1470;510;1050;8400
 Moxifloxacino 5mg/mL Solucion oftalmica Frasco gotero x 5mL;;13;15;19;17;16;21;101
 Moxifloxacino 400mg Tableta;;90;17;17;5;40;48;217
+Nitrofurazona 0,2% [20mg/10g] Unguento topico;;24;4;19;18;9;9;83
 Naproxeno 2,5% [125mg/5mL] Suspension oral;;52;38;65;42;39;24;260
 Naproxeno 250mg Tableta;;17890;14082;14576;21396;16317;21905;106166
 Naproxeno 500mg Tableta;;881;812;836;1415;1086;1612;6642
@@ -497,7 +495,6 @@ Nistatina [100,000UI/10g] Crema topica;;13;15;22;36;17;16;119
 Nitazoxanida 2% [100mg/5mL] Polvo para reconstituir a solucion oral;;19;19;0;7;7;25;77
 Nitazoxanida 500mg Tableta;;420;396;172;352;296;315;1951
 Nitrofurantoina 100mg Tableta;;1848;2818;2264;3789;2534;2986;16239
-Nitrofurazona 0,2% [20mg/10g] Unguento topico;;5;0;0;0;0;0;5
 Norfloxacina 400mg Tableta;;329;172;90;334;180;284;1389
 Olanzapina 10mg Tableta;;6485;3280;8896;9780;7470;6478;42389
 Olanzapina 5mg Tableta;;6072;3720;4494;5644;3696;4920;28546
@@ -518,7 +515,7 @@ Oxibutinino 10mg Tableta de liberacion prolongada;;470;390;0;0;720;401;1981
 Oxibutinino 5mg Tableta;;925;430;1370;1000;2830;1260;7815
 Oximetazolina 0,25mg/mL Solucion intranasal;;21;9;10;16;9;7;72
 Oximetazolina 0,5mg/mL Solucion para nebulizacion;;32;12;4;2;7;36;93
-Paclitaxel 6mg/mL [100mg/16.7mL] Solucion inyectable Vial x 16,7mL;;153;211;60;140;102;127;793
+Paclitaxel 6mg/mL [100mg/16.7mL] Solucion inyectable Vial x 16,7mL;;163;211;60;140;102;127;803
 Pembrolizumab [100mg/4mL] Solucion inyectable Vial x 4mL;;120;90;129;40;99;62;540
 Teriparatida 250mcg/mL [20mcg/0,08mL] Solucion inyectable Jeringa prellenada x 0,08mL;;1063;1420;0;556;581;58;3678
 Pirantel pamoato 5% [250mg/5mL] Suspension oral;;21;24;12;15;4;12;88
@@ -637,6 +634,7 @@ Tiamina monohidrato [1g/10mL] Solucion inyectable;;130;97;121;162;152;124;786
 Tiamina monohidrato 300mg Tableta;;17536;12718;14384;16221;11592;16364;88815
 Tibolona 2,5mg Tableta;;3828;1974;0;0;84;252;6138
 Ticagrelor 90mg Tableta;;660;810;780;150;810;480;3690
+Brimonidina tartrato + Timolol 2mg + 5mg/mL Solucion oftalmica Frasco gotero x 2,5mL;;69;42;43;32;48;89;323
 Tinidazol 500mg Tableta;;372;200;332;477;298;428;2107
 Tiocolchicosido 4mg Tableta;;20;90;40;15;60;0;225
 Tiocolchicosido 8mg Tableta;;259;120;150;320;95;0;944
@@ -664,6 +662,7 @@ Sulfametoxazol + Trimetoprim 400mg + 80mg Tableta;;526;84;293;199;224;206;1532
 Amlodipino + Valsartan 5mg + 160mg Tableta;;1350;843;259;1327;1133;3053;7965
 Amlodipino + Valsartan 10mg + 320mg Tableta;;174;0;0;58;366;594;1192
 Amlodipino + Valsartan 5mg + 80mg Tableta;;60;0;224;0;90;0;374
+Hidroclorotiazida + Valsartan 12,5mg + 160mg Tableta;;3182;1810;1595;2061;1889;2781;13318
 Hidroclorotiazida + Valsartan 25mg + 160mg Tableta;;174;84;0;0;0;140;398
 Hidroclorotiazida + Valsartan 12,5mg + 80mg Tableta;;120;84;0;84;0;0;288
 Valsartan 160mg Tableta;;37917;22060;40719;63115;54547;67312;285670
@@ -687,8 +686,8 @@ Calcifediol (Vitamina D3) 100,000UI Capsula blanda;;14;11;17;6;5;148;201
 Vitamina D3 (colecalciferol) 1000UI Capsula blanda;;4663;3705;1704;3200;2990;3055;19317
 Vitamina D3 (colecalciferol) 2000UI Capsula blanda;;19078;7216;28756;23620;14616;41233;134519
 Vitamina D3 (colecalciferol) 7000UI Capsula blanda;;236;471;300;544;180;478;2209
-Vitamina E 1000UI Capsula blanda;;270;1835;30;1020;1240;660;5055
-Vitamina E 400UI Capsula blanda;;1065;550;6250;5010;1960;2715;17550
+Vitamina E 1000UI Capsula blanda;;300;1835;30;1110;1240;720;5235
+Vitamina E 400UI Capsula blanda;;1035;550;6250;4920;1960;2655;17370
 Warfarina sodica 5mg Tableta;;3898;2676;1389;3070;2572;2813;16418
 Zopiclona 7.5mg Tableta;;274;290;410;315;685;510;2484
 Poliacrilico acido (carbomero 974P) 0,25% [25mg/10g] Gel oftalmico;;0;5;0;0;0;0;5
@@ -696,12 +695,12 @@ Alopurinol 100mg Tableta;;0;30;372;793;333;22;1550
 Betametasona sodio fosfato [4mg/mL] Solucion inyectable;;0;3;12;54;30;140;239
 Brimonidina tartrato 2mg/mL Solucion oftalmica Frasco gotero x 5mL;;0;5;3;0;0;1;9
 Carbamazepina 2% [100mg/5mL] Suspension oral Frasco x 100mL;;0;3;0;54;10;0;67
-Calcio carbonato + Vitamina D3 600mg + 400UI Tableta;;0;375;0;120;1020;90;1605
 Ciprofloxacina + Dexametasona 3mg + 1mg/mL Solucion otica;;0;1;0;2;1;2;6
+Calcio carbonato + Vitamina D3 600mg + 400UI Tableta;;0;15;0;120;1020;90;1245
 Cromoglicato de sodio 2% [20mg/mL] Solucion intranasal;;0;1;4;5;1;5;16
 Eplerenona 25mg Tableta;;0;90;0;0;90;0;180
 Eritropoyetina humana recombinante 4,000UI Solucion inyectable Ampolla x 1mL;;0;12;0;12;12;36;72
-Metotrexato [25mg/0,5mL] Solucion inyectable Jeringa prellenada x 0,5mL;;0;4;12;0;16;0;32
+Metotrexato [25mg/0,5mL] Solucion inyectable Jeringa prellenada x 0,5mL;;0;4;12;12;16;0;44
 Hialuronato de sodio + Condroitin sulfato 1,6% + 2% [800mg + 1g/50mL] Jeringa prellenada x 50mL;;0;28;0;0;16;0;44
 Hidromorfona clorhidrato [2mg/mL] Solucion inyectable;;0;630;0;180;2;0;812
 Hidrosmina 200mg Capsula dura;;0;60;0;0;0;0;60
@@ -735,13 +734,13 @@ Paroxetina 12.5mg Tableta de liberacion prolongada;;0;0;30;0;0;0;30
 Propiltiouracilo 100mg Tableta;;0;0;180;0;0;0;180
 Amlodipino + Valsartan 10mg + 160mg Tableta;;0;0;258;0;354;56;668
 Amlodipino + Valsartan 5mg + 320mg Tableta;;0;0;84;90;0;84;258
-Brimonidina tartrato + Timolol 2mg + 5mg/mL Solucion oftalmica Frasco gotero x 2,5mL;;0;0;0;7;0;0;7
 Linagliptina + Metformina 2,5mg + 1000mg Tableta;;0;0;0;120;60;420;600
 Metilprednisolona acetato 40mg/mL [200mg/5mL] Solucion inyectable Vial x 5mL;;0;0;0;8;0;0;8
 Rifampicina 300mg Capsula dura;;0;0;0;60;0;0;60
 Sodio cloruro 0,9% [500mL] Solucion inyectable;;0;0;0;0;42;0;42
 Isosorbide dinitrato 10mg Tableta;;0;0;0;0;30;20;50
 Fenitoina [125mg/5mL] Suspension oral;;0;0;0;0;6;3;9
+Guayacolato de glicerilo 2% [100mg/5mL] Jarabe;;0;0;0;0;1;0;1
 Levosulpiride 25mg Tableta;;0;0;0;0;90;90;180
 Mebendazol 100mg Tableta;;0;0;0;0;6;0;6
 Dabigatran 150mg Capsula dura;;0;0;0;0;0;60;60
