@@ -1,705 +1,762 @@
-﻿FUENTE_MATCH;DESCRIPCION_TARGET;CODIGO_TARGET;10octubreEvento;TOTAL_ACUMULADO
-PRIMARY;Abiraterona 250mg Tableta;;1080;1080
-PRIMARY;Abiraterona 500mg Tableta;;1920;1920
-PRIMARY;Acetaminofen 500mg Tableta;;144835;144835
-PRIMARY;Acetaminofen + Codeina 325mg + 15mg Tableta;;1050;1050
-PRIMARY;Acetaminofen + Codeina 325mg + 30mg Tableta;;2438;2438
-PRIMARY;Acetaminofen + Tizanidina 350mg + 2mg Tableta;;2499;2499
-PRIMARY;Acetaminofen + Tramadol 325mg + 37,5mg Tableta;;4705;4705
-PRIMARY;Acetaminofen 100mg/mL Solucion oral;;6;6
-PRIMARY;Acetaminofen 3% [150mg/5mL] Jarabe;;303;303
-PRIMARY;Aluminio acetato 0,118% [5,9mg/5mL] Locion topica;;65;65
-PRIMARY;Goserelina acetato 10,8mg Solucion inyectable Implante;;18;18
-PRIMARY;Leuprorelina (leuprolida) 22.5mg Polvo esteril para reconstituir Vial;;1;1
-PRIMARY;Leuprorelina (leuprolida) 45mg Polvo esteril para reconstituir Vial;;1;1
-PRIMARY;Acetazolamida 250mg Tableta;;265;265
-PRIMARY;Acetilcisteina 200mg Polvo para reconstituir a solucion oral;;620;620
-PRIMARY;Acetilcisteina 600mg Polvo para reconstituir a solucion oral;;4474;4474
-PRIMARY;Aciclovir 200mg Tableta;;1184;1184
-PRIMARY;Aciclovir 5% [500mg/10g] Unguento topico;;14;14
-PRIMARY;Aciclovir 800mg Tableta;;281;281
-PRIMARY;Acetilsalicilico acido 100mg Tableta;;41241;41241
-PRIMARY;Ascorbico acido + Cianocobalamina (vitamina B12) + Folico acido + Fumarato ferroso 100mg + 1mg + 2mg + 330mg Capsula dura;;1170;1170
-PRIMARY;Ascorbico acido 100mg/mL Solucion oral;;61;61
-PRIMARY;Ascorbico acido 500mg Tableta masticable;;31639;31639
-PRIMARY;Amoxicilina + Clavulanico acido 875mg + 125mg Tableta;;587;587
-PRIMARY;Fenofibrico acido + Rosuvastatina 135mg + 10mg Capsula dura;;1050;1050
-PRIMARY;Fenofibrico acido + Rosuvastatina 135mg + 20mg Capsula dura;;1770;1770
-PRIMARY;Fenofibrato de colina 135mg Capsula de liberacion retardada;;240;240
-PRIMARY;Folico acido 1mg Tableta;;16525;16525
-PRIMARY;Folico acido 5mg Tableta;;1737;1737
-PRIMARY;Fusidico acido 2% [200mg/10g] Crema topica;;90;90
-PRIMARY;Ibandronico acido 150mg Tableta;;23;23
-PRIMARY;Ibandronico acido 1mg/mL [6mg/6mL] Solucion inyectable Ampolla x 6mL;;7;7
-PRIMARY;Poliacrilico acido (carbopol 940) 0,2% [20mg/10g] Gel oftalmico;;15;15
-PRIMARY;Retinoico acido (tretinoina) 0.05% [5mg/10g] Crema topica;;51;51
-PRIMARY;Retinoico acido (tretinoina) 0.05% [2.5mg/5mL] Locion topica;;7;7
-PRIMARY;Tioctico acido (acido alfa lipoico) 600mg Tableta;;690;690
-PRIMARY;Tranexamico acido 500mg Tableta;;1780;1780
-PRIMARY;Ursodeoxicolico acido 300mg Capsula dura;;3971;3971
-PRIMARY;Valproico acido 250mg Capsula dura;;47956;47956
-PRIMARY;Valproico acido 5% [250mg/5mL] Jarabe;;238;238
-PRIMARY;Zoledronico acido [4mg/5mL] Solucion inyectable Ampolla x 5mL;;13;13
-PRIMARY;Aguja para lapicero insulina;;73713;73713
-PRIMARY;Albendazol 2% [100mg/5mL] Suspension oral;;50;50
-PRIMARY;Albendazol 200mg Tableta;;796;796
-PRIMARY;Alendronico acido 70mg Tableta;;1612;1612
-PRIMARY;Alfametildopa 250mg Tableta;;420;420
-PRIMARY;Alginato de sodio + Bicarbonato de sodio + Calcio carbonato 5% + 2,13% + 3,25% [250mg + 106,5mg + 162,5mg/5mL] Suspension oral;;31;31
-PRIMARY;Alimento en polvo a base de multivitaminas y minerales (Vitamix) sobre x 1g;;1920;1920
-PRIMARY;Alizaprida 12mg/mL Solucion oral;;10;10
-PRIMARY;Alopurinol 300mg Tableta;;2025;2025
-PRIMARY;Alprazolam 0,5mg Tableta;;300;300
-PRIMARY;Amantadina clorhidrato 100mg Capsula dura;;6810;6810
-PRIMARY;Amikacina [500mg/2mL] Solucion inyectable;;26;26
-PRIMARY;Amiodarona clorhidrato 200mg Tableta;;2417;2417
-PRIMARY;Amitriptilina clorhidrato 25mg Tableta;;6324;6324
-PRIMARY;Amlodipino + Hidroclorotiazida + Valsartan 10mg + 12,5mg + 160mg Tableta;;8557;8557
-PRIMARY;Amlodipino + Hidroclorotiazida + Valsartan 10mg + 25mg + 320mg Tableta;;3975;3975
-PRIMARY;Amlodipino 10mg Tableta;;27148;27148
-PRIMARY;Amlodipino 5mg Tableta;;48064;48064
-PRIMARY;Amoxicilina + Clavulanico acido 500mg + 125mg Tableta;;86;86
-PRIMARY;Amoxicilina 5% [250mg/5mL] Polvo para reconstituir a solucion oral;;79;79
-PRIMARY;Amoxicilina 500mg Capsula dura;;12163;12163
-PRIMARY;Ampicilina 500mg Capsula dura;;930;930
-PRIMARY;Alprazolam 1mg Tableta;;364;364
-PRIMARY;Apalutamida 60mg Tableta;;480;480
-PRIMARY;Apixaban 2,5mg Tableta;;11814;11814
-PRIMARY;Apixaban 5mg Tableta;;23110;23110
-PRIMARY;Aripiprazol 15mg Tableta;;3660;3660
-PRIMARY;Atorvastatina 20mg Tableta;;74117;74117
-PRIMARY;Atorvastatina 40mg Tableta;;85033;85033
-PRIMARY;Atorvastatina 10mg Tableta;;1440;1440
-PRIMARY;Atorvastatina 80mg Tableta;;190;190
-PRIMARY;Atropina sulfato 10mg/mL Solucion oftalmica;;7;7
-PRIMARY;Azacitidina 100mg Polvo esteril para reconstituir Vial;;21;21
-PRIMARY;Captopril 50mg Tableta;;1410;1410
-PRIMARY;Azitromicina 4% [200mg/5mL] Polvo para reconstituir a solucion oral;;40;40
-PRIMARY;Azitromicina 500mg Tableta;;213;213
-PRIMARY;Bacillus clausii 2000 millones/5mL Suspension oral;;10;10
-PRIMARY;Baclofeno 10mg Tableta;;1825;1825
-PRIMARY;Barrera de colostomia No. 45mm;;103;103
-PRIMARY;Barrera de colostomia No. 57mm;;168;168
-PRIMARY;Barrera de colostomia No. 70mm;;281;281
-PRIMARY;Beclometasona dipropionato + Formoterol fumarato 100mcg + 6mcg/dosis Solucion en aerosol;;3;3
-PRIMARY;Beclometasona dipropionato 250mcg/dosis Solucion en aerosol;;94;94
-PRIMARY;Beclometasona dipropionato 50mcg/dosis Solucion en aerosol;;197;197
-PRIMARY;Bencilo benzoato 30% [1.5g/5mL] Locion topica;;5;5
-PRIMARY;Betahistina 16mg Tableta;;5133;5133
-PRIMARY;Betahistina 24mg Tableta;;3496;3496
-PRIMARY;Betahistina 8mg Tableta;;1863;1863
-PRIMARY;Betametasona valerato + Clotrimazol + Neomicina 0,04% + 1% + 0,5% [4mg + 100mg + 50mg/10g] Crema topica;;35;35
-PRIMARY;Betametasona valerato 0,05% [5mg/10g] Crema topica;;317;317
-PRIMARY;Betametasona valerato 0,1% [10mg/10g] Crema topica;;110;110
-PRIMARY;Betametasona sodio fosfato [8mg/2mL] Solucion inyectable;;9;9
-PRIMARY;Betametildigoxina 0,1mg Tableta;;30;30
-PRIMARY;Bevacizumab 25mg/mL [100mg/4mL] Solucion inyectable Vial x 4mL;;317;317
-PRIMARY;Bicalutamida 150mg Tableta;;60;60
-PRIMARY;Bicalutamida 50mg Tableta;;120;120
-PRIMARY;Bilastina 20mg Tableta;;180;180
-PRIMARY;Bimatoprost 0,3mg/mL Solucion oftalmica Frasco gotero x 3mL;;10;10
-PRIMARY;Biperideno 2mg Tableta;;4577;4577
-PRIMARY;Bisacodilo 5mg Tableta;;6273;6273
-PRIMARY;Bisoprolol 2,5mg Tableta;;1600;1600
-PRIMARY;Bisoprolol 5mg Tableta;;3810;3810
-PRIMARY;Bleomicina 15UI Polvo esteril para reconstituir;;91;91
-PRIMARY;Bolsa de colostomia No. 45mm;;93;93
-PRIMARY;Bolsa de colostomia No. 57mm;;132;132
-PRIMARY;Bolsa de colostomia No. 70mm;;316;316
-PRIMARY;Bolsa recolectora de orina 2000mL;;20;20
-PRIMARY;Bortezomib 3,5mg Polvo esteril para reconstituir Vial;;20;20
-PRIMARY;Bosentan 125mg Tableta;;150;150
-PRIMARY;Bosentan 62.5mg Tableta;;60;60
-PRIMARY;Brimonidina tartrato + Timolol 2mg + 5mg/mL Solucion oftalmica Frasco gotero x 10mL;;11;11
-PRIMARY;Brivaracetam 100mg Tableta;;214;214
-PRIMARY;Bromfenaco 0,9mg/mL Solucion oftalmica Frasco gotero x 5mL;;33;33
-PRIMARY;Fenoterol bromhidrato + Ipratropio bromuro 50mcg + 20mcg/puff Aerosol Inhalador x 200 dosis;;386;386
-PRIMARY;Pinaverio 100mg Tableta;;1390;1390
-PRIMARY;Piridostigmina bromuro 60mg Tableta;;580;580
-PRIMARY;Tiotropio bromuro 18mcg Capsula dura para inhalacion;;464;464
-PRIMARY;Tiotropio bromuro 2,5mcg/puff Aerosol Inhalador x 30 dosis;;23;23
-PRIMARY;Budesonida + Formoterol 160mcg + 4.5mcg/dosis Aerosol Inhalador x 120 dosis;;46;46
-PRIMARY;Budesonida + Formoterol 200mcg + 6mcg Capsula dura para inhalacion;;15;15
-PRIMARY;Bupropion 150mg Tableta de liberacion prolongada;;2460;2460
-PRIMARY;Cabergolina 0,5mg Tableta;;514;514
-PRIMARY;Calcio carbonato + vitamina D3 600mg + 200UI Tableta;;270;270
-PRIMARY;Calcitriol 0,25mcg Capsula blanda;;12329;12329
-PRIMARY;Calcitriol 0,5mcg Capsula blanda;;5447;5447
-PRIMARY;Capecitabina 500mg Tableta;;2878;2878
-PRIMARY;Captopril 25mg Tableta;;750;750
-PRIMARY;Carbamazepina 2% [100mg/5mL] Suspension oral Frasco x 120mL;;98;98
-PRIMARY;Carbamazepina 200mg Tableta;;25659;25659
-PRIMARY;Carbamazepina 400mg Tableta de liberacion prolongada;;740;740
-PRIMARY;Carbidopa + Levodopa 25mg + 100mg Tableta;;4403;4403
-PRIMARY;Carbidopa + Levodopa 25mg + 250mg Tableta;;10250;10250
-PRIMARY;Calcio carbonato + Vitamina D3 500mg + 330UI Tableta;;12581;12581
-PRIMARY;Calcio carbonato 1500mg (600mg calcio) Tableta;;56125;56125
-PRIMARY;Litio carbonato 300mg Tableta;;8369;8369
-PRIMARY;Carboplatino 10mg/mL [450mg/45mL] Solucion inyectable;;86;86
-PRIMARY;Carboximetilcelulosa sodica + Glicerina 5mg + 9mg/mL Solucion oftalmica;;86;86
-PRIMARY;Carboximetilcelulosa sodica + Glicerina + Hialuronato de sodio 5mg + 9mg + 1mg/mL Solucion oftalmica;;48;48
-PRIMARY;Carboximetilcelulosa sodica 5mg/mL Solucion oftalmica;;333;333
-PRIMARY;Carvedilol 12,5mg Tableta;;15378;15378
-PRIMARY;Carvedilol 25mg Tableta;;1680;1680
-PRIMARY;Carvedilol 6,25mg Tableta;;39845;39845
-PRIMARY;Cefalexina 5% [250mg/5mL] Polvo para reconstituir a solucion oral;;166;166
-PRIMARY;Cefalexina 500mg Capsula dura;;11658;11658
-PRIMARY;Ceftriaxona 1g Polvo esteril para reconstituir;;39;39
-PRIMARY;Celecoxib 100mg Capsula dura;;30;30
-PRIMARY;Celecoxib 200mg Capsula dura;;65;65
-PRIMARY;Cetirizina 10mg Tableta;;3108;3108
-PRIMARY;Cetirizina 1% [10mg/mL] Solucion oral;;6;6
-PRIMARY;Cetirizina 0,1% [5mg/5mL] Jarabe;;37;37
-PRIMARY;Ciclobenzaprina + Lisina clonixinato 5mg + 125mg Capsula blanda;;160;160
-PRIMARY;Ciclobenzaprina 10mg Tableta;;2044;2044
-PRIMARY;Ciclobenzaprina 15mg Tableta;;727;727
-PRIMARY;Ciclofosfamida 1g Polvo esteril para reconstituir;;34;34
-PRIMARY;Ciclofosfamida 500mg Polvo esteril para reconstituir;;31;31
-PRIMARY;Cilostazol 100mg Tableta;;768;768
-PRIMARY;Cilostazol 50mg Tableta;;540;540
-PRIMARY;Cinacalcet 30mg Tableta;;1166;1166
-PRIMARY;Ciprofibrato 100mg Tableta;;1430;1430
-PRIMARY;Ciprofloxacina 500mg Tableta;;3650;3650
-PRIMARY;Ciprofloxacina + Dexametasona 3mg + 1mg/mL Solucion oftalmica;;4;4
-PRIMARY;Cisplatino 1mg/mL [50mg/50mL] Solucion inyectable;;190;190
-PRIMARY;Citarabina [500mg/5mL] Solucion inyectable Vial x 5mL;;22;22
-PRIMARY;Citicolina 500mg Tableta;;1080;1080
-PRIMARY;Alverina citrato + Simeticona 60mg + 300mg Capsula blanda;;180;180
-PRIMARY;Calcio citrato + Vitamina D3 1500mg (calcio 315mg) + 200UI Tableta;;22740;22740
-PRIMARY;Calcio citrato + Vitamina D3 1500mg (calcio 315mg) + 800UI Tableta;;30;30
-PRIMARY;Eritromicina 5% [250mg/5mL] Suspension oral;;8;8
-PRIMARY;Claritromicina 500mg Tableta;;3638;3638
-PRIMARY;Clindamicina 300mg Capsula dura;;2312;2312
-PRIMARY;Clobazam 10mg Tableta;;720;720
-PRIMARY;Clobazam 20mg Tableta;;360;360
-PRIMARY;Clobetasol 0.05% [5mg/10g] Crema topica;;144;144
-PRIMARY;Clobetasol 0.05% [2,5mg/5mL] Locion topica;;30;30
-PRIMARY;Clonazepam 0.5mg Tableta;;1140;1140
-PRIMARY;Clonazepam 0.25% [2.5mg/mL] Solucion oral;;36;36
-PRIMARY;Clonazepam 2mg Tableta;;1530;1530
-PRIMARY;Clonidina clorhidrato 150mcg (0,150mg) Tableta;;6842;6842
-PRIMARY;Clopidogrel 75mg Tableta;;4780;4780
-PRIMARY;Clorfeniramina maleato 0,04% [2mg/5mL] Jarabe;;8;8
-PRIMARY;Clorfeniramina maleato 4mg Tableta;;628;628
-PRIMARY;Cloroquina fosfato 150mg Tableta;;585;585
-PRIMARY;Clortalidona 12.5mg Tableta;;270;270
-PRIMARY;Clortalidona 25mg Tableta;;90;90
-PRIMARY;Sodio cloruro 0,9% [100mL] Solucion inyectable;;1268;1268
-PRIMARY;Clotrimazol 1% [100mg/10g] Crema topica;;159;159
-PRIMARY;Clotrimazol 1% [100mg/10g] Crema vaginal;;55;55
-PRIMARY;Clotrimazol 1% [100mg/10g] Solucion topica;;34;34
-PRIMARY;Clotrimazol 100mg Ovulo;;346;346
-PRIMARY;Clozapina 100mg Tableta;;3120;3120
-PRIMARY;Clozapina 25mg Tableta;;1080;1080
-PRIMARY;Colchicina 0.5mg Tableta;;20455;20455
-PRIMARY;Colistina sulfato + Hidrocortisona acetato + Neomicina sulfato 1,538mg + 0,5mg + 5mg/mL Solucion otica;;12;12
-PRIMARY;Complejo B [Vitamina B1 (tiamina) + Vitamina B6 (piridoxina) + Vitamina B12 (hidroxicobalamina)] [100mg + 50mg + 10mcg/2mL] Solucion inyectable;;3;3
-PRIMARY;Complejo B - Nicotinamida + Piridoxina + Riboflavina + Tiamina [20mg + 10mg + 1,5mg + 5mg/5mL] Jarabe;;570;570
-PRIMARY;Condroitina sulfato + Hialuronato de sodio 1.8mg + 1mg/mL Solucion oftalmica Frasco gotero x 10mL;;23;23
-PRIMARY;Cromoglicato de sodio 2% [20mg/mL] Solucion oftalmica;;52;52
-PRIMARY;Cromoglicato de sodio 4% [40mg/mL] Solucion oftalmica;;6;6
-PRIMARY;Crotamiton 10% [500mg/5mL] Locion topica;;2;2
-PRIMARY;Dacarbazina 200mg Polvo esteril para reconstituir;;30;30
-PRIMARY;Danazol 200mg Capsula dura;;90;90
-PRIMARY;Dapagliflozina + Metformina 10mg + 1000mg Tableta de liberacion prolongada;;6705;6705
-PRIMARY;Dapagliflozina + Metformina 5mg + 1000mg Tableta de liberacion prolongada;;15477;15477
-PRIMARY;Dapagliflozina 10mg Tableta;;42777;42777
-PRIMARY;Dasatinib 100mg Tableta;;300;300
-PRIMARY;Deflazacort 30mg Tableta;;60;60
-PRIMARY;Deflazacort 6mg Tableta;;3530;3530
-PRIMARY;Rituximab 120mg/mL [1400mg/11,7mL] Solucion inyectable Vial x 11,7mL;;14;14
-PRIMARY;Desloratadina + Montelukast 5mg + 10mg Tableta;;2475;2475
-PRIMARY;Desloratadina 0,05% [2,5mg/5mL] Jarabe;;98;98
-PRIMARY;Desloratadina 5mg Tableta;;2944;2944
-PRIMARY;Desmopresina 120mcg Tableta sublingual;;720;720
-PRIMARY;Desonida 0,05% [5mg/10g] Crema topica;;34;34
-PRIMARY;Desonida 0,05% [2,5mg/5mL] Locion topica;;14;14
-PRIMARY;Desvenlafaxina 50mg Tableta de liberacion prolongada;;243;243
-PRIMARY;Dexametasona + Neomicina + Polimixina B 1mg + 3,5mg + 6000UI/mL Solucion oftalmica;;60;60
-PRIMARY;Dexametasona 4mg Tableta;;60;60
-PRIMARY;Dexametasona fosfato [4mg/mL] Solucion inyectable;;40;40
-PRIMARY;Dexametasona fosfato [8mg/2mL] Solucion inyectable;;1635;1635
-PRIMARY;Nifedipina 30mg Capsula de liberacion prolongada;;35660;35660
-PRIMARY;Dextrosa en agua destilada 50% [500mL] Solucion inyectable;;87;87
-PRIMARY;Sodio cloruro 0,9% [500mL] Solucion inyectable;;6;6
-PRIMARY;Diacereina 50mg Capsula dura;;19350;19350
-PRIMARY;Diclofenaco + Tramadol 25mg + 25mg Tableta;;7037;7037
-PRIMARY;Diclofenaco + Tramadol 50mg + 50mg Tableta;;1080;1080
-PRIMARY;Diclofenaco 1% [100mg/10g] Gel topico;;547;547
-PRIMARY;Diclofenaco 50mg Tableta;;4336;4336
-PRIMARY;Diclofenaco [75mg/3mL] Solucion inyectable;;1422;1422
-PRIMARY;Dicloxacilina 500mg Capsula dura;;1341;1341
-PRIMARY;Dienogest 2mg Tableta;;2106;2106
-PRIMARY;Difenhidramina clorhidrato 0,25% [12,5mg/5mL] Jarabe;;148;148
-PRIMARY;Difenhidramina 50mg Capsula dura;;3812;3812
-PRIMARY;Dihidrocodeina bitartrato 0,24% [12,1mg/5mL] Jarabe;;23;23
-PRIMARY;Diltiazem 60mg Tableta;;150;150
-PRIMARY;Dimenhidrinato 50mg Tableta;;3259;3259
-PRIMARY;Diosmina + Hesperidina 450mg + 50mg Tableta;;26578;26578
-PRIMARY;Diosmina + Hesperidina [900mg + 100mg/10mL] Solucion oral;;30;30
-PRIMARY;Diosmina + Hesperidina 900mg + 100mg Tableta;;420;420
-PRIMARY;Dipirona sodica 1g/2mL Solucion inyectable;;31;31
-PRIMARY;Levonorgestrel 52mg Dispositivo intrauterino;;17;17
-PRIMARY;Divalproato de sodio (valproico acido) 250mg Tableta de liberacion prolongada;;6930;6930
-PRIMARY;Divalproato de sodio (valproico acido) 500mg Tableta de liberacion prolongada;;6640;6640
-PRIMARY;Docetaxel [80mg/4mL] Solucion inyectable concentrada Vial x 4mL;;56;56
-PRIMARY;Domperidona 10mg Tableta;;430;430
-PRIMARY;Domperidona 0.1% [5mg/5mL] Suspension oral;;18;18
-PRIMARY;Donepecilo 5mg Tableta;;120;120
-PRIMARY;Dornasa alfa [2,5mg/2,5mL] Solucion para inhalacion Ampula x 2,5mL;;150;150
-PRIMARY;Brimonidina tartrato + Dorzolamina + Timolol 2mg + 20mg + 5mg/mL Solucion oftalmica Frasco gotero x 5mL;;173;173
-PRIMARY;Dorzolamida + Timolol maleato 20mg + 5mg/mL Solucion oftalmica Frasco gotero x 5mL;;42;42
-PRIMARY;Doxazosina 4mg Tableta;;540;540
-PRIMARY;Doxiciclina 100mg Tableta;;4453;4453
-PRIMARY;Doxorubicina 2mg/mL [50mg/25mL] Solucion inyectable Vial x 25mL;;83;83
-PRIMARY;Duloxetina 30mg Capsula de liberacion retardada;;1330;1330
-PRIMARY;Duloxetina 60mg Capsula de liberacion retardada;;870;870
-PRIMARY;Dutasteride + Tamsulosina 0.5mg + 0.4mg Capsula dura;;22047;22047
-PRIMARY;Eltrombopag 25mg Tableta;;1290;1290
-PRIMARY;Eltrombopag 50mg Tableta;;560;560
-PRIMARY;Empagliflozina + Linagliptina 10mg + 5mg Tableta;;120;120
-PRIMARY;Empagliflozina + Linagliptina 25mg + 5mg Tableta;;120;120
-PRIMARY;Empagliflozina + Metformina 12,5mg + 1000mg Tableta;;3750;3750
-PRIMARY;Empagliflozina + Metformina 12,5mg + 850mg Tableta;;850;850
-PRIMARY;Empagliflozina 10mg Tableta;;2970;2970
-PRIMARY;Empagliflozina 25mg Tableta;;3720;3720
-PRIMARY;Emtricitabina + Tenofovir alafenamida 200mg + 25mg Tableta;;60;60
-PRIMARY;Enalapril maleato 20mg Tableta;;42518;42518
-PRIMARY;Enalapril maleato 5mg Tableta;;10190;10190
-PRIMARY;Enoxaparina sodica 4000UI [40mg/0,4mL] Solucion inyectable Jeringa prellenada x 0,4mL;;3170;3170
-PRIMARY;Enoxaparina sodica 2000UI [20mg/0,2mL] Solucion inyectable Jeringa prellenada x 0,2mL;;26;26
-PRIMARY;Enoxaparina sodica 6000UI [60mg/0,6mL] Solucion inyectable Jeringa prellenada x 0,6mL;;919;919
-PRIMARY;Enoxaparina sodica 8000UI [80mg/0,8mL] Solucion inyectable Jeringa prellenada x 0,8mL;;300;300
-PRIMARY;Enzalutamida 40mg Capsula blanda;;360;360
-PRIMARY;Epinastina 0,5mg/mL Solucion oftalmica;;8;8
-PRIMARY;Cafeina + Ergotamina tartrato 100mg + 1mg Tableta;;6325;6325
-PRIMARY;Eritromicina 500mg Tableta;;174;174
-PRIMARY;Eritropoyetina alfa humana recombinante 2,000UI Solucion inyectable Ampolla x 1mL;;297;297
-PRIMARY;Esomeprazol 10mg Capsula dura;;765;765
-PRIMARY;Esomeprazol 20mg Tableta;;53358;53358
-PRIMARY;Esomeprazol 40mg Tableta de liberacion retardada;;21015;21015
-PRIMARY;Espiramicina 3,000,000UI Tableta;;390;390
-PRIMARY;Espironolactona 100mg Tableta;;3194;3194
-PRIMARY;Espironolactona 25mg Tableta;;37285;37285
-PRIMARY;Estrogenos conjugados 0.625mg/g Crema vaginal Tubo x 43g;;118;118
-PRIMARY;Estrogenos conjugados 0.625mg Tableta;;3458;3458
-PRIMARY;Eszopiclona 2mg Tableta;;90;90
-PRIMARY;Eszopiclona 3mg Tableta;;405;405
-PRIMARY;Etonogestrel 68mg Implante trasdermico;;14;14
-PRIMARY;Etoposido [100mg/5mL] Solucion inyectable;;148;148
-PRIMARY;Etoricoxib 120mg Tableta;;409;409
-PRIMARY;Etoricoxib 30mg Tableta;;60;60
-PRIMARY;Etoricoxib 60mg Tableta;;10297;10297
-PRIMARY;Etoricoxib 90mg Tableta;;15559;15559
-PRIMARY;Rosuvastatina 20mg Tableta;;21501;21501
-PRIMARY;Rosuvastatina 40mg Tableta;;46122;46122
-PRIMARY;Febuxostat 80mg Capsula blanda;;155;155
-PRIMARY;Fenazopiridina 200mg Tableta;;252;252
-PRIMARY;Fenitoina sodica 100mg Capsula dura;;5000;5000
-PRIMARY;Fenobarbital 0.4% [20mg/5mL] Solucion oral;;54;54
-PRIMARY;Fenobarbital 100mg Tableta;;2160;2160
-PRIMARY;Fenobarbital 50mg Tableta;;30;30
-PRIMARY;Fenofibrato 200mg Capsula dura;;840;840
-PRIMARY;Fexofenadina 0,6% [30mg/5mL] Suspension oral;;298;298
-PRIMARY;Fexofenadina 120mg Tableta;;6802;6802
-PRIMARY;Fluconazol 150mg Capsula dura;;60;60
-PRIMARY;Fluconazol 200mg Capsula dura;;645;645
-PRIMARY;Fluconazol 1% [50mg/5mL] Polvo para reconstituir a solucion oral;;2;2
-PRIMARY;Fludrocortisona 0,1mg Tableta;;370;370
-PRIMARY;Flunarizina 10mg Tableta;;3572;3572
-PRIMARY;Flunarizina 5mg Tableta;;75;75
-PRIMARY;Fluorometolona acetato 1mg/mL Solucion oftalmica;;36;36
-PRIMARY;Fluorouracilo [500mg/10mL] Solucion inyectable;;602;602
-PRIMARY;Fluoxetina 20mg Tableta;;20079;20079
-PRIMARY;Fluoxetina 0,4% [20mg/5mL] Jarabe;;246;246
-PRIMARY;Fluvoxamina maleato 100mg Tableta;;6030;6030
-PRIMARY;Folinato de calcio [50mg/5mL] Solucion inyectable;;752;752
-PRIMARY;Fosaprepitant 150mg Polvo esteril para reconstituir Vial;;247;247
-PRIMARY;Fosfomicina 3g Polvo para reconstituir a solucion oral Sobre x 8g;;212;212
-PRIMARY;Testosterona enantato [250mg/mL] Solucion inyectable;;19;19
-PRIMARY;Fluticasona + Vilanterol 200mcg + 25mcg/puff Polvo para inhalacion Inhalador x 30 dosis;;20;20
-PRIMARY;Fluticasona 27,5mcg/puff Solucion intranasal Inhalador x 120 dosis;;35;35
-PRIMARY;Furosemida 20mg/2mL Solucion inyectable;;252;252
-PRIMARY;Furosemida 40mg Tableta;;28363;28363
-PRIMARY;Gabapentina 300mg Capsula dura;;2590;2590
-PRIMARY;Gabapentina 400mg Capsula dura;;120;120
-PRIMARY;Gemcitabina 1g Polvo esteril para reconstituir Vial;;60;60
-PRIMARY;Gemfibrozilo 600mg Tableta;;5925;5925
-PRIMARY;Gentamicina sulfato [3mg/mL] Solucion oftalmica;;22;22
-PRIMARY;Gentamicina sulfato [160mg/2mL] Solucion inyectable;;163;163
-PRIMARY;Gentamicina sulfato [80mg/2mL] Solucion inyectable;;15;15
-PRIMARY;Glibenclamida 5mg Tableta;;440;440
-PRIMARY;Glimepirida 2mg Tableta;;3660;3660
-PRIMARY;Glimepirida 4mg Tableta;;1220;1220
-PRIMARY;Glucometro digital;;136;136
-PRIMARY;Guante de examen de nitrilo L Caja x 100 Unidades;;1;1
-PRIMARY;Guante esteril No. 7,5 con talco - Par;;58;58
-PRIMARY;Guante esteril No. 8 con talco - Par;;35;35
-PRIMARY;Haloperidol 10mg Tableta;;90;90
-PRIMARY;Haloperidol 2mg/mL Solucion oral;;70;70
-PRIMARY;Haloperidol 5mg Tableta;;902;902
-PRIMARY;Hialuronato de sodio 4mg/mL Solucion oftalmica;;155;155
-PRIMARY;Hidroclorotiazida 25mg Tableta;;63940;63940
-PRIMARY;Hidrocortisona acetato 0,5% [50mg/10g] Locion topica;;2;2
-PRIMARY;Hidrocortisona acetato 1% [100mg/10g] Crema topica;;203;203
-PRIMARY;Hidrocortisona succinato 100mg Polvo esteril para reconstituir;;205;205
-PRIMARY;Hidromorfona clorhidrato 2.5mg Tableta;;180;180
-PRIMARY;Hidroxicina 0.25% [12.5mg/5mL] Jarabe;;6;6
-PRIMARY;Hidroxicina 25mg Tableta;;2840;2840
-PRIMARY;Hidroxicloroquina sulfato 200mg Tableta;;1781;1781
-PRIMARY;Aluminio hidroxido + Magnesio hidroxido + Simeticona 4% + 4% + 0,4% [200mg + 200mg + 20mg/5mL] Suspension oral;;267;267
-PRIMARY;Aluminio hidroxido 6% [300mg/5mL] Suspension oral;;57;57
-PRIMARY;Hidroxiurea (hidroxicarbamida) 500mg Capsula dura;;3470;3470
-PRIMARY;Hierro sacarato [100mg/5mL] Solucion inyectable;;36;36
-PRIMARY;Hioscina n-butil bromuro 10mg Tableta;;16629;16629
-PRIMARY;Hioscina n-butil bromuro [20mg/mL] Solucion inyectable;;29;29
-PRIMARY;Ibuprofeno 400mg Tableta;;9353;9353
-PRIMARY;Ibuprofeno 2% [100mg/5mL] Suspension oral;;49;49
-PRIMARY;Ibuprofeno 600mg Tableta;;63;63
-PRIMARY;Ibuprofeno 800mg Tableta;;675;675
-PRIMARY;Ifosfamida 1g Polvo esteril para reconstituir;;41;41
-PRIMARY;Imatinib 100mg Tableta;;450;450
-PRIMARY;Imatinib 400mg Tableta;;240;240
-PRIMARY;Imipramina clorhidrato 10mg Tableta;;1345;1345
-PRIMARY;Imipramina clorhidrato 25mg Tableta;;7125;7125
-PRIMARY;Glicopirronio + Indacaterol 50mcg + 110mcg Capsula dura para inhalacion;;495;495
-PRIMARY;Inmunoglobulina humana anti D (RH) 300mcg Solucion inyectable Jeringa prellenada x 2mL;;5;5
-PRIMARY;Insulina asparta 100UI/mL [300UI/3mL] Solucion inyectable Lapicero x 3mL;;222;222
-PRIMARY;Insulina degludec + Liraglutida 100UI + 3,6mg/mL [300UI + 10,8mg/3mL] Solucion inyectable Lapicero x 3mL;;70;70
-PRIMARY;Insulina degludec 100UI/mL [300UI/3mL] Solucion inyectable Lapicero x 3mL;;64;64
-PRIMARY;Insulina detemir 100UI/mL [300UI/3mL] Solucion inyectable Lapicero x 3mL;;9;9
-PRIMARY;Insulina glargina + lixisenatida 100UI + 50mcg/mL [300UI + 150mcg/3mL] Solucion inyectable Lapicero x 3mL;;304;304
-PRIMARY;Insulina glargina + lixisenatida 100UI + 33mcg/mL [300UI + 99mcg/3mL] Solucion inyectable Lapicero x 3mL;;428;428
-PRIMARY;Insulina glargina 100UI/mL [300UI/3mL] Solucion inyectable Lapicero x 3mL;;1891;1891
-PRIMARY;Insulina glargina 300UI/mL [450UI/1,5mL] Solucion inyectable Lapicero x 1,5mL;;958;958
-PRIMARY;Insulina glulisina 100UI/mL [1000UI/10mL] Solucion inyectable Vial x 10mL;;99;99
-PRIMARY;Insulina glulisina 100UI/mL [300UI/3mL] Solucion inyectable Lapicero x 3mL;;561;561
-PRIMARY;Insulina lispro 100UI/mL [1000UI/10mL] Solucion inyectable Vial x 10mL;;20;20
-PRIMARY;Amlodipino + Irbesartan 5mg + 150mg Tableta;;270;270
-PRIMARY;Amlodipino + Irbesartan 10mg + 300mg Tableta;;84;84
-PRIMARY;Hidroclorotiazida + Irbesartan 12,5mg + 150mg Tableta;;578;578
-PRIMARY;Irbesartan 150mg Tableta;;2220;2220
-PRIMARY;Irbesartan 300mg Tableta;;60;60
-PRIMARY;Irinotecan [100mg/5mL] Solucion inyectable Ampolla x 5mL;;88;88
-PRIMARY;Isotretinoina 10mg Capsula blanda;;430;430
-PRIMARY;Isotretinoina 20mg Capsula blanda;;225;225
-PRIMARY;Itraconazol 100mg Capsula dura;;240;240
-PRIMARY;Ivermectina 0,6% [6mg/mL] Solucion oral;;81;81
-PRIMARY;Jeringa esteril de 10mL - Unidad;;350;350
-PRIMARY;Jeringa esteril de 20mL - Unidad;;275;275
-PRIMARY;Jeringa esteril de 3mL - Unidad;;10;10
-PRIMARY;Jeringa esteril de 1mL - Unidad;;352;352
-PRIMARY;Agua destilada esteril 10mL Solucion inyectable;;10;10
-PRIMARY;Jeringa punta cateter esteril de 60mL - Unidad;;4;4
-PRIMARY;Ketoconazol 200mg Tableta;;77;77
-PRIMARY;Ketotifeno 0,02% [1mg/5mL] Jarabe;;59;59
-PRIMARY;Lacosamida 100mg Tableta;;4185;4185
-PRIMARY;Lacosamida 200mg Tableta;;1860;1860
-PRIMARY;Lacosamida 50mg Tableta;;1705;1705
-PRIMARY;Lactulosa 66,7% [667mg/mL] Jarabe;;4820;4820
-PRIMARY;Lamotrigina 100mg Tableta orodispersable;;7520;7520
-PRIMARY;Lamotrigina 200mg Tableta orodispersable;;60;60
-PRIMARY;Lamotrigina 50mg Tableta orodispersable;;2650;2650
-PRIMARY;Lanceta de glucometria - Unidad;;48345;48345
-PRIMARY;Lansoprazol 30mg Capsula de liberacion retardada;;4212;4212
-PRIMARY;Latanoprost 50mcg/mL Solucion oftalmica Frasco gotero x 2,5mL;;97;97
-PRIMARY;Latanoprost 50mcg/mL Solucion oftalmica Frasco gotero x 3mL;;18;18
-PRIMARY;Levetiracetam 10% [500mg/5mL] Solucion oral Frasco x 300mL;;93;93
-PRIMARY;Levetiracetam 1g Tableta;;22730;22730
-PRIMARY;Levetiracetam 500mg Tableta;;30543;30543
-PRIMARY;Levocetirizina + Montelukast 5mg + 10mg Tableta;;420;420
-PRIMARY;Levocetirizina 5mg Tableta;;337;337
-PRIMARY;Carbidopa + Entacapona + Levodopa 25mg + 200mg + 100mg Tableta;;900;900
-PRIMARY;Carbidopa + Entacapona + Levodopa 50mg + 200mg + 200mg Tableta;;270;270
-PRIMARY;Levofloxacina 500mg Tableta;;589;589
-PRIMARY;Levofloxacina 750mg Tableta;;50;50
-PRIMARY;Levomepromazina 100mg Tableta;;315;315
-PRIMARY;Levomepromazina 25mg Tableta;;2575;2575
-PRIMARY;Levomepromazina 40mg/mL Solucion oral;;183;183
-PRIMARY;Etinilestradiol + Levonorgestrel 0,03mg + 0,15mg Tableta;;8022;8022
-PRIMARY;Levonorgestrel 75mg Solucion inyectable Implante;;14;14
-PRIMARY;Levosulpiride + Pancreatina + Simeticona 25mg + 150mg + 80mg Tableta;;4083;4083
-PRIMARY;Levotiroxina sodica 100mcg Tableta;;25889;25889
-PRIMARY;Levotiroxina sodica 112mcg Tableta;;450;450
-PRIMARY;Levotiroxina sodica 125mcg Tableta;;6922;6922
-PRIMARY;Levotiroxina sodica 150mcg Tableta;;3415;3415
-PRIMARY;Levotiroxina sodica 175mcg Tableta;;180;180
-PRIMARY;Levotiroxina sodica 200mcg Tableta;;90;90
-PRIMARY;Levotiroxina sodica 25mcg Tableta;;26074;26074
-PRIMARY;Levotiroxina sodica 50mcg Tableta;;21235;21235
-PRIMARY;Levotiroxina sodica 62mcg Tableta;;330;330
-PRIMARY;Levotiroxina sodica 75mcg Tableta;;20706;20706
-PRIMARY;Levotiroxina sodica 88mcg Tableta;;3070;3070
-PRIMARY;Hidrocortisona acetato + Lidocaina 0.25% + 5% [25mg + 500mg] Unguento rectal;;42;42
-PRIMARY;Hidrocortisona acetato + Lidocaina 5mg + 60mg Supositorio;;28;28
-PRIMARY;Lidocaina 2% [20mg/mL] Jalea topica;;306;306
-PRIMARY;Lidocaina 5% [700mg/10cm] Parche trasdermico;;125;125
-PRIMARY;Morfina [10mg/mL] Solucion inyectable;;603;603
-PRIMARY;Linagliptina + Metformina 2,5mg + 850mg Tableta;;120;120
-PRIMARY;Linagliptina 5mg Tableta;;3180;3180
-PRIMARY;Linezolid 600mg Tableta;;172;172
-PRIMARY;Liraglutida 6mg/mL [18mg/3mL] Solucion inyectable Lapicero x 3mL;;49;49
-PRIMARY;Loperamida clorhidrato 2mg Tableta;;1711;1711
-PRIMARY;Loratadina 10mg Tableta;;4276;4276
-PRIMARY;Loratadina 0.1% [5mg/5mL] Jarabe;;49;49
-PRIMARY;Lorazepam 1 mg Tableta;;123;123
-PRIMARY;Lorazepam 2 mg Tableta;;720;720
-PRIMARY;Hidroclorotiazida + Losartan potasico 12,5mg + 100mg Tableta;;150;150
-PRIMARY;Hidroclorotiazida + Losartan potasico 25mg + 100mg Tableta;;150;150
-PRIMARY;Hidroclorotiazida + Losartan potasico 12,5mg + 50mg Tableta;;2730;2730
-PRIMARY;Losartan potasico 100mg Tableta;;24412;24412
-PRIMARY;Losartan potasico 50mg Tableta;;222927;222927
-PRIMARY;Loteprednol 5mg/mL Solucion oftalmica;;15;15
-PRIMARY;Lovastatina 20mg Tableta;;30;30
-PRIMARY;Lubiprostone 24mcg Capsula blanda;;450;450
-PRIMARY;Medroxiprogesterona acetato + Estradiol cipionato [25mg + 5mg/0,5mL] Solucion inyectable Ampolla x 0,5mL;;115;115
-PRIMARY;Medroxiprogesterona acetato [150mg/1mL] Solucion inyectable Ampolla x 1mL;;48;48
-PRIMARY;Medroxiprogesterona acetato 5mg Tableta;;615;615
-PRIMARY;Melatonina 2mg Tableta de liberacion prolongada;;1380;1380
-PRIMARY;Meloxicam 15mg Tableta;;2846;2846
-PRIMARY;Meloxicam [15mg/1,5mL] Solucion inyectable;;26;26
-PRIMARY;Meloxicam 7,5mg Tableta;;10652;10652
-PRIMARY;Memantina 10mg Tableta;;5660;5660
-PRIMARY;Memantina 20mg Tableta;;2570;2570
-PRIMARY;Mercaptopurina 50mg Tableta;;370;370
-PRIMARY;Mesalazina 500mg Tableta de liberacion retardada;;1645;1645
-PRIMARY;Mesna [400mg/4mL] Solucion inyectable;;65;65
-PRIMARY;Metformina clorhidrato 1000mg Tableta;;2200;2200
-PRIMARY;Metformina clorhidrato 500mg Tableta;;1069;1069
-PRIMARY;Metformina clorhidrato 850mg Tableta;;27036;27036
-PRIMARY;Metilfenidato 10mg Tableta;;750;750
-PRIMARY;Metilprednisolona 16mg Tableta;;25;25
-PRIMARY;Metilprednisolona 4mg Tableta;;50;50
-PRIMARY;Metimazol 5mg Tableta;;5498;5498
-PRIMARY;Metocarbamol 750mg Tableta;;11778;11778
-PRIMARY;Metoclopramida 10mg Tableta;;2098;2098
-PRIMARY;Metoclopramida [10mg/2mL] Solucion inyectable;;24;24
-PRIMARY;Metoclopramida 4mg/mL Solucion oral;;1;1
-PRIMARY;Metoprolol tartrato 100mg Tableta;;420;420
-PRIMARY;Metoprolol tartrato 50mg Tableta;;10797;10797
-PRIMARY;Metotrexato 2,5mg Tableta;;1627;1627
-PRIMARY;Metotrexato 25mg/mL [500mg/20mL] Solucion inyectable Vial x 20mL;;36;36
-PRIMARY;Metronidazol + Nistatina 500mg + 100,000UI Ovulo;;14;14
-PRIMARY;Metronidazol 5% [250mg/5mL] Suspension oral;;25;25
-PRIMARY;Metronidazol 500mg Ovulo;;720;720
-PRIMARY;Metronidazol 500mg Tableta;;5448;5448
-PRIMARY;Minoxidil 10mg Tableta;;240;240
-PRIMARY;Mirabegron 50mg Tableta de liberacion prolongada;;2130;2130
-PRIMARY;Mirtazapina 30mg Tableta;;1365;1365
-PRIMARY;Mometasona furoato 0,1% [10mg/10g] Crema topica;;36;36
-PRIMARY;Mometasona furoato 0.05% Solucion intranasal Frasco x 140 dosis;;197;197
-PRIMARY;Montelukast 10mg Tableta;;1185;1185
-PRIMARY;Montelukast 4mg Tableta masticable;;1020;1020
-PRIMARY;Montelukast 5mg Tableta masticable;;2530;2530
-PRIMARY;Morfina 3% [150mg/5mL] Solucion oral;;22;22
-PRIMARY;Mosaprida 5mg Tableta;;2420;2420
-PRIMARY;Moxifloxacino 5mg/mL Solucion oftalmica Frasco gotero x 5mL;;13;13
-PRIMARY;Moxifloxacino 400mg Tableta;;90;90
-PRIMARY;Nitrofurazona 0,2% [20mg/10g] Unguento topico;;24;24
-PRIMARY;Naproxeno 2,5% [125mg/5mL] Suspension oral;;52;52
-PRIMARY;Naproxeno 250mg Tableta;;17890;17890
-PRIMARY;Naproxeno 500mg Tableta;;881;881
-PRIMARY;Naratriptan 2.5mg Tableta;;14;14
-PRIMARY;Nepafenaco 1mg/mL Solucion oftalmica Frasco x 3mL;;2;2
-PRIMARY;Nistatina + Zinc oxido 2% (10,000,000) + 20% [200mg (1,000,000) + 2g/10g] Crema topica;;193;193
-PRIMARY;Nistatina [100,000UI/10g] Crema topica;;13;13
-PRIMARY;Nistatina 10.000.000UI [500.000UI/5mL] Solucion oral;;40;40
-PRIMARY;Nitazoxanida 2% [100mg/5mL] Polvo para reconstituir a solucion oral;;19;19
-PRIMARY;Nitazoxanida 500mg Tableta;;420;420
-PRIMARY;Nitrofurantoina 100mg Tableta;;1848;1848
-PRIMARY;Norfloxacina 400mg Tableta;;329;329
-PRIMARY;Olanzapina 10mg Tableta;;6485;6485
-PRIMARY;Olanzapina 5mg Tableta;;6072;6072
-PRIMARY;Olmesartan medoxomil 20mg Tableta;;40;40
-PRIMARY;Olodaterol + Tiotropio 2,5mcg + 2,5mcg Aerosol Inhalador x 30 dosis;;66;66
-PRIMARY;Olopatadina 2mg/mL Solucion oftalmica;;73;73
-PRIMARY;Omeprazol 20mg Capsula dura;;28874;28874
-PRIMARY;Omeprazol 40mg Capsula dura;;556;556
-PRIMARY;Ondansetron 8mg Tableta;;2025;2025
-PRIMARY;Ondansetron [8mg/4mL] Solucion inyectable;;1079;1079
-PRIMARY;Otilonio bromuro 40mg Tableta;;30;30
-PRIMARY;Escitalopram 10mg Tableta;;14256;14256
-PRIMARY;Escitalopram 20mg Tableta;;5000;5000
-PRIMARY;Oxaliplatino 100mg Polvo esteril para reconstituir Vial;;230;230
-PRIMARY;Oxcarbazepina 300mg Tableta;;1388;1388
-PRIMARY;Oxcarbazepina 600mg Tableta;;1920;1920
-PRIMARY;Oxibutinino 10mg Tableta de liberacion prolongada;;470;470
-PRIMARY;Oxibutinino 5mg Tableta;;925;925
-PRIMARY;Oximetazolina 0,25mg/mL Solucion intranasal;;21;21
-PRIMARY;Oximetazolina 0,5mg/mL Solucion para nebulizacion;;32;32
-PRIMARY;Paclitaxel 6mg/mL [100mg/16.7mL] Solucion inyectable Vial x 16,7mL;;163;163
-PRIMARY;Pembrolizumab [100mg/4mL] Solucion inyectable Vial x 4mL;;120;120
-PRIMARY;Teriparatida 250mcg/mL [20mcg/0,08mL] Solucion inyectable Jeringa prellenada x 0,08mL;;1063;1063
-PRIMARY;Pirantel pamoato 5% [250mg/5mL] Suspension oral;;21;21
-PRIMARY;Pirantel pamoato 250mg Tableta;;68;68
-PRIMARY;Pancreatina + Simeticona 170mg + 80mg Tableta;;180;180
-PRIMARY;Pancreatina (amilasa + lipasa + proteasa) 150mg Capsula de liberacion retardada;;220;220
-PRIMARY;Panitumumab 20mg/mL [100mg/5mL] Solucion inyectable Ampolla x 5mL;;7;7
-PRIMARY;Pantoprazol 20mg Tableta;;240;240
-PRIMARY;Pantoprazol 40mg Tableta de liberacion retardada;;2162;2162
-PRIMARY;Paroxetina 20mg Tableta;;2160;2160
-PRIMARY;Pasta stomahesive Tubo x 56.7g;;96;96
-PRIMARY;Pegfilgrastim [6mg/0.6mL] Solucion inyectable Jeringa prellenada x 0,6mL;;264;264
-PRIMARY;Penicilina G benzatinica 1.200.000UI Polvo esteril para reconstituir;;8;8
-PRIMARY;Penicilina G benzatinica 2.400.000UI Polvo esteril para reconstituir;;30;30
-PRIMARY;Pentoxifilina 400mg Tableta de liberacion prolongada;;180;180
-PRIMARY;Picosulfato de sodio 7,5mg/mL Solucion oral;;25;25
-PRIMARY;Pilocarpina 5mg Tableta;;4390;4390
-PRIMARY;Pinza para bolsa para colostomia - Unidad;;13;13
-PRIMARY;Piridoxina clorhidrato 50mg Tableta;;630;630
-PRIMARY;Piroxicam 20mg Capsula dura;;160;160
-PRIMARY;Podofilina 20% [1g/5mL] Suspension topica;;1;1
-PRIMARY;Polietilenglicol + Propilenglicol 4mg + 3mg/mL Solucion oftalmica;;21;21
-PRIMARY;Polietilenglicol 3350 (macrogol) 100g/100g [1g por gramo de polvo] Polvo para reconstituir a solucion oral;;5148;5148
-PRIMARY;Polvo stomahesive;;89;89
-PRIMARY;Pramipexol 0,75mg Tableta de liberacion prolongada;;240;240
-PRIMARY;Pramipexol 1,5mg Tableta de liberacion prolongada;;150;150
-PRIMARY;Pramipexol 3mg Tableta de liberacion prolongada;;630;630
-PRIMARY;Prazosina 1mg Tableta;;13950;13950
-PRIMARY;Fenilefrina + Prednisolona acetato 1,2mg + 10mg/mL Solucion oftalmica;;14;14
-PRIMARY;Prednisolona 0,1% [5mg/5mL] Solucion oral;;54;54
-PRIMARY;Prednisolona 5mg Tableta;;15044;15044
-PRIMARY;Prednisona 50mg Tableta;;1299;1299
-PRIMARY;Pregabalina 150mg Capsula dura;;4825;4825
-PRIMARY;Pregabalina 25mg Capsula dura;;5405;5405
-PRIMARY;Pregabalina 300mg Capsula dura;;606;606
-PRIMARY;Pregabalina 50mg Capsula dura;;6231;6231
-PRIMARY;Pregabalina 75mg Capsula dura;;26031;26031
-PRIMARY;Preservativo masculino de latex;;1909;1909
-PRIMARY;Progesterona 200mg Capsula blanda;;759;759
-PRIMARY;Propafenona 150mg Tableta;;810;810
-PRIMARY;Propranolol 40mg Tableta;;2400;2400
-PRIMARY;Propiltiouracilo 50mg Tableta;;10;10
-PRIMARY;Propranolol 80mg Tableta;;90;90
-PRIMARY;Quetiapina 100mg Tableta;;7990;7990
-PRIMARY;Quetiapina 200mg Tableta;;1462;1462
-PRIMARY;Quetiapina 25mg Tableta;;28152;28152
-PRIMARY;Quetiapina 300mg Tableta;;270;270
-PRIMARY;Quetiapina 50mg Tableta de liberacion prolongada;;90;90
-PRIMARY;Rasagilina 1mg Tableta;;150;150
-PRIMARY;Rifaximina 200mg Capsula blanda;;2751;2751
-PRIMARY;Rifaximina 550mg Tableta;;1677;1677
-PRIMARY;Risperidona 1mg Tableta;;11005;11005
-PRIMARY;Risperidona 1mg/1mL Solucion oral Frasco gotero x 20mL;;71;71
-PRIMARY;Risperidona 1mg/1mL Solucion oral Frasco gotero x 30mL;;8;8
-PRIMARY;Risperidona 2mg Tableta;;7814;7814
-PRIMARY;Risperidona 37.5mg Polvo esteril para reconstituir Vial;;21;21
-PRIMARY;Risperidona 3mg Tableta;;3745;3745
-PRIMARY;Rivaroxaban 10mg Tableta;;635;635
-PRIMARY;Rivaroxaban 15mg Tableta;;2274;2274
-PRIMARY;Rivaroxaban 2,5mg Tableta;;292;292
-PRIMARY;Rivaroxaban 20mg Tableta;;3155;3155
-PRIMARY;Rivastigmina 9,5mg/24h [18mg] Parche trasdermico;;270;270
-PRIMARY;Rivastigmina 13,3mg/24h [27mg] Parche trasdermico;;60;60
-PRIMARY;Rivastigmina 4,6mg/24h [9mg] Parche trasdermico;;570;570
-PRIMARY;Rosuvastatina 10mg Tableta;;720;720
-PRIMARY;Rotigotina 9mg Parche trasdermico;;294;294
-PRIMARY;Saccharomyces boulardi 250mg Polvo para reconstituir a solucion oral;;1608;1608
-PRIMARY;Saccharomyces boulardi 250mg Capsula dura;;2120;2120
-PRIMARY;Sacubitrilo Valsartan 200mg Tableta;;330;330
-PRIMARY;Sacubitrilo Valsartan 50mg Tableta;;5470;5470
-PRIMARY;Safinamida 100mg Tableta;;210;210
-PRIMARY;Salbutamol 100mcg/puff Solucion en aerosol;;395;395
-PRIMARY;Salbutamol 0,04% [2mg/5mL] Jarabe Frasco x 120mL;;1;1
-PRIMARY;Fluticasona + Salmeterol 125mcg + 25mcg/puff Aerosol Inhalador x 120 dosis;;15;15
-PRIMARY;Fluticasona + Salmeterol 250mcg + 25mcg/puff Aerosol Inhalador x 120 dosis;;147;147
-PRIMARY;Fluticasona + Salmeterol 250mcg + 50mcg/puff Aerosol Inhalador x 60 dosis;;23;23
-PRIMARY;Fluticasona + Salmeterol 500mcg + 50mcg/puff Polvo para inhalacion Inhalador x 60 dosis;;14;14
-PRIMARY;Sertralina 100mg Tableta;;5865;5865
-PRIMARY;Sertralina 25mg Tableta;;1610;1610
-PRIMARY;Sertralina 50mg Tableta;;17209;17209
-PRIMARY;Sevelamer clorhidrato 800mg Tableta;;270;270
-PRIMARY;Sildenafil 20mg Tableta;;30;30
-PRIMARY;Sildenafil 25mg Tableta;;462;462
-PRIMARY;Sildenafil 50mg Tableta;;3444;3444
-PRIMARY;Simeticona + Trimebutina maleato 120mg + 200mg Tableta;;4348;4348
-PRIMARY;Metformina + Sitagliptina 1000mg + 50mg Tableta;;336;336
-PRIMARY;Sitagliptina 100mg Tableta;;90;90
-PRIMARY;Sitagliptina 50mg Tableta;;476;476
-PRIMARY;Solifenacina succinato 5mg Tableta;;2180;2180
-PRIMARY;Somatropina 12mg ó 36UI Polvo esteril para reconstituir Vial;;71;71
-PRIMARY;Sonda foley 2 vias No. 18;;5;5
-PRIMARY;Sonda nelaton No. 12;;814;814
-PRIMARY;Sonda nelaton No. 10;;502;502
-PRIMARY;Sorafenib 200mg Tableta;;390;390
-PRIMARY;Bismuto subsalicilato 262mg Tableta masticable;;3836;3836
-PRIMARY;Sucralfato 1g Tableta;;7334;7334
-PRIMARY;Sucralfato 20% [1g/5mL] Suspension oral;;88;88
-PRIMARY;Sulfadiazina de plata 1% [100mg/10g] Crema topica;;77;77
-PRIMARY;Sulfasalazina 500mg Tableta de liberacion retardada;;2343;2343
-PRIMARY;Zinc sulfato 20mg Tableta;;24;24
-PRIMARY;Zinc sulfato 0,2% [10mg/5mL] Solucion oral;;145;145
-PRIMARY;Sulfato ferroso (hierro) 200mg Tableta;;1725;1725
-PRIMARY;Sulfato ferroso (hierro) 300mg Tableta;;11658;11658
-PRIMARY;Sultamicilina 375mg Tableta;;818;818
-PRIMARY;Sultamicilina 750mg Tableta;;169;169
-PRIMARY;Sumatriptan 80mg/mL Solucion oral;;7;7
-PRIMARY;Tadalafilo 20mg Tableta;;2970;2970
-PRIMARY;Tadalafilo 5mg Tableta;;1189;1189
-PRIMARY;Tamoxifeno 20mg Tableta;;1816;1816
-PRIMARY;Tamsulosina clorhidrato 0,4mg Capsula de liberacion prolongada;;12005;12005
-PRIMARY;Telmisartan 80mg Tableta;;180;180
-PRIMARY;Temozolamida 100mg Capsula dura;;75;75
-PRIMARY;Terbinafina 1% [100mg/10g] Crema topica;;59;59
-PRIMARY;Terbinafina 250mg Tableta;;912;912
-PRIMARY;Tiamina monohidrato [1g/10mL] Solucion inyectable;;130;130
-PRIMARY;Tiamina monohidrato 300mg Tableta;;17536;17536
-PRIMARY;Tibolona 2,5mg Tableta;;3828;3828
-PRIMARY;Ticagrelor 90mg Tableta;;660;660
-PRIMARY;Brimonidina tartrato + Timolol 2mg + 5mg/mL Solucion oftalmica Frasco gotero x 2,5mL;;69;69
-PRIMARY;Tinidazol 500mg Tableta;;372;372
-PRIMARY;Tiocolchicosido 4mg Tableta;;20;20
-PRIMARY;Tiocolchicosido 8mg Tableta;;259;259
-PRIMARY;Tiras de glucometria;;240;240
-PRIMARY;Tizanidina 2mg Tableta;;782;782
-PRIMARY;Tizanidina 4mg Tableta;;130;130
-PRIMARY;Dexametasona + Tobramicina 1mg + 3mg/mL Solucion oftalmica;;17;17
-PRIMARY;Dexametasona + Tobramicina 0,1% + 0,3% [10mg + 30mg/10g] Unguento oftalmico;;12;12
-PRIMARY;Tobramicina 3mg/mL Solucion oftalmica;;3;3
-PRIMARY;Topiramato 100mg Tableta;;480;480
-PRIMARY;Topiramato 25mg Tableta;;532;532
-PRIMARY;Topiramato 50mg Tableta;;1870;1870
-PRIMARY;Toxina botulinica tipo A 100U Polvo esteril para reconstituir Vial;;6;6
-PRIMARY;Toxina botulinica tipo A 200U Polvo esteril para reconstituir Vial;;6;6
-PRIMARY;Toxina botulinica tipo A 500U Polvo esteril para reconstituir Vial;;13;13
-PRIMARY;Tramadol clorhidrato 50mg Capsula dura;;747;747
-PRIMARY;Tramadol clorhidrato 10% [100mg/mL] Solucion oral;;98;98
-PRIMARY;Trastuzumab 440mg Polvo esteril para reconstituir Vial;;63;63
-PRIMARY;Trastuzumab [600mg/6mL] Solucion inyectable Vial x 6mL;;1;1
-PRIMARY;Trazodona clorhidrato 50mg Tableta;;16857;16857
-PRIMARY;Trimebutina 200mg Tableta;;10463;10463
-PRIMARY;Trimebutina 300mg Tableta;;245;245
-PRIMARY;Sulfametoxazol + Trimetoprim 4% + 0.8% [200mg + 40mg/5mL] Suspension oral;;15;15
-PRIMARY;Sulfametoxazol + Trimetoprim 800mg + 160mg Tableta;;4527;4527
-PRIMARY;Sulfametoxazol + Trimetoprim 400mg + 80mg Tableta;;526;526
-PRIMARY;Amlodipino + Valsartan 5mg + 160mg Tableta;;1350;1350
-PRIMARY;Amlodipino + Valsartan 10mg + 320mg Tableta;;174;174
-PRIMARY;Amlodipino + Valsartan 5mg + 80mg Tableta;;60;60
-PRIMARY;Hidroclorotiazida + Valsartan 12,5mg + 160mg Tableta;;3182;3182
-PRIMARY;Hidroclorotiazida + Valsartan 25mg + 160mg Tableta;;174;174
-PRIMARY;Hidroclorotiazida + Valsartan 12,5mg + 80mg Tableta;;120;120
-PRIMARY;Valsartan 160mg Tableta;;37917;37917
-PRIMARY;Valsartan 320mg Tableta;;270;270
-PRIMARY;Valsartan 80mg Tableta;;16478;16478
-PRIMARY;Venlafaxina 150mg Capsula de liberacion prolongada;;900;900
-PRIMARY;Venlafaxina 37.5mg Capsula de liberacion prolongada;;308;308
-PRIMARY;Venlafaxina 75mg Capsula de liberacion prolongada;;2280;2280
-PRIMARY;Verapamilo clorhidrato 120mg Tableta;;360;360
-PRIMARY;Verapamilo clorhidrato 80mg Tableta;;450;450
-PRIMARY;Vigabatrina 500mg Tableta;;1995;1995
-PRIMARY;Metformina + Vildagliptina 1000mg + 50mg Tableta;;4444;4444
-PRIMARY;Metformina + Vildagliptina 500mg + 50mg Tableta;;370;370
-PRIMARY;Metformina + Vildagliptina 850mg + 50mg Tableta;;17177;17177
-PRIMARY;Vildagliptina 50mg Tableta;;23591;23591
-PRIMARY;Vincristina sulfato [1mg/mL] Solucion inyectable;;37;37
-PRIMARY;Vitamina A palmitato 50,000UI Capsula dura;;1905;1905
-PRIMARY;Cianocobalamina (vitamina B12) 1mg/mL Solucion inyectable;;513;513
-PRIMARY;Vitamina D3 (colecalciferol) 25,000UI/mL Solucion oral;;2788;2788
-PRIMARY;Calcifediol (Vitamina D3) 100,000UI Capsula blanda;;14;14
-PRIMARY;Vitamina D3 (colecalciferol) 1000UI Capsula blanda;;4663;4663
-PRIMARY;Vitamina D3 (colecalciferol) 2000UI Capsula blanda;;19078;19078
-PRIMARY;Vitamina D3 (colecalciferol) 7000UI Capsula blanda;;236;236
-PRIMARY;Vitamina E 1000UI Capsula blanda;;300;300
-PRIMARY;Vitamina E 400UI Capsula blanda;;1035;1035
-PRIMARY;Warfarina sodica 5mg Tableta;;3898;3898
-PRIMARY;Zopiclona 7.5mg Tableta;;274;274
+﻿FUENTE_MATCH;DESCRIPCION_TARGET;CODIGO_TARGET;10octubreEvento;11NoviembreEvento;6junioEvento;7julioEvento;8AgostoEvento;9SeptiembreEvento;TOTAL_ACUMULADO
+PRIMARY;Abiraterona 250mg Tableta;;1080;0;0;720;1200;360;3360
+PRIMARY;Abiraterona 500mg Tableta;;1920;0;0;180;180;0;2280
+PRIMARY;Acetaminofen 500mg Tableta;;144835;116138;94547;134972;125881;168483;784856
+PRIMARY;Acetaminofen + Codeina 325mg + 15mg Tableta;;1050;221;0;525;971;1026;3793
+PRIMARY;Acetaminofen + Codeina 325mg + 30mg Tableta;;2438;2409;180;1509;1685;3535;11756
+PRIMARY;Acetaminofen + Tizanidina 350mg + 2mg Tableta;;2499;2232;0;1173;1760;1851;9515
+PRIMARY;Acetaminofen + Tramadol 325mg + 37,5mg Tableta;;4705;3115;0;1654;2110;3500;15084
+PRIMARY;Acetaminofen 100mg/mL Solucion oral;;6;3;1;0;0;0;10
+PRIMARY;Acetaminofen 3% [150mg/5mL] Jarabe;;303;251;339;303;241;323;1760
+PRIMARY;Aluminio acetato 0,118% [5,9mg/5mL] Locion topica;;65;46;17;17;183;48;376
+PRIMARY;Goserelina acetato 10,8mg Solucion inyectable Implante;;18;18;9;16;6;1;68
+PRIMARY;Leuprorelina (leuprolida) 22.5mg Polvo esteril para reconstituir Vial;;1;4;1;5;1;6;18
+PRIMARY;Leuprorelina (leuprolida) 45mg Polvo esteril para reconstituir Vial;;1;0;0;16;13;25;55
+PRIMARY;Acetazolamida 250mg Tableta;;265;510;300;410;404;978;2867
+PRIMARY;Acetilcisteina 200mg Polvo para reconstituir a solucion oral;;620;305;375;687;189;509;2685
+PRIMARY;Acetilcisteina 600mg Polvo para reconstituir a solucion oral;;4474;4939;3705;4562;2697;4913;25290
+PRIMARY;Aciclovir 200mg Tableta;;1184;894;1073;1046;2380;2162;8739
+PRIMARY;Aciclovir 5% [500mg/10g] Unguento topico;;14;17;18;17;25;25;116
+PRIMARY;Aciclovir 800mg Tableta;;281;437;605;150;382;465;2320
+PRIMARY;Acetilsalicilico acido 100mg Tableta;;41241;34249;37803;53875;40822;50757;258747
+PRIMARY;Ascorbico acido + Cianocobalamina (vitamina B12) + Folico acido + Fumarato ferroso 100mg + 1mg + 2mg + 330mg Capsula dura;;1170;660;0;360;1350;870;4410
+PRIMARY;Ascorbico acido 100mg/mL Solucion oral;;61;42;32;39;37;38;249
+PRIMARY;Ascorbico acido 500mg Tableta masticable;;31639;27621;14173;31509;23841;24388;153171
+PRIMARY;Amoxicilina + Clavulanico acido 875mg + 125mg Tableta;;587;795;167;257;322;593;2721
+PRIMARY;Fenofibrico acido + Rosuvastatina 135mg + 10mg Capsula dura;;1050;1710;120;570;300;330;4080
+PRIMARY;Fenofibrico acido + Rosuvastatina 135mg + 20mg Capsula dura;;1770;600;360;540;2970;2250;8490
+PRIMARY;Fenofibrato de colina 135mg Capsula de liberacion retardada;;240;120;150;300;450;150;1410
+PRIMARY;Folico acido 1mg Tableta;;16525;14619;10235;15323;12798;14241;83741
+PRIMARY;Folico acido 5mg Tableta;;1737;1116;1190;2181;1608;1523;9355
+PRIMARY;Fusidico acido 2% [200mg/10g] Crema topica;;90;83;52;121;107;101;554
+PRIMARY;Ibandronico acido 150mg Tableta;;23;9;90;3;3;3;131
+PRIMARY;Ibandronico acido 1mg/mL [6mg/6mL] Solucion inyectable Ampolla x 6mL;;7;11;6;3;3;4;34
+PRIMARY;Poliacrilico acido (carbopol 940) 0,2% [20mg/10g] Gel oftalmico;;15;21;67;47;35;28;213
+PRIMARY;Retinoico acido (tretinoina) 0.05% [5mg/10g] Crema topica;;51;51;2;9;23;33;169
+PRIMARY;Retinoico acido (tretinoina) 0.05% [2.5mg/5mL] Locion topica;;7;1;1;8;9;3;29
+PRIMARY;Tioctico acido (acido alfa lipoico) 600mg Tableta;;690;330;240;360;450;960;3030
+PRIMARY;Tranexamico acido 500mg Tableta;;1780;2154;1668;2278;1807;2235;11922
+PRIMARY;Ursodeoxicolico acido 300mg Capsula dura;;3971;3331;2890;1705;1290;1332;14519
+PRIMARY;Valproico acido 250mg Capsula dura;;47956;27525;34864;47138;27642;34201;219326
+PRIMARY;Valproico acido 5% [250mg/5mL] Jarabe;;238;342;185;683;793;327;2568
+PRIMARY;Zoledronico acido [4mg/5mL] Solucion inyectable Ampolla x 5mL;;13;25;4;2;3;4;51
+PRIMARY;Aguja para lapicero insulina;;73713;52341;90;28301;21081;22745;198271
+PRIMARY;Albendazol 2% [100mg/5mL] Suspension oral;;50;57;13;73;28;46;267
+PRIMARY;Albendazol 200mg Tableta;;796;834;672;871;971;846;4990
+PRIMARY;Alendronico acido 70mg Tableta;;1612;1304;667;1010;829;1269;6691
+PRIMARY;Alfametildopa 250mg Tableta;;420;280;0;270;390;270;1630
+PRIMARY;Alginato de sodio + Bicarbonato de sodio + Calcio carbonato 5% + 2,13% + 3,25% [250mg + 106,5mg + 162,5mg/5mL] Suspension oral;;31;366;270;482;180;68;1397
+PRIMARY;Alimento en polvo a base de multivitaminas y minerales (Vitamix) sobre x 1g;;1920;1140;961;2400;1260;1290;8971
+PRIMARY;Alizaprida 12mg/mL Solucion oral;;10;4;8;7;4;9;42
+PRIMARY;Alopurinol 300mg Tableta;;2025;345;180;546;666;815;4577
+PRIMARY;Alprazolam 0,5mg Tableta;;300;480;90;90;0;180;1140
+PRIMARY;Amantadina clorhidrato 100mg Capsula dura;;6810;5190;2280;4290;5850;8700;33120
+PRIMARY;Amikacina [500mg/2mL] Solucion inyectable;;26;20;11;10;0;9;76
+PRIMARY;Amiodarona clorhidrato 200mg Tableta;;2417;1767;1532;2646;1530;2723;12615
+PRIMARY;Amitriptilina clorhidrato 25mg Tableta;;6324;5416;3275;6305;5876;5564;32760
+PRIMARY;Amlodipino + Hidroclorotiazida + Valsartan 10mg + 12,5mg + 160mg Tableta;;8557;2432;14276;15227;9223;13301;63016
+PRIMARY;Amlodipino + Hidroclorotiazida + Valsartan 10mg + 25mg + 320mg Tableta;;3975;2986;2564;3340;3134;3602;19601
+PRIMARY;Amlodipino 10mg Tableta;;27148;17189;21155;35313;26525;32134;159464
+PRIMARY;Amlodipino 5mg Tableta;;48064;27909;45435;66423;50309;81052;319192
+PRIMARY;Amoxicilina + Clavulanico acido 500mg + 125mg Tableta;;86;77;0;71;123;112;469
+PRIMARY;Amoxicilina 5% [250mg/5mL] Polvo para reconstituir a solucion oral;;79;70;151;63;68;98;529
+PRIMARY;Amoxicilina 500mg Capsula dura;;12163;10735;2956;8111;7114;11222;52301
+PRIMARY;Ampicilina 500mg Capsula dura;;930;346;1089;445;481;473;3764
+PRIMARY;Alprazolam 1mg Tableta;;364;90;2160;2976;364;252;6206
+PRIMARY;Apalutamida 60mg Tableta;;480;600;0;0;120;480;1680
+PRIMARY;Apixaban 2,5mg Tableta;;11814;13764;7451;12468;11322;14220;71039
+PRIMARY;Apixaban 5mg Tableta;;23110;19522;7083;19239;16982;18388;104324
+PRIMARY;Aripiprazol 15mg Tableta;;3660;3330;2860;4605;2000;2370;18825
+PRIMARY;Atorvastatina 20mg Tableta;;74117;52730;68805;100378;94359;109653;500042
+PRIMARY;Atorvastatina 40mg Tableta;;85033;69238;73996;93081;85494;127995;534837
+PRIMARY;Atorvastatina 10mg Tableta;;1440;1530;1620;2520;1590;2940;11640
+PRIMARY;Atorvastatina 80mg Tableta;;190;180;0;240;0;210;820
+PRIMARY;Atropina sulfato 10mg/mL Solucion oftalmica;;7;20;3;0;3;11;44
+PRIMARY;Azacitidina 100mg Polvo esteril para reconstituir Vial;;21;42;0;14;7;70;154
+PRIMARY;Captopril 50mg Tableta;;1410;510;5603;4750;2490;2400;17163
+PRIMARY;Azitromicina 4% [200mg/5mL] Polvo para reconstituir a solucion oral;;40;35;20;50;37;26;208
+PRIMARY;Azitromicina 500mg Tableta;;213;298;277;191;305;374;1658
+PRIMARY;Bacillus clausii 2000 millones/5mL Suspension oral;;10;10;30;30;30;44;154
+PRIMARY;Baclofeno 10mg Tableta;;1825;1985;880;1670;2475;2540;11375
+PRIMARY;Barrera de colostomia No. 45mm;;103;71;0;70;188;26;458
+PRIMARY;Barrera de colostomia No. 57mm;;168;251;0;0;0;106;525
+PRIMARY;Barrera de colostomia No. 70mm;;281;294;0;28;0;108;711
+PRIMARY;Beclometasona dipropionato + Formoterol fumarato 100mcg + 6mcg/dosis Solucion en aerosol;;3;3;32;40;10;11;99
+PRIMARY;Beclometasona dipropionato 250mcg/dosis Solucion en aerosol;;94;71;166;234;183;106;854
+PRIMARY;Beclometasona dipropionato 50mcg/dosis Solucion en aerosol;;197;186;151;199;159;190;1082
+PRIMARY;Bencilo benzoato 30% [1.5g/5mL] Locion topica;;5;10;4;2;5;5;31
+PRIMARY;Betahistina 16mg Tableta;;5133;5141;1685;2023;3594;5269;22845
+PRIMARY;Betahistina 24mg Tableta;;3496;3792;1920;4810;3866;4083;21967
+PRIMARY;Betahistina 8mg Tableta;;1863;2089;1546;1035;2034;1962;10529
+PRIMARY;Betametasona valerato + Clotrimazol + Neomicina 0,04% + 1% + 0,5% [4mg + 100mg + 50mg/10g] Crema topica;;35;27;15;29;42;21;169
+PRIMARY;Betametasona valerato 0,05% [5mg/10g] Crema topica;;317;318;155;235;254;329;1608
+PRIMARY;Betametasona valerato 0,1% [10mg/10g] Crema topica;;110;83;42;132;32;116;515
+PRIMARY;Betametasona sodio fosfato [8mg/2mL] Solucion inyectable;;9;3;11;11;22;14;70
+PRIMARY;Betametildigoxina 0,1mg Tableta;;30;0;0;0;40;30;100
+PRIMARY;Bevacizumab 25mg/mL [100mg/4mL] Solucion inyectable Vial x 4mL;;317;320;241;229;177;270;1554
+PRIMARY;Bicalutamida 150mg Tableta;;60;0;0;0;0;0;60
+PRIMARY;Bicalutamida 50mg Tableta;;120;90;0;210;60;90;570
+PRIMARY;Bilastina 20mg Tableta;;180;510;180;270;630;470;2240
+PRIMARY;Bimatoprost 0,3mg/mL Solucion oftalmica Frasco gotero x 3mL;;10;20;6;10;10;19;75
+PRIMARY;Biperideno 2mg Tableta;;4577;2550;2250;3060;3913;4995;21345
+PRIMARY;Bisacodilo 5mg Tableta;;6273;4808;4452;5501;4058;6444;31536
+PRIMARY;Bisoprolol 2,5mg Tableta;;1600;360;570;930;900;2535;6895
+PRIMARY;Bisoprolol 5mg Tableta;;3810;2835;2731;3420;3330;5385;21511
+PRIMARY;Bleomicina 15UI Polvo esteril para reconstituir;;91;57;16;16;14;14;208
+PRIMARY;Bolsa de colostomia No. 45mm;;93;54;0;0;0;83;230
+PRIMARY;Bolsa de colostomia No. 57mm;;132;191;0;30;0;33;386
+PRIMARY;Bolsa de colostomia No. 70mm;;316;320;0;25;0;173;834
+PRIMARY;Bolsa recolectora de orina 2000mL;;20;61;0;12;0;45;138
+PRIMARY;Bortezomib 3,5mg Polvo esteril para reconstituir Vial;;20;20;12;8;16;24;100
+PRIMARY;Bosentan 125mg Tableta;;150;120;180;0;0;120;570
+PRIMARY;Bosentan 62.5mg Tableta;;60;90;0;0;0;0;150
+PRIMARY;Brimonidina tartrato + Timolol 2mg + 5mg/mL Solucion oftalmica Frasco gotero x 10mL;;11;10;17;20;15;20;93
+PRIMARY;Brivaracetam 100mg Tableta;;214;360;0;0;180;0;754
+PRIMARY;Bromfenaco 0,9mg/mL Solucion oftalmica Frasco gotero x 5mL;;33;41;97;60;135;26;392
+PRIMARY;Fenoterol bromhidrato + Ipratropio bromuro 50mcg + 20mcg/puff Aerosol Inhalador x 200 dosis;;386;575;330;630;406;266;2593
+PRIMARY;Pinaverio 100mg Tableta;;1390;1775;0;253;1620;1899;6937
+PRIMARY;Piridostigmina bromuro 60mg Tableta;;580;1440;1041;540;620;960;5181
+PRIMARY;Tiotropio bromuro 18mcg Capsula dura para inhalacion;;464;249;93;369;488;48;1711
+PRIMARY;Tiotropio bromuro 2,5mcg/puff Aerosol Inhalador x 30 dosis;;23;30;0;10;16;24;103
+PRIMARY;Budesonida + Formoterol 160mcg + 4.5mcg/dosis Aerosol Inhalador x 120 dosis;;46;57;38;55;36;66;298
+PRIMARY;Budesonida + Formoterol 200mcg + 6mcg Capsula dura para inhalacion;;15;3;2;0;9;7;36
+PRIMARY;Bupropion 150mg Tableta de liberacion prolongada;;2460;1290;2535;1470;1740;2565;12060
+PRIMARY;Cabergolina 0,5mg Tableta;;514;228;136;460;112;124;1574
+PRIMARY;Calcio carbonato + vitamina D3 600mg + 200UI Tableta;;270;150;0;690;733;1050;2893
+PRIMARY;Calcitriol 0,25mcg Capsula blanda;;12329;7146;13778;14889;13575;19072;80789
+PRIMARY;Calcitriol 0,5mcg Capsula blanda;;5447;2725;180;7645;13015;8754;37766
+PRIMARY;Capecitabina 500mg Tableta;;2878;4234;2936;2795;3120;1783;17746
+PRIMARY;Captopril 25mg Tableta;;750;210;540;1171;930;750;4351
+PRIMARY;Carbamazepina 2% [100mg/5mL] Suspension oral Frasco x 120mL;;98;66;0;0;0;49;213
+PRIMARY;Carbamazepina 200mg Tableta;;25659;14920;18415;16390;19499;26661;121544
+PRIMARY;Carbamazepina 400mg Tableta de liberacion prolongada;;740;150;840;220;0;120;2070
+PRIMARY;Carbidopa + Levodopa 25mg + 100mg Tableta;;4403;4360;0;2310;1395;5710;18178
+PRIMARY;Carbidopa + Levodopa 25mg + 250mg Tableta;;10250;8530;5280;8665;6655;16350;55730
+PRIMARY;Calcio carbonato + Vitamina D3 500mg + 330UI Tableta;;12581;12866;4710;7589;5289;12130;55165
+PRIMARY;Calcio carbonato 1500mg (600mg calcio) Tableta;;56125;35104;34699;56630;41673;55863;280094
+PRIMARY;Litio carbonato 300mg Tableta;;8369;4895;10850;7260;5490;7450;44314
+PRIMARY;Carboplatino 10mg/mL [450mg/45mL] Solucion inyectable;;86;137;35;75;62;76;471
+PRIMARY;Carboximetilcelulosa sodica + Glicerina 5mg + 9mg/mL Solucion oftalmica;;86;50;309;380;45;73;943
+PRIMARY;Carboximetilcelulosa sodica + Glicerina + Hialuronato de sodio 5mg + 9mg + 1mg/mL Solucion oftalmica;;48;32;27;91;80;34;312
+PRIMARY;Carboximetilcelulosa sodica 5mg/mL Solucion oftalmica;;333;232;611;484;934;347;2941
+PRIMARY;Carvedilol 12,5mg Tableta;;15378;10476;16105;25497;19577;29283;116316
+PRIMARY;Carvedilol 25mg Tableta;;1680;1320;2430;4740;3870;3450;17490
+PRIMARY;Carvedilol 6,25mg Tableta;;39845;31771;24901;31114;18545;53850;200026
+PRIMARY;Cefalexina 5% [250mg/5mL] Polvo para reconstituir a solucion oral;;166;63;74;70;73;61;507
+PRIMARY;Cefalexina 500mg Capsula dura;;11658;9959;9517;12333;10885;13415;67767
+PRIMARY;Ceftriaxona 1g Polvo esteril para reconstituir;;39;15;26;39;40;24;183
+PRIMARY;Celecoxib 100mg Capsula dura;;30;0;0;0;0;0;30
+PRIMARY;Celecoxib 200mg Capsula dura;;65;95;0;60;60;80;360
+PRIMARY;Cetirizina 10mg Tableta;;3108;3861;1332;2544;2260;2394;15499
+PRIMARY;Cetirizina 1% [10mg/mL] Solucion oral;;6;2;8;10;7;5;38
+PRIMARY;Cetirizina 0,1% [5mg/5mL] Jarabe;;37;38;28;39;40;61;243
+PRIMARY;Ciclobenzaprina + Lisina clonixinato 5mg + 125mg Capsula blanda;;160;60;0;100;20;201;541
+PRIMARY;Ciclobenzaprina 10mg Tableta;;2044;1509;910;1525;1461;2018;9467
+PRIMARY;Ciclobenzaprina 15mg Tableta;;727;261;20;168;265;776;2217
+PRIMARY;Ciclofosfamida 1g Polvo esteril para reconstituir;;34;36;14;22;14;45;165
+PRIMARY;Ciclofosfamida 500mg Polvo esteril para reconstituir;;31;38;0;27;17;67;180
+PRIMARY;Cilostazol 100mg Tableta;;768;120;58;450;0;774;2170
+PRIMARY;Cilostazol 50mg Tableta;;540;420;0;240;540;330;2070
+PRIMARY;Cinacalcet 30mg Tableta;;1166;1006;450;270;210;120;3222
+PRIMARY;Ciprofibrato 100mg Tableta;;1430;2050;480;1730;1160;1870;8720
+PRIMARY;Ciprofloxacina 500mg Tableta;;3650;2955;2836;4294;3829;3907;21471
+PRIMARY;Ciprofloxacina + Dexametasona 3mg + 1mg/mL Solucion oftalmica;;4;3;2;2;1;0;12
+PRIMARY;Cisplatino 1mg/mL [50mg/50mL] Solucion inyectable;;190;139;12;97;118;112;668
+PRIMARY;Citarabina [500mg/5mL] Solucion inyectable Vial x 5mL;;22;40;3;3;0;0;68
+PRIMARY;Citicolina 500mg Tableta;;1080;1080;0;240;90;651;3141
+PRIMARY;Alverina citrato + Simeticona 60mg + 300mg Capsula blanda;;180;230;0;500;420;180;1510
+PRIMARY;Calcio citrato + Vitamina D3 1500mg (calcio 315mg) + 200UI Tableta;;22740;9840;570;6450;10830;22672;73102
+PRIMARY;Calcio citrato + Vitamina D3 1500mg (calcio 315mg) + 800UI Tableta;;30;30;0;0;90;0;150
+PRIMARY;Eritromicina 5% [250mg/5mL] Suspension oral;;8;1;5;3;1;12;30
+PRIMARY;Claritromicina 500mg Tableta;;3638;2863;1505;2551;2185;2974;15716
+PRIMARY;Clindamicina 300mg Capsula dura;;2312;1876;1163;2456;1866;2506;12179
+PRIMARY;Clobazam 10mg Tableta;;720;780;900;1140;1530;1080;6150
+PRIMARY;Clobazam 20mg Tableta;;360;360;0;600;720;555;2595
+PRIMARY;Clobetasol 0.05% [5mg/10g] Crema topica;;144;103;66;132;142;129;716
+PRIMARY;Clobetasol 0.05% [2,5mg/5mL] Locion topica;;30;12;3;2;5;24;76
+PRIMARY;Clonazepam 0.5mg Tableta;;1140;1110;2040;1650;960;2040;8940
+PRIMARY;Clonazepam 0.25% [2.5mg/mL] Solucion oral;;36;29;42;45;35;49;236
+PRIMARY;Clonazepam 2mg Tableta;;1530;1650;1266;1776;930;1860;9012
+PRIMARY;Clonidina clorhidrato 150mcg (0,150mg) Tableta;;6842;6864;7780;5075;7440;8506;42507
+PRIMARY;Clopidogrel 75mg Tableta;;4780;3675;2640;3987;4319;5508;24909
+PRIMARY;Clorfeniramina maleato 0,04% [2mg/5mL] Jarabe;;8;1;9;17;11;15;61
+PRIMARY;Clorfeniramina maleato 4mg Tableta;;628;205;0;202;257;285;1577
+PRIMARY;Cloroquina fosfato 150mg Tableta;;585;585;720;565;810;1014;4279
+PRIMARY;Clortalidona 12.5mg Tableta;;270;0;0;0;0;480;750
+PRIMARY;Clortalidona 25mg Tableta;;90;0;90;0;180;0;360
+PRIMARY;Sodio cloruro 0,9% [100mL] Solucion inyectable;;1268;1403;175;686;542;1336;5410
+PRIMARY;Clotrimazol 1% [100mg/10g] Crema topica;;159;161;154;173;175;199;1021
+PRIMARY;Clotrimazol 1% [100mg/10g] Crema vaginal;;55;47;57;74;64;59;356
+PRIMARY;Clotrimazol 1% [100mg/10g] Solucion topica;;34;13;16;13;29;27;132
+PRIMARY;Clotrimazol 100mg Ovulo;;346;206;234;307;361;288;1742
+PRIMARY;Clozapina 100mg Tableta;;3120;4920;5445;5250;840;5581;25156
+PRIMARY;Clozapina 25mg Tableta;;1080;1740;1200;1200;840;3840;9900
+PRIMARY;Colchicina 0.5mg Tableta;;20455;20250;6570;16255;15213;17689;96432
+PRIMARY;Colistina sulfato + Hidrocortisona acetato + Neomicina sulfato 1,538mg + 0,5mg + 5mg/mL Solucion otica;;12;8;0;0;0;1;21
+PRIMARY;Complejo B [Vitamina B1 (tiamina) + Vitamina B6 (piridoxina) + Vitamina B12 (hidroxicobalamina)] [100mg + 50mg + 10mcg/2mL] Solucion inyectable;;3;40;22;52;10;30;157
+PRIMARY;Complejo B - Nicotinamida + Piridoxina + Riboflavina + Tiamina [20mg + 10mg + 1,5mg + 5mg/5mL] Jarabe;;570;450;60;130;60;101;1371
+PRIMARY;Condroitina sulfato + Hialuronato de sodio 1.8mg + 1mg/mL Solucion oftalmica Frasco gotero x 10mL;;23;31;3;13;13;16;99
+PRIMARY;Cromoglicato de sodio 2% [20mg/mL] Solucion oftalmica;;52;61;20;82;49;68;332
+PRIMARY;Cromoglicato de sodio 4% [40mg/mL] Solucion oftalmica;;6;4;5;2;0;4;21
+PRIMARY;Crotamiton 10% [500mg/5mL] Locion topica;;2;1;0;1;0;8;12
+PRIMARY;Dacarbazina 200mg Polvo esteril para reconstituir;;30;26;6;8;12;0;82
+PRIMARY;Danazol 200mg Capsula dura;;90;0;150;0;300;480;1020
+PRIMARY;Dapagliflozina + Metformina 10mg + 1000mg Tableta de liberacion prolongada;;6705;6445;196;3521;5812;9198;31877
+PRIMARY;Dapagliflozina + Metformina 5mg + 1000mg Tableta de liberacion prolongada;;15477;11471;522;6632;7734;6649;48485
+PRIMARY;Dapagliflozina 10mg Tableta;;42777;27181;56608;84290;61098;60396;332350
+PRIMARY;Dasatinib 100mg Tableta;;300;60;270;360;240;30;1260
+PRIMARY;Deflazacort 30mg Tableta;;60;60;90;180;40;125;555
+PRIMARY;Deflazacort 6mg Tableta;;3530;1350;700;1779;2420;3022;12801
+PRIMARY;Rituximab 120mg/mL [1400mg/11,7mL] Solucion inyectable Vial x 11,7mL;;14;14;15;5;8;17;73
+PRIMARY;Desloratadina + Montelukast 5mg + 10mg Tableta;;2475;4620;3270;3695;2520;2720;19300
+PRIMARY;Desloratadina 0,05% [2,5mg/5mL] Jarabe;;98;90;57;66;139;86;536
+PRIMARY;Desloratadina 5mg Tableta;;2944;2107;1113;1599;3175;3656;14594
+PRIMARY;Desmopresina 120mcg Tableta sublingual;;720;60;0;60;0;660;1500
+PRIMARY;Desonida 0,05% [5mg/10g] Crema topica;;34;30;14;71;89;28;266
+PRIMARY;Desonida 0,05% [2,5mg/5mL] Locion topica;;14;11;7;7;19;13;71
+PRIMARY;Desvenlafaxina 50mg Tableta de liberacion prolongada;;243;685;180;0;84;380;1572
+PRIMARY;Dexametasona + Neomicina + Polimixina B 1mg + 3,5mg + 6000UI/mL Solucion oftalmica;;60;36;23;60;43;57;279
+PRIMARY;Dexametasona 4mg Tableta;;60;70;0;0;58;30;218
+PRIMARY;Dexametasona fosfato [4mg/mL] Solucion inyectable;;40;63;56;99;51;164;473
+PRIMARY;Dexametasona fosfato [8mg/2mL] Solucion inyectable;;1635;1508;846;1651;1303;1616;8559
+PRIMARY;Nifedipina 30mg Capsula de liberacion prolongada;;35660;19481;38227;31361;48762;63649;237140
+PRIMARY;Dextrosa en agua destilada 50% [500mL] Solucion inyectable;;87;145;2;48;23;68;373
+PRIMARY;Sodio cloruro 0,9% [500mL] Solucion inyectable;;6;0;0;0;42;0;48
+PRIMARY;Diacereina 50mg Capsula dura;;19350;16935;11715;17095;13210;28470;106775
+PRIMARY;Diclofenaco + Tramadol 25mg + 25mg Tableta;;7037;3316;0;5275;4363;7216;27207
+PRIMARY;Diclofenaco + Tramadol 50mg + 50mg Tableta;;1080;1153;0;879;709;837;4658
+PRIMARY;Diclofenaco 1% [100mg/10g] Gel topico;;547;719;298;522;497;641;3224
+PRIMARY;Diclofenaco 50mg Tableta;;4336;3547;1790;4384;4043;3975;22075
+PRIMARY;Diclofenaco [75mg/3mL] Solucion inyectable;;1422;905;1075;1773;1326;1442;7943
+PRIMARY;Dicloxacilina 500mg Capsula dura;;1341;890;583;1343;729;1346;6232
+PRIMARY;Dienogest 2mg Tableta;;2106;986;500;310;196;738;4836
+PRIMARY;Difenhidramina clorhidrato 0,25% [12,5mg/5mL] Jarabe;;148;93;133;171;112;65;722
+PRIMARY;Difenhidramina 50mg Capsula dura;;3812;3392;4544;4952;4203;4884;25787
+PRIMARY;Dihidrocodeina bitartrato 0,24% [12,1mg/5mL] Jarabe;;23;30;11;44;34;39;181
+PRIMARY;Diltiazem 60mg Tableta;;150;300;240;810;390;345;2235
+PRIMARY;Dimenhidrinato 50mg Tableta;;3259;1463;1053;2887;2622;2031;13315
+PRIMARY;Diosmina + Hesperidina 450mg + 50mg Tableta;;26578;11408;13811;16615;20044;27928;116384
+PRIMARY;Diosmina + Hesperidina [900mg + 100mg/10mL] Solucion oral;;30;210;90;90;165;15;600
+PRIMARY;Diosmina + Hesperidina 900mg + 100mg Tableta;;420;120;1110;695;600;780;3725
+PRIMARY;Dipirona sodica 1g/2mL Solucion inyectable;;31;1;0;0;4;9;45
+PRIMARY;Levonorgestrel 52mg Dispositivo intrauterino;;17;21;13;13;11;15;90
+PRIMARY;Divalproato de sodio (valproico acido) 250mg Tableta de liberacion prolongada;;6930;2580;4410;7230;4320;6750;32220
+PRIMARY;Divalproato de sodio (valproico acido) 500mg Tableta de liberacion prolongada;;6640;2700;12360;8280;3750;4290;38020
+PRIMARY;Docetaxel [80mg/4mL] Solucion inyectable concentrada Vial x 4mL;;56;79;10;12;26;27;210
+PRIMARY;Domperidona 10mg Tableta;;430;810;240;460;150;828;2918
+PRIMARY;Domperidona 0.1% [5mg/5mL] Suspension oral;;18;8;12;19;3;20;80
+PRIMARY;Donepecilo 5mg Tableta;;120;0;0;0;0;0;120
+PRIMARY;Dornasa alfa [2,5mg/2,5mL] Solucion para inhalacion Ampula x 2,5mL;;150;0;0;0;90;0;240
+PRIMARY;Brimonidina tartrato + Dorzolamina + Timolol 2mg + 20mg + 5mg/mL Solucion oftalmica Frasco gotero x 5mL;;173;212;215;199;165;275;1239
+PRIMARY;Dorzolamida + Timolol maleato 20mg + 5mg/mL Solucion oftalmica Frasco gotero x 5mL;;42;11;26;16;14;19;128
+PRIMARY;Doxazosina 4mg Tableta;;540;390;0;220;150;180;1480
+PRIMARY;Doxiciclina 100mg Tableta;;4453;4593;2570;3767;3803;4396;23582
+PRIMARY;Doxorubicina 2mg/mL [50mg/25mL] Solucion inyectable Vial x 25mL;;83;122;56;62;43;88;454
+PRIMARY;Duloxetina 30mg Capsula de liberacion retardada;;1330;1040;1167;590;1280;1030;6437
+PRIMARY;Duloxetina 60mg Capsula de liberacion retardada;;870;1420;296;508;330;1470;4894
+PRIMARY;Dutasteride + Tamsulosina 0.5mg + 0.4mg Capsula dura;;22047;4875;90;15960;19763;34600;97335
+PRIMARY;Eltrombopag 25mg Tableta;;1290;1036;0;0;11;252;2589
+PRIMARY;Eltrombopag 50mg Tableta;;560;28;0;806;28;820;2242
+PRIMARY;Empagliflozina + Linagliptina 10mg + 5mg Tableta;;120;390;0;0;0;30;540
+PRIMARY;Empagliflozina + Linagliptina 25mg + 5mg Tableta;;120;210;0;0;0;0;330
+PRIMARY;Empagliflozina + Metformina 12,5mg + 1000mg Tableta;;3750;3000;0;3480;4410;3510;18150
+PRIMARY;Empagliflozina + Metformina 12,5mg + 850mg Tableta;;850;360;0;240;960;420;2830
+PRIMARY;Empagliflozina 10mg Tableta;;2970;1500;210;4620;6420;3738;19458
+PRIMARY;Empagliflozina 25mg Tableta;;3720;1710;0;5760;5954;4800;21944
+PRIMARY;Emtricitabina + Tenofovir alafenamida 200mg + 25mg Tableta;;60;0;0;60;60;0;180
+PRIMARY;Enalapril maleato 20mg Tableta;;42518;52408;29896;28412;17412;40050;210696
+PRIMARY;Enalapril maleato 5mg Tableta;;10190;7506;6160;17170;13270;13930;68226
+PRIMARY;Enoxaparina sodica 4000UI [40mg/0,4mL] Solucion inyectable Jeringa prellenada x 0,4mL;;3170;1686;2040;3501;2192;2858;15447
+PRIMARY;Enoxaparina sodica 2000UI [20mg/0,2mL] Solucion inyectable Jeringa prellenada x 0,2mL;;26;22;40;67;35;0;190
+PRIMARY;Enoxaparina sodica 6000UI [60mg/0,6mL] Solucion inyectable Jeringa prellenada x 0,6mL;;919;790;148;724;296;633;3510
+PRIMARY;Enoxaparina sodica 8000UI [80mg/0,8mL] Solucion inyectable Jeringa prellenada x 0,8mL;;300;179;70;170;6;130;855
+PRIMARY;Enzalutamida 40mg Capsula blanda;;360;0;0;0;120;240;720
+PRIMARY;Epinastina 0,5mg/mL Solucion oftalmica;;8;0;0;0;0;0;8
+PRIMARY;Cafeina + Ergotamina tartrato 100mg + 1mg Tableta;;6325;5958;3587;6029;5796;5414;33109
+PRIMARY;Eritromicina 500mg Tableta;;174;10;80;287;67;64;682
+PRIMARY;Eritropoyetina alfa humana recombinante 2,000UI Solucion inyectable Ampolla x 1mL;;297;207;0;60;162;168;894
+PRIMARY;Esomeprazol 10mg Capsula dura;;765;1122;876;318;381;1030;4492
+PRIMARY;Esomeprazol 20mg Tableta;;53358;22466;39877;58212;50606;59007;283526
+PRIMARY;Esomeprazol 40mg Tableta de liberacion retardada;;21015;17974;24138;43283;32825;37509;176744
+PRIMARY;Espiramicina 3,000,000UI Tableta;;390;270;540;540;90;720;2550
+PRIMARY;Espironolactona 100mg Tableta;;3194;1300;1380;2265;2110;1625;11874
+PRIMARY;Espironolactona 25mg Tableta;;37285;7050;24937;37248;20040;25668;152228
+PRIMARY;Estrogenos conjugados 0.625mg/g Crema vaginal Tubo x 43g;;118;163;134;92;118;166;791
+PRIMARY;Estrogenos conjugados 0.625mg Tableta;;3458;2983;181;1978;2173;2547;13320
+PRIMARY;Eszopiclona 2mg Tableta;;90;90;0;210;210;180;780
+PRIMARY;Eszopiclona 3mg Tableta;;405;357;120;320;330;450;1982
+PRIMARY;Etonogestrel 68mg Implante trasdermico;;14;14;10;18;13;15;84
+PRIMARY;Etoposido [100mg/5mL] Solucion inyectable;;148;111;10;42;20;47;378
+PRIMARY;Etoricoxib 120mg Tableta;;409;565;598;1084;726;694;4076
+PRIMARY;Etoricoxib 30mg Tableta;;60;10;30;120;65;30;315
+PRIMARY;Etoricoxib 60mg Tableta;;10297;8355;8158;13132;13429;12390;65761
+PRIMARY;Etoricoxib 90mg Tableta;;15559;3420;5510;11437;8513;15310;59749
+PRIMARY;Rosuvastatina 20mg Tableta;;21501;16260;17505;24875;22450;27892;130483
+PRIMARY;Rosuvastatina 40mg Tableta;;46122;36476;50589;65680;57879;66005;322751
+PRIMARY;Febuxostat 80mg Capsula blanda;;155;445;75;330;300;225;1530
+PRIMARY;Fenazopiridina 200mg Tableta;;252;258;0;62;130;95;797
+PRIMARY;Fenitoina sodica 100mg Capsula dura;;5000;5204;2841;2600;3230;4540;23415
+PRIMARY;Fenobarbital 0.4% [20mg/5mL] Solucion oral;;54;31;50;35;49;88;307
+PRIMARY;Fenobarbital 100mg Tableta;;2160;6000;180;1260;2760;8355;20715
+PRIMARY;Fenobarbital 50mg Tableta;;30;510;0;90;0;90;720
+PRIMARY;Fenofibrato 200mg Capsula dura;;840;1790;1380;1830;2320;1380;9540
+PRIMARY;Fexofenadina 0,6% [30mg/5mL] Suspension oral;;298;267;302;295;215;334;1711
+PRIMARY;Fexofenadina 120mg Tableta;;6802;8615;4814;6461;6486;7343;40521
+PRIMARY;Fluconazol 150mg Capsula dura;;60;49;81;147;110;36;483
+PRIMARY;Fluconazol 200mg Capsula dura;;645;656;351;825;784;1242;4503
+PRIMARY;Fluconazol 1% [50mg/5mL] Polvo para reconstituir a solucion oral;;2;14;0;6;0;1;23
+PRIMARY;Fludrocortisona 0,1mg Tableta;;370;1230;0;50;540;510;2700
+PRIMARY;Flunarizina 10mg Tableta;;3572;4081;1225;3025;1883;4901;18687
+PRIMARY;Flunarizina 5mg Tableta;;75;180;0;30;90;60;435
+PRIMARY;Fluorometolona acetato 1mg/mL Solucion oftalmica;;36;102;143;76;50;72;479
+PRIMARY;Fluorouracilo [500mg/10mL] Solucion inyectable;;602;984;101;324;198;343;2552
+PRIMARY;Fluoxetina 20mg Tableta;;20079;8685;5651;7223;16440;19158;77236
+PRIMARY;Fluoxetina 0,4% [20mg/5mL] Jarabe;;246;214;300;273;205;243;1481
+PRIMARY;Fluvoxamina maleato 100mg Tableta;;6030;1650;2430;270;0;3690;14070
+PRIMARY;Folinato de calcio [50mg/5mL] Solucion inyectable;;752;1317;134;428;178;457;3266
+PRIMARY;Fosaprepitant 150mg Polvo esteril para reconstituir Vial;;247;334;69;161;118;165;1094
+PRIMARY;Fosfomicina 3g Polvo para reconstituir a solucion oral Sobre x 8g;;212;316;241;231;204;249;1453
+PRIMARY;Testosterona enantato [250mg/mL] Solucion inyectable;;19;21;17;43;15;30;145
+PRIMARY;Fluticasona + Vilanterol 200mcg + 25mcg/puff Polvo para inhalacion Inhalador x 30 dosis;;20;15;0;0;29;22;86
+PRIMARY;Fluticasona 27,5mcg/puff Solucion intranasal Inhalador x 120 dosis;;35;30;84;119;101;41;410
+PRIMARY;Furosemida 20mg/2mL Solucion inyectable;;252;176;48;136;101;93;806
+PRIMARY;Furosemida 40mg Tableta;;28363;19311;36553;58127;42846;51917;237117
+PRIMARY;Gabapentina 300mg Capsula dura;;2590;400;450;150;1145;2047;6782
+PRIMARY;Gabapentina 400mg Capsula dura;;120;90;0;90;0;0;300
+PRIMARY;Gemcitabina 1g Polvo esteril para reconstituir Vial;;60;88;58;56;46;70;378
+PRIMARY;Gemfibrozilo 600mg Tableta;;5925;3360;3830;5888;4245;6332;29580
+PRIMARY;Gentamicina sulfato [3mg/mL] Solucion oftalmica;;22;15;18;17;13;27;112
+PRIMARY;Gentamicina sulfato [160mg/2mL] Solucion inyectable;;163;90;81;82;72;87;575
+PRIMARY;Gentamicina sulfato [80mg/2mL] Solucion inyectable;;15;23;32;6;21;43;140
+PRIMARY;Glibenclamida 5mg Tableta;;440;90;360;90;0;300;1280
+PRIMARY;Glimepirida 2mg Tableta;;3660;870;1620;3120;1740;3510;14520
+PRIMARY;Glimepirida 4mg Tableta;;1220;1230;150;30;0;600;3230
+PRIMARY;Glucometro digital;;136;83;77;94;98;124;612
+PRIMARY;Guante de examen de nitrilo L Caja x 100 Unidades;;1;0;0;0;0;0;1
+PRIMARY;Guante esteril No. 7,5 con talco - Par;;58;0;0;0;0;740;798
+PRIMARY;Guante esteril No. 8 con talco - Par;;35;28;0;9;0;54;126
+PRIMARY;Haloperidol 10mg Tableta;;90;0;0;149;60;0;299
+PRIMARY;Haloperidol 2mg/mL Solucion oral;;70;71;111;63;24;41;380
+PRIMARY;Haloperidol 5mg Tableta;;902;120;805;270;90;90;2277
+PRIMARY;Hialuronato de sodio 4mg/mL Solucion oftalmica;;155;203;614;223;52;313;1560
+PRIMARY;Hidroclorotiazida 25mg Tableta;;63940;22424;85298;115769;84414;61858;433703
+PRIMARY;Hidrocortisona acetato 0,5% [50mg/10g] Locion topica;;2;5;2;4;5;3;21
+PRIMARY;Hidrocortisona acetato 1% [100mg/10g] Crema topica;;203;118;57;141;105;180;804
+PRIMARY;Hidrocortisona succinato 100mg Polvo esteril para reconstituir;;205;220;2;95;90;141;753
+PRIMARY;Hidromorfona clorhidrato 2.5mg Tableta;;180;240;0;0;180;90;690
+PRIMARY;Hidroxicina 0.25% [12.5mg/5mL] Jarabe;;6;9;0;1;8;4;28
+PRIMARY;Hidroxicina 25mg Tableta;;2840;2831;3682;2322;2461;1975;16111
+PRIMARY;Hidroxicloroquina sulfato 200mg Tableta;;1781;2060;3100;2660;2652;2796;15049
+PRIMARY;Aluminio hidroxido + Magnesio hidroxido + Simeticona 4% + 4% + 0,4% [200mg + 200mg + 20mg/5mL] Suspension oral;;267;819;67;152;216;246;1767
+PRIMARY;Aluminio hidroxido 6% [300mg/5mL] Suspension oral;;57;319;116;258;356;152;1258
+PRIMARY;Hidroxiurea (hidroxicarbamida) 500mg Capsula dura;;3470;2942;1642;2538;1470;1460;13522
+PRIMARY;Hierro sacarato [100mg/5mL] Solucion inyectable;;36;35;34;43;43;72;263
+PRIMARY;Hioscina n-butil bromuro 10mg Tableta;;16629;17624;10182;21557;17133;18244;101369
+PRIMARY;Hioscina n-butil bromuro [20mg/mL] Solucion inyectable;;29;21;10;86;26;25;197
+PRIMARY;Ibuprofeno 400mg Tableta;;9353;6793;4803;8487;7064;9129;45629
+PRIMARY;Ibuprofeno 2% [100mg/5mL] Suspension oral;;49;18;11;14;18;28;138
+PRIMARY;Ibuprofeno 600mg Tableta;;63;24;0;0;0;99;186
+PRIMARY;Ibuprofeno 800mg Tableta;;675;695;1430;1080;148;1240;5268
+PRIMARY;Ifosfamida 1g Polvo esteril para reconstituir;;41;38;24;45;24;27;199
+PRIMARY;Imatinib 100mg Tableta;;450;0;0;0;90;270;810
+PRIMARY;Imatinib 400mg Tableta;;240;120;0;660;270;30;1320
+PRIMARY;Imipramina clorhidrato 10mg Tableta;;1345;930;770;670;590;350;4655
+PRIMARY;Imipramina clorhidrato 25mg Tableta;;7125;5475;6190;6355;6430;7855;39430
+PRIMARY;Glicopirronio + Indacaterol 50mcg + 110mcg Capsula dura para inhalacion;;495;556;0;225;150;90;1516
+PRIMARY;Inmunoglobulina humana anti D (RH) 300mcg Solucion inyectable Jeringa prellenada x 2mL;;5;3;0;6;8;5;27
+PRIMARY;Insulina asparta 100UI/mL [300UI/3mL] Solucion inyectable Lapicero x 3mL;;222;137;220;201;156;157;1093
+PRIMARY;Insulina degludec + Liraglutida 100UI + 3,6mg/mL [300UI + 10,8mg/3mL] Solucion inyectable Lapicero x 3mL;;70;102;0;19;32;107;330
+PRIMARY;Insulina degludec 100UI/mL [300UI/3mL] Solucion inyectable Lapicero x 3mL;;64;77;45;39;103;95;423
+PRIMARY;Insulina detemir 100UI/mL [300UI/3mL] Solucion inyectable Lapicero x 3mL;;9;17;0;11;0;16;53
+PRIMARY;Insulina glargina + lixisenatida 100UI + 50mcg/mL [300UI + 150mcg/3mL] Solucion inyectable Lapicero x 3mL;;304;145;224;281;194;242;1390
+PRIMARY;Insulina glargina + lixisenatida 100UI + 33mcg/mL [300UI + 99mcg/3mL] Solucion inyectable Lapicero x 3mL;;428;229;268;205;472;297;1899
+PRIMARY;Insulina glargina 100UI/mL [300UI/3mL] Solucion inyectable Lapicero x 3mL;;1891;1234;954;1193;736;1096;7104
+PRIMARY;Insulina glargina 300UI/mL [450UI/1,5mL] Solucion inyectable Lapicero x 1,5mL;;958;721;752;709;1035;1547;5722
+PRIMARY;Insulina glulisina 100UI/mL [1000UI/10mL] Solucion inyectable Vial x 10mL;;99;63;43;126;52;43;426
+PRIMARY;Insulina glulisina 100UI/mL [300UI/3mL] Solucion inyectable Lapicero x 3mL;;561;383;284;383;285;420;2316
+PRIMARY;Insulina lispro 100UI/mL [1000UI/10mL] Solucion inyectable Vial x 10mL;;20;11;0;42;9;13;95
+PRIMARY;Amlodipino + Irbesartan 5mg + 150mg Tableta;;270;90;0;0;0;0;360
+PRIMARY;Amlodipino + Irbesartan 10mg + 300mg Tableta;;84;0;0;0;0;86;170
+PRIMARY;Hidroclorotiazida + Irbesartan 12,5mg + 150mg Tableta;;578;58;0;155;0;205;996
+PRIMARY;Irbesartan 150mg Tableta;;2220;1530;1705;2315;1350;1260;10380
+PRIMARY;Irbesartan 300mg Tableta;;60;30;90;30;0;0;210
+PRIMARY;Irinotecan [100mg/5mL] Solucion inyectable Ampolla x 5mL;;88;118;19;41;12;11;289
+PRIMARY;Isotretinoina 10mg Capsula blanda;;430;240;90;452;96;220;1528
+PRIMARY;Isotretinoina 20mg Capsula blanda;;225;75;150;230;60;580;1320
+PRIMARY;Itraconazol 100mg Capsula dura;;240;42;528;382;232;42;1466
+PRIMARY;Ivermectina 0,6% [6mg/mL] Solucion oral;;81;46;21;45;36;56;285
+PRIMARY;Jeringa esteril de 10mL - Unidad;;350;94;168;382;0;629;1623
+PRIMARY;Jeringa esteril de 20mL - Unidad;;275;482;83;197;0;309;1346
+PRIMARY;Jeringa esteril de 3mL - Unidad;;10;1;0;15;0;25;51
+PRIMARY;Jeringa esteril de 1mL - Unidad;;352;800;60;19;0;155;1386
+PRIMARY;Agua destilada esteril 10mL Solucion inyectable;;10;7;1;63;0;29;110
+PRIMARY;Jeringa punta cateter esteril de 60mL - Unidad;;4;0;0;0;0;0;4
+PRIMARY;Ketoconazol 200mg Tableta;;77;255;40;188;259;59;878
+PRIMARY;Ketotifeno 0,02% [1mg/5mL] Jarabe;;59;41;57;97;58;99;411
+PRIMARY;Lacosamida 100mg Tableta;;4185;3320;4222;5988;4890;5562;28167
+PRIMARY;Lacosamida 200mg Tableta;;1860;2460;1774;2262;886;1926;11168
+PRIMARY;Lacosamida 50mg Tableta;;1705;1937;984;1713;1756;3046;11141
+PRIMARY;Lactulosa 66,7% [667mg/mL] Jarabe;;4820;4419;3963;3598;2470;6405;25675
+PRIMARY;Lamotrigina 100mg Tableta orodispersable;;7520;3760;4738;6100;4670;4780;31568
+PRIMARY;Lamotrigina 200mg Tableta orodispersable;;60;1260;960;1470;840;450;5040
+PRIMARY;Lamotrigina 50mg Tableta orodispersable;;2650;4830;1980;2760;2850;2540;17610
+PRIMARY;Lanceta de glucometria - Unidad;;48345;35060;6301;52279;0;50501;192486
+PRIMARY;Lansoprazol 30mg Capsula de liberacion retardada;;4212;5472;1963;2830;2538;5028;22043
+PRIMARY;Latanoprost 50mcg/mL Solucion oftalmica Frasco gotero x 2,5mL;;97;42;141;116;52;151;599
+PRIMARY;Latanoprost 50mcg/mL Solucion oftalmica Frasco gotero x 3mL;;18;8;0;18;26;11;81
+PRIMARY;Levetiracetam 10% [500mg/5mL] Solucion oral Frasco x 300mL;;93;91;50;106;75;89;504
+PRIMARY;Levetiracetam 1g Tableta;;22730;20740;12400;16118;17600;23540;113128
+PRIMARY;Levetiracetam 500mg Tableta;;30543;25153;18473;23292;21430;23738;142629
+PRIMARY;Levocetirizina + Montelukast 5mg + 10mg Tableta;;420;90;0;0;0;30;540
+PRIMARY;Levocetirizina 5mg Tableta;;337;240;120;1000;434;740;2871
+PRIMARY;Carbidopa + Entacapona + Levodopa 25mg + 200mg + 100mg Tableta;;900;0;0;0;0;0;900
+PRIMARY;Carbidopa + Entacapona + Levodopa 50mg + 200mg + 200mg Tableta;;270;0;0;210;0;0;480
+PRIMARY;Levofloxacina 500mg Tableta;;589;573;217;519;468;435;2801
+PRIMARY;Levofloxacina 750mg Tableta;;50;99;0;34;66;40;289
+PRIMARY;Levomepromazina 100mg Tableta;;315;390;900;601;480;450;3136
+PRIMARY;Levomepromazina 25mg Tableta;;2575;2580;2730;3990;1230;2427;15532
+PRIMARY;Levomepromazina 40mg/mL Solucion oral;;183;138;148;211;111;168;959
+PRIMARY;Etinilestradiol + Levonorgestrel 0,03mg + 0,15mg Tableta;;8022;4923;7568;7870;7971;7468;43822
+PRIMARY;Levonorgestrel 75mg Solucion inyectable Implante;;14;5;11;16;13;16;75
+PRIMARY;Levosulpiride + Pancreatina + Simeticona 25mg + 150mg + 80mg Tableta;;4083;5490;5754;10890;6820;4785;37822
+PRIMARY;Levotiroxina sodica 100mcg Tableta;;25889;29328;25231;34291;26802;36685;178226
+PRIMARY;Levotiroxina sodica 112mcg Tableta;;450;120;0;480;560;480;2090
+PRIMARY;Levotiroxina sodica 125mcg Tableta;;6922;5757;5546;8250;4740;8791;40006
+PRIMARY;Levotiroxina sodica 150mcg Tableta;;3415;1656;4902;6313;5360;3876;25522
+PRIMARY;Levotiroxina sodica 175mcg Tableta;;180;30;120;540;151;180;1201
+PRIMARY;Levotiroxina sodica 200mcg Tableta;;90;0;290;180;90;0;650
+PRIMARY;Levotiroxina sodica 25mcg Tableta;;26074;20478;25209;28278;23101;36215;159355
+PRIMARY;Levotiroxina sodica 50mcg Tableta;;21235;39759;64988;77419;45886;24526;273813
+PRIMARY;Levotiroxina sodica 62mcg Tableta;;330;30;180;330;120;330;1320
+PRIMARY;Levotiroxina sodica 75mcg Tableta;;20706;25156;27030;21194;26167;35615;155868
+PRIMARY;Levotiroxina sodica 88mcg Tableta;;3070;1070;2340;1335;1098;2685;11598
+PRIMARY;Hidrocortisona acetato + Lidocaina 0.25% + 5% [25mg + 500mg] Unguento rectal;;42;45;4;10;6;46;153
+PRIMARY;Hidrocortisona acetato + Lidocaina 5mg + 60mg Supositorio;;28;24;0;0;26;0;78
+PRIMARY;Lidocaina 2% [20mg/mL] Jalea topica;;306;252;212;171;281;308;1530
+PRIMARY;Lidocaina 5% [700mg/10cm] Parche trasdermico;;125;433;976;610;1900;335;4379
+PRIMARY;Morfina [10mg/mL] Solucion inyectable;;603;308;422;420;450;720;2923
+PRIMARY;Linagliptina + Metformina 2,5mg + 850mg Tableta;;120;0;0;60;0;60;240
+PRIMARY;Linagliptina 5mg Tableta;;3180;1740;30;2595;5820;4530;17895
+PRIMARY;Linezolid 600mg Tableta;;172;0;0;0;0;0;172
+PRIMARY;Liraglutida 6mg/mL [18mg/3mL] Solucion inyectable Lapicero x 3mL;;49;31;0;20;57;51;208
+PRIMARY;Loperamida clorhidrato 2mg Tableta;;1711;1060;1256;1892;1657;1345;8921
+PRIMARY;Loratadina 10mg Tableta;;4276;3461;2565;6190;4816;4090;25398
+PRIMARY;Loratadina 0.1% [5mg/5mL] Jarabe;;49;47;68;73;38;65;340
+PRIMARY;Lorazepam 1 mg Tableta;;123;220;690;655;150;600;2438
+PRIMARY;Lorazepam 2 mg Tableta;;720;660;600;603;360;960;3903
+PRIMARY;Hidroclorotiazida + Losartan potasico 12,5mg + 100mg Tableta;;150;180;0;0;0;150;480
+PRIMARY;Hidroclorotiazida + Losartan potasico 25mg + 100mg Tableta;;150;410;240;480;0;360;1640
+PRIMARY;Hidroclorotiazida + Losartan potasico 12,5mg + 50mg Tableta;;2730;2955;1500;1800;570;990;10545
+PRIMARY;Losartan potasico 100mg Tableta;;24412;17400;16310;38315;29981;29208;155626
+PRIMARY;Losartan potasico 50mg Tableta;;222927;151252;228130;354942;306127;342834;1606212
+PRIMARY;Loteprednol 5mg/mL Solucion oftalmica;;15;10;0;9;5;3;42
+PRIMARY;Lovastatina 20mg Tableta;;30;90;180;90;270;60;720
+PRIMARY;Lubiprostone 24mcg Capsula blanda;;450;330;0;60;180;130;1150
+PRIMARY;Medroxiprogesterona acetato + Estradiol cipionato [25mg + 5mg/0,5mL] Solucion inyectable Ampolla x 0,5mL;;115;105;75;113;92;84;584
+PRIMARY;Medroxiprogesterona acetato [150mg/1mL] Solucion inyectable Ampolla x 1mL;;48;24;48;75;43;48;286
+PRIMARY;Medroxiprogesterona acetato 5mg Tableta;;615;950;760;1918;1051;1970;7264
+PRIMARY;Melatonina 2mg Tableta de liberacion prolongada;;1380;780;240;90;0;450;2940
+PRIMARY;Meloxicam 15mg Tableta;;2846;2941;2492;3605;2026;2741;16651
+PRIMARY;Meloxicam [15mg/1,5mL] Solucion inyectable;;26;82;42;28;28;81;287
+PRIMARY;Meloxicam 7,5mg Tableta;;10652;7310;3800;5394;6530;10894;44580
+PRIMARY;Memantina 10mg Tableta;;5660;4155;1685;732;1376;7620;21228
+PRIMARY;Memantina 20mg Tableta;;2570;440;0;0;120;540;3670
+PRIMARY;Mercaptopurina 50mg Tableta;;370;110;171;575;200;190;1616
+PRIMARY;Mesalazina 500mg Tableta de liberacion retardada;;1645;1720;1549;2440;2986;1414;11754
+PRIMARY;Mesna [400mg/4mL] Solucion inyectable;;65;170;41;102;38;54;470
+PRIMARY;Metformina clorhidrato 1000mg Tableta;;2200;5690;2890;7320;5570;7690;31360
+PRIMARY;Metformina clorhidrato 500mg Tableta;;1069;720;840;1260;1020;930;5839
+PRIMARY;Metformina clorhidrato 850mg Tableta;;27036;29208;30422;50836;44515;50480;232497
+PRIMARY;Metilfenidato 10mg Tableta;;750;570;810;870;600;1170;4770
+PRIMARY;Metilprednisolona 16mg Tableta;;25;35;17;103;42;0;222
+PRIMARY;Metilprednisolona 4mg Tableta;;50;357;0;0;105;390;902
+PRIMARY;Metimazol 5mg Tableta;;5498;6525;4290;7610;5775;5080;34778
+PRIMARY;Metocarbamol 750mg Tableta;;11778;12873;7325;11932;11873;13132;68913
+PRIMARY;Metoclopramida 10mg Tableta;;2098;1127;869;2086;1683;1765;9628
+PRIMARY;Metoclopramida [10mg/2mL] Solucion inyectable;;24;34;0;29;35;66;188
+PRIMARY;Metoclopramida 4mg/mL Solucion oral;;1;1;4;5;4;2;17
+PRIMARY;Metoprolol tartrato 100mg Tableta;;420;300;0;570;300;720;2310
+PRIMARY;Metoprolol tartrato 50mg Tableta;;10797;6565;6768;13432;11514;15807;64883
+PRIMARY;Metotrexato 2,5mg Tableta;;1627;632;1269;3024;2995;2251;11798
+PRIMARY;Metotrexato 25mg/mL [500mg/20mL] Solucion inyectable Vial x 20mL;;36;4;0;0;0;0;40
+PRIMARY;Metronidazol + Nistatina 500mg + 100,000UI Ovulo;;14;10;10;36;10;23;103
+PRIMARY;Metronidazol 5% [250mg/5mL] Suspension oral;;25;9;5;14;8;7;68
+PRIMARY;Metronidazol 500mg Ovulo;;720;604;536;677;455;722;3714
+PRIMARY;Metronidazol 500mg Tableta;;5448;4802;3638;4792;4034;4814;27528
+PRIMARY;Minoxidil 10mg Tableta;;240;210;0;0;300;660;1410
+PRIMARY;Mirabegron 50mg Tableta de liberacion prolongada;;2130;8145;0;2235;3150;1890;17550
+PRIMARY;Mirtazapina 30mg Tableta;;1365;720;810;1290;920;650;5755
+PRIMARY;Mometasona furoato 0,1% [10mg/10g] Crema topica;;36;31;20;32;76;36;231
+PRIMARY;Mometasona furoato 0.05% Solucion intranasal Frasco x 140 dosis;;197;47;102;58;66;234;704
+PRIMARY;Montelukast 10mg Tableta;;1185;2165;930;1775;1930;1545;9530
+PRIMARY;Montelukast 4mg Tableta masticable;;1020;783;1170;1245;743;1253;6214
+PRIMARY;Montelukast 5mg Tableta masticable;;2530;2755;1830;2160;1350;1750;12375
+PRIMARY;Morfina 3% [150mg/5mL] Solucion oral;;22;31;0;7;24;29;113
+PRIMARY;Mosaprida 5mg Tableta;;2420;1510;1440;1470;510;1050;8400
+PRIMARY;Moxifloxacino 5mg/mL Solucion oftalmica Frasco gotero x 5mL;;13;15;19;17;16;21;101
+PRIMARY;Moxifloxacino 400mg Tableta;;90;17;17;5;40;48;217
+PRIMARY;Nitrofurazona 0,2% [20mg/10g] Unguento topico;;24;4;19;18;9;9;83
+PRIMARY;Naproxeno 2,5% [125mg/5mL] Suspension oral;;52;38;65;42;39;24;260
+PRIMARY;Naproxeno 250mg Tableta;;17890;14082;14576;21396;16317;21905;106166
+PRIMARY;Naproxeno 500mg Tableta;;881;812;836;1415;1086;1612;6642
+PRIMARY;Naratriptan 2.5mg Tableta;;14;20;0;7;7;115;163
+PRIMARY;Nepafenaco 1mg/mL Solucion oftalmica Frasco x 3mL;;2;2;1;5;1;1;12
+PRIMARY;Nistatina + Zinc oxido 2% (10,000,000) + 20% [200mg (1,000,000) + 2g/10g] Crema topica;;193;152;130;251;151;136;1013
+PRIMARY;Nistatina [100,000UI/10g] Crema topica;;13;15;22;36;17;16;119
+PRIMARY;Nistatina 10.000.000UI [500.000UI/5mL] Solucion oral;;40;22;13;44;23;25;167
+PRIMARY;Nitazoxanida 2% [100mg/5mL] Polvo para reconstituir a solucion oral;;19;19;0;7;7;25;77
+PRIMARY;Nitazoxanida 500mg Tableta;;420;396;172;352;296;315;1951
+PRIMARY;Nitrofurantoina 100mg Tableta;;1848;2818;2264;3789;2534;2986;16239
+PRIMARY;Norfloxacina 400mg Tableta;;329;172;90;334;180;284;1389
+PRIMARY;Olanzapina 10mg Tableta;;6485;3280;8896;9780;7470;6478;42389
+PRIMARY;Olanzapina 5mg Tableta;;6072;3720;4494;5644;3696;4920;28546
+PRIMARY;Olmesartan medoxomil 20mg Tableta;;40;90;0;180;0;0;310
+PRIMARY;Olodaterol + Tiotropio 2,5mcg + 2,5mcg Aerosol Inhalador x 30 dosis;;66;39;0;60;139;20;324
+PRIMARY;Olopatadina 2mg/mL Solucion oftalmica;;73;68;78;89;119;89;516
+PRIMARY;Omeprazol 20mg Capsula dura;;28874;12664;22756;26976;26217;25238;142725
+PRIMARY;Omeprazol 40mg Capsula dura;;556;57;211;454;210;255;1743
+PRIMARY;Ondansetron 8mg Tableta;;2025;1110;1220;2774;2013;1349;10491
+PRIMARY;Ondansetron [8mg/4mL] Solucion inyectable;;1079;1526;533;650;415;801;5004
+PRIMARY;Otilonio bromuro 40mg Tableta;;30;0;0;0;0;0;30
+PRIMARY;Escitalopram 10mg Tableta;;14256;9240;8762;11588;11064;13361;68271
+PRIMARY;Escitalopram 20mg Tableta;;5000;4320;2820;3175;4636;6290;26241
+PRIMARY;Oxaliplatino 100mg Polvo esteril para reconstituir Vial;;230;323;47;119;54;176;949
+PRIMARY;Oxcarbazepina 300mg Tableta;;1388;2858;1380;1332;2360;2517;11835
+PRIMARY;Oxcarbazepina 600mg Tableta;;1920;2190;1980;1470;1230;2670;11460
+PRIMARY;Oxibutinino 10mg Tableta de liberacion prolongada;;470;390;0;0;720;401;1981
+PRIMARY;Oxibutinino 5mg Tableta;;925;430;1370;1000;2830;1260;7815
+PRIMARY;Oximetazolina 0,25mg/mL Solucion intranasal;;21;9;10;16;9;7;72
+PRIMARY;Oximetazolina 0,5mg/mL Solucion para nebulizacion;;32;12;4;2;7;36;93
+PRIMARY;Paclitaxel 6mg/mL [100mg/16.7mL] Solucion inyectable Vial x 16,7mL;;163;211;60;140;102;127;803
+PRIMARY;Pembrolizumab [100mg/4mL] Solucion inyectable Vial x 4mL;;120;90;129;40;99;62;540
+PRIMARY;Teriparatida 250mcg/mL [20mcg/0,08mL] Solucion inyectable Jeringa prellenada x 0,08mL;;1063;1420;0;556;581;58;3678
+PRIMARY;Pirantel pamoato 5% [250mg/5mL] Suspension oral;;21;24;12;15;4;12;88
+PRIMARY;Pirantel pamoato 250mg Tableta;;68;14;83;23;70;125;383
+PRIMARY;Pancreatina + Simeticona 170mg + 80mg Tableta;;180;180;0;0;120;120;600
+PRIMARY;Pancreatina (amilasa + lipasa + proteasa) 150mg Capsula de liberacion retardada;;220;970;0;0;120;0;1310
+PRIMARY;Panitumumab 20mg/mL [100mg/5mL] Solucion inyectable Ampolla x 5mL;;7;9;0;10;0;18;44
+PRIMARY;Pantoprazol 20mg Tableta;;240;90;180;430;60;120;1120
+PRIMARY;Pantoprazol 40mg Tableta de liberacion retardada;;2162;2131;1689;2756;2376;3064;14178
+PRIMARY;Paroxetina 20mg Tableta;;2160;1530;1800;1199;750;1950;9389
+PRIMARY;Pasta stomahesive Tubo x 56.7g;;96;64;0;4;85;21;270
+PRIMARY;Pegfilgrastim [6mg/0.6mL] Solucion inyectable Jeringa prellenada x 0,6mL;;264;352;86;169;104;204;1179
+PRIMARY;Penicilina G benzatinica 1.200.000UI Polvo esteril para reconstituir;;8;21;5;9;2;4;49
+PRIMARY;Penicilina G benzatinica 2.400.000UI Polvo esteril para reconstituir;;30;13;29;32;25;35;164
+PRIMARY;Pentoxifilina 400mg Tableta de liberacion prolongada;;180;0;0;40;320;0;540
+PRIMARY;Picosulfato de sodio 7,5mg/mL Solucion oral;;25;0;9;2;14;9;59
+PRIMARY;Pilocarpina 5mg Tableta;;4390;1940;1480;2040;4280;2250;16380
+PRIMARY;Pinza para bolsa para colostomia - Unidad;;13;0;0;0;0;0;13
+PRIMARY;Piridoxina clorhidrato 50mg Tableta;;630;210;90;140;270;90;1430
+PRIMARY;Piroxicam 20mg Capsula dura;;160;90;0;150;140;180;720
+PRIMARY;Podofilina 20% [1g/5mL] Suspension topica;;1;0;0;1;1;0;3
+PRIMARY;Polietilenglicol + Propilenglicol 4mg + 3mg/mL Solucion oftalmica;;21;172;80;40;42;19;374
+PRIMARY;Polietilenglicol 3350 (macrogol) 100g/100g [1g por gramo de polvo] Polvo para reconstituir a solucion oral;;5148;3929;3055;4620;3327;4806;24885
+PRIMARY;Polvo stomahesive;;89;129;0;19;0;35;272
+PRIMARY;Pramipexol 0,75mg Tableta de liberacion prolongada;;240;510;270;310;570;140;2040
+PRIMARY;Pramipexol 1,5mg Tableta de liberacion prolongada;;150;120;90;750;0;0;1110
+PRIMARY;Pramipexol 3mg Tableta de liberacion prolongada;;630;300;0;380;180;750;2240
+PRIMARY;Prazosina 1mg Tableta;;13950;8695;9318;8090;14849;16647;71549
+PRIMARY;Fenilefrina + Prednisolona acetato 1,2mg + 10mg/mL Solucion oftalmica;;14;13;11;23;10;20;91
+PRIMARY;Prednisolona 0,1% [5mg/5mL] Solucion oral;;54;64;62;51;50;101;382
+PRIMARY;Prednisolona 5mg Tableta;;15044;13947;11290;14973;15034;15508;85796
+PRIMARY;Prednisona 50mg Tableta;;1299;1546;926;803;1318;989;6881
+PRIMARY;Pregabalina 150mg Capsula dura;;4825;4845;2760;3231;3770;6425;25856
+PRIMARY;Pregabalina 25mg Capsula dura;;5405;2790;1960;3810;2040;5760;21765
+PRIMARY;Pregabalina 300mg Capsula dura;;606;348;150;414;450;331;2299
+PRIMARY;Pregabalina 50mg Capsula dura;;6231;4870;4580;3425;1990;4033;25129
+PRIMARY;Pregabalina 75mg Capsula dura;;26031;27991;27857;33840;21629;40340;177688
+PRIMARY;Preservativo masculino de latex;;1909;1534;638;1954;1861;2204;10100
+PRIMARY;Progesterona 200mg Capsula blanda;;759;882;350;450;496;306;3243
+PRIMARY;Propafenona 150mg Tableta;;810;210;300;630;210;180;2340
+PRIMARY;Propranolol 40mg Tableta;;2400;3355;1985;2475;3719;3415;17349
+PRIMARY;Propiltiouracilo 50mg Tableta;;10;0;0;0;90;270;370
+PRIMARY;Propranolol 80mg Tableta;;90;90;0;0;0;60;240
+PRIMARY;Quetiapina 100mg Tableta;;7990;4980;8880;5460;5250;9120;41680
+PRIMARY;Quetiapina 200mg Tableta;;1462;1050;1140;990;975;1148;6765
+PRIMARY;Quetiapina 25mg Tableta;;28152;19603;8183;14734;29947;29147;129766
+PRIMARY;Quetiapina 300mg Tableta;;270;0;810;120;60;0;1260
+PRIMARY;Quetiapina 50mg Tableta de liberacion prolongada;;90;0;0;0;0;0;90
+PRIMARY;Rasagilina 1mg Tableta;;150;180;360;90;180;150;1110
+PRIMARY;Rifaximina 200mg Capsula blanda;;2751;2060;466;1860;986;1338;9461
+PRIMARY;Rifaximina 550mg Tableta;;1677;2042;1314;1829;1804;2251;10917
+PRIMARY;Risperidona 1mg Tableta;;11005;7070;7462;10980;7870;9205;53592
+PRIMARY;Risperidona 1mg/1mL Solucion oral Frasco gotero x 20mL;;71;16;90;79;57;49;362
+PRIMARY;Risperidona 1mg/1mL Solucion oral Frasco gotero x 30mL;;8;2;20;22;19;23;94
+PRIMARY;Risperidona 2mg Tableta;;7814;6550;6144;11042;6350;11820;49720
+PRIMARY;Risperidona 37.5mg Polvo esteril para reconstituir Vial;;21;8;0;18;12;21;80
+PRIMARY;Risperidona 3mg Tableta;;3745;735;0;0;0;30;4510
+PRIMARY;Rivaroxaban 10mg Tableta;;635;540;120;285;410;810;2800
+PRIMARY;Rivaroxaban 15mg Tableta;;2274;1882;2278;2572;2011;2998;14015
+PRIMARY;Rivaroxaban 2,5mg Tableta;;292;0;28;0;56;224;600
+PRIMARY;Rivaroxaban 20mg Tableta;;3155;3210;3005;3270;3360;5553;21553
+PRIMARY;Rivastigmina 9,5mg/24h [18mg] Parche trasdermico;;270;210;630;120;210;720;2160
+PRIMARY;Rivastigmina 13,3mg/24h [27mg] Parche trasdermico;;60;270;0;90;0;90;510
+PRIMARY;Rivastigmina 4,6mg/24h [9mg] Parche trasdermico;;570;330;150;180;90;780;2100
+PRIMARY;Rosuvastatina 10mg Tableta;;720;290;467;764;690;1688;4619
+PRIMARY;Rotigotina 9mg Parche trasdermico;;294;384;90;120;518;174;1580
+PRIMARY;Saccharomyces boulardi 250mg Polvo para reconstituir a solucion oral;;1608;901;819;219;655;1197;5399
+PRIMARY;Saccharomyces boulardi 250mg Capsula dura;;2120;660;0;0;0;0;2780
+PRIMARY;Sacubitrilo Valsartan 200mg Tableta;;330;0;0;0;0;0;330
+PRIMARY;Sacubitrilo Valsartan 50mg Tableta;;5470;1950;0;390;3600;10380;21790
+PRIMARY;Safinamida 100mg Tableta;;210;22;258;120;270;210;1090
+PRIMARY;Salbutamol 100mcg/puff Solucion en aerosol;;395;364;265;334;430;410;2198
+PRIMARY;Salbutamol 0,04% [2mg/5mL] Jarabe Frasco x 120mL;;1;0;0;2;0;3;6
+PRIMARY;Fluticasona + Salmeterol 125mcg + 25mcg/puff Aerosol Inhalador x 120 dosis;;15;20;20;6;18;14;93
+PRIMARY;Fluticasona + Salmeterol 250mcg + 25mcg/puff Aerosol Inhalador x 120 dosis;;147;110;47;100;82;119;605
+PRIMARY;Fluticasona + Salmeterol 250mcg + 50mcg/puff Aerosol Inhalador x 60 dosis;;23;16;21;23;26;23;132
+PRIMARY;Fluticasona + Salmeterol 500mcg + 50mcg/puff Polvo para inhalacion Inhalador x 60 dosis;;14;2;0;0;2;0;18
+PRIMARY;Sertralina 100mg Tableta;;5865;3760;4496;5715;3860;3874;27570
+PRIMARY;Sertralina 25mg Tableta;;1610;1473;2707;2605;1865;2895;13155
+PRIMARY;Sertralina 50mg Tableta;;17209;17779;16052;20056;12990;18488;102574
+PRIMARY;Sevelamer clorhidrato 800mg Tableta;;270;180;0;90;720;270;1530
+PRIMARY;Sildenafil 20mg Tableta;;30;0;0;0;10;80;120
+PRIMARY;Sildenafil 25mg Tableta;;462;0;30;90;0;0;582
+PRIMARY;Sildenafil 50mg Tableta;;3444;2772;1796;2231;2656;2106;15005
+PRIMARY;Simeticona + Trimebutina maleato 120mg + 200mg Tableta;;4348;603;3357;7906;6309;7368;29891
+PRIMARY;Metformina + Sitagliptina 1000mg + 50mg Tableta;;336;0;175;284;280;452;1527
+PRIMARY;Sitagliptina 100mg Tableta;;90;300;0;0;180;0;570
+PRIMARY;Sitagliptina 50mg Tableta;;476;90;84;306;252;310;1518
+PRIMARY;Solifenacina succinato 5mg Tableta;;2180;1705;830;1030;840;1230;7815
+PRIMARY;Somatropina 12mg ó 36UI Polvo esteril para reconstituir Vial;;71;185;228;278;205;170;1137
+PRIMARY;Sonda foley 2 vias No. 18;;5;10;0;2;0;4;21
+PRIMARY;Sonda nelaton No. 12;;814;1244;0;0;0;706;2764
+PRIMARY;Sonda nelaton No. 10;;502;454;0;0;0;100;1056
+PRIMARY;Sorafenib 200mg Tableta;;390;180;0;480;120;150;1320
+PRIMARY;Bismuto subsalicilato 262mg Tableta masticable;;3836;5146;1900;3082;2777;2773;19514
+PRIMARY;Sucralfato 1g Tableta;;7334;6975;9008;8288;9078;9488;50171
+PRIMARY;Sucralfato 20% [1g/5mL] Suspension oral;;88;141;125;2;48;60;464
+PRIMARY;Sulfadiazina de plata 1% [100mg/10g] Crema topica;;77;54;11;70;35;37;284
+PRIMARY;Sulfasalazina 500mg Tableta de liberacion retardada;;2343;1204;1530;1990;2135;2160;11362
+PRIMARY;Zinc sulfato 20mg Tableta;;24;89;44;56;90;2;305
+PRIMARY;Zinc sulfato 0,2% [10mg/5mL] Solucion oral;;145;260;311;290;283;227;1516
+PRIMARY;Sulfato ferroso (hierro) 200mg Tableta;;1725;1461;1403;2763;2334;1635;11321
+PRIMARY;Sulfato ferroso (hierro) 300mg Tableta;;11658;8360;10245;13358;11807;10455;65883
+PRIMARY;Sultamicilina 375mg Tableta;;818;599;786;744;736;1038;4721
+PRIMARY;Sultamicilina 750mg Tableta;;169;194;133;304;259;156;1215
+PRIMARY;Sumatriptan 80mg/mL Solucion oral;;7;6;0;5;9;13;40
+PRIMARY;Tadalafilo 20mg Tableta;;2970;3165;1219;2518;2580;1550;14002
+PRIMARY;Tadalafilo 5mg Tableta;;1189;1238;712;1824;1095;967;7025
+PRIMARY;Tamoxifeno 20mg Tableta;;1816;1180;2240;1831;2280;2110;11457
+PRIMARY;Tamsulosina clorhidrato 0,4mg Capsula de liberacion prolongada;;12005;8338;36667;32810;15513;19424;124757
+PRIMARY;Telmisartan 80mg Tableta;;180;630;300;630;540;180;2460
+PRIMARY;Temozolamida 100mg Capsula dura;;75;50;0;45;0;0;170
+PRIMARY;Terbinafina 1% [100mg/10g] Crema topica;;59;26;15;33;51;27;211
+PRIMARY;Terbinafina 250mg Tableta;;912;881;524;854;438;723;4332
+PRIMARY;Tiamina monohidrato [1g/10mL] Solucion inyectable;;130;97;121;162;152;124;786
+PRIMARY;Tiamina monohidrato 300mg Tableta;;17536;12718;14384;16221;11592;16364;88815
+PRIMARY;Tibolona 2,5mg Tableta;;3828;1974;0;0;84;252;6138
+PRIMARY;Ticagrelor 90mg Tableta;;660;810;780;150;810;480;3690
+PRIMARY;Brimonidina tartrato + Timolol 2mg + 5mg/mL Solucion oftalmica Frasco gotero x 2,5mL;;69;42;43;32;48;89;323
+PRIMARY;Tinidazol 500mg Tableta;;372;200;332;477;298;428;2107
+PRIMARY;Tiocolchicosido 4mg Tableta;;20;90;40;15;60;0;225
+PRIMARY;Tiocolchicosido 8mg Tableta;;259;120;150;320;95;0;944
+PRIMARY;Tiras de glucometria;;240;450;0;60;0;1590;2340
+PRIMARY;Tizanidina 2mg Tableta;;782;997;540;270;1510;1050;5149
+PRIMARY;Tizanidina 4mg Tableta;;130;150;13;125;30;287;735
+PRIMARY;Dexametasona + Tobramicina 1mg + 3mg/mL Solucion oftalmica;;17;17;9;16;29;32;120
+PRIMARY;Dexametasona + Tobramicina 0,1% + 0,3% [10mg + 30mg/10g] Unguento oftalmico;;12;11;20;38;19;27;127
+PRIMARY;Tobramicina 3mg/mL Solucion oftalmica;;3;3;0;2;4;1;13
+PRIMARY;Topiramato 100mg Tableta;;480;672;120;608;0;196;2076
+PRIMARY;Topiramato 25mg Tableta;;532;84;252;168;0;168;1204
+PRIMARY;Topiramato 50mg Tableta;;1870;1204;196;392;448;364;4474
+PRIMARY;Toxina botulinica tipo A 100U Polvo esteril para reconstituir Vial;;6;16;7;15;3;19;66
+PRIMARY;Toxina botulinica tipo A 200U Polvo esteril para reconstituir Vial;;6;11;0;0;17;2;36
+PRIMARY;Toxina botulinica tipo A 500U Polvo esteril para reconstituir Vial;;13;16;0;1;0;1;31
+PRIMARY;Tramadol clorhidrato 50mg Capsula dura;;747;937;606;434;805;857;4386
+PRIMARY;Tramadol clorhidrato 10% [100mg/mL] Solucion oral;;98;92;46;96;37;104;473
+PRIMARY;Trastuzumab 440mg Polvo esteril para reconstituir Vial;;63;45;50;15;32;20;225
+PRIMARY;Trastuzumab [600mg/6mL] Solucion inyectable Vial x 6mL;;1;3;0;0;1;1;6
+PRIMARY;Trazodona clorhidrato 50mg Tableta;;16857;13769;10724;13400;11305;7516;73571
+PRIMARY;Trimebutina 200mg Tableta;;10463;16096;14616;21126;14540;4043;80884
+PRIMARY;Trimebutina 300mg Tableta;;245;120;455;120;330;535;1805
+PRIMARY;Sulfametoxazol + Trimetoprim 4% + 0.8% [200mg + 40mg/5mL] Suspension oral;;15;14;9;16;7;17;78
+PRIMARY;Sulfametoxazol + Trimetoprim 800mg + 160mg Tableta;;4527;3664;2974;5242;3793;5333;25533
+PRIMARY;Sulfametoxazol + Trimetoprim 400mg + 80mg Tableta;;526;84;293;199;224;206;1532
+PRIMARY;Amlodipino + Valsartan 5mg + 160mg Tableta;;1350;843;259;1327;1133;3053;7965
+PRIMARY;Amlodipino + Valsartan 10mg + 320mg Tableta;;174;0;0;58;366;594;1192
+PRIMARY;Amlodipino + Valsartan 5mg + 80mg Tableta;;60;0;224;0;90;0;374
+PRIMARY;Hidroclorotiazida + Valsartan 12,5mg + 160mg Tableta;;3182;1810;1595;2061;1889;2781;13318
+PRIMARY;Hidroclorotiazida + Valsartan 25mg + 160mg Tableta;;174;84;0;0;0;140;398
+PRIMARY;Hidroclorotiazida + Valsartan 12,5mg + 80mg Tableta;;120;84;0;84;0;0;288
+PRIMARY;Valsartan 160mg Tableta;;37917;22060;40719;63115;54547;67312;285670
+PRIMARY;Valsartan 320mg Tableta;;270;450;480;690;562;620;3072
+PRIMARY;Valsartan 80mg Tableta;;16478;11380;10266;9482;4590;15219;67415
+PRIMARY;Venlafaxina 150mg Capsula de liberacion prolongada;;900;655;1020;1590;240;430;4835
+PRIMARY;Venlafaxina 37.5mg Capsula de liberacion prolongada;;308;238;28;755;358;560;2247
+PRIMARY;Venlafaxina 75mg Capsula de liberacion prolongada;;2280;2650;450;1450;1442;1228;9500
+PRIMARY;Verapamilo clorhidrato 120mg Tableta;;360;330;450;710;480;600;2930
+PRIMARY;Verapamilo clorhidrato 80mg Tableta;;450;320;1080;510;720;1136;4216
+PRIMARY;Vigabatrina 500mg Tableta;;1995;2190;0;450;2190;1710;8535
+PRIMARY;Metformina + Vildagliptina 1000mg + 50mg Tableta;;4444;2751;26104;37126;18674;5750;94849
+PRIMARY;Metformina + Vildagliptina 500mg + 50mg Tableta;;370;592;177;259;375;122;1895
+PRIMARY;Metformina + Vildagliptina 850mg + 50mg Tableta;;17177;8732;19503;18374;17287;23099;104172
+PRIMARY;Vildagliptina 50mg Tableta;;23591;22881;14068;34736;27970;32880;156126
+PRIMARY;Vincristina sulfato [1mg/mL] Solucion inyectable;;37;67;6;6;11;31;158
+PRIMARY;Vitamina A palmitato 50,000UI Capsula dura;;1905;1804;1286;1780;2079;2204;11058
+PRIMARY;Cianocobalamina (vitamina B12) 1mg/mL Solucion inyectable;;513;521;273;617;326;641;2891
+PRIMARY;Vitamina D3 (colecalciferol) 25,000UI/mL Solucion oral;;2788;1980;1118;2618;1982;2646;13132
+PRIMARY;Calcifediol (Vitamina D3) 100,000UI Capsula blanda;;14;11;17;6;5;148;201
+PRIMARY;Vitamina D3 (colecalciferol) 1000UI Capsula blanda;;4663;3705;1704;3200;2990;3055;19317
+PRIMARY;Vitamina D3 (colecalciferol) 2000UI Capsula blanda;;19078;7216;28756;23620;14616;41233;134519
+PRIMARY;Vitamina D3 (colecalciferol) 7000UI Capsula blanda;;236;471;300;544;180;478;2209
+PRIMARY;Vitamina E 1000UI Capsula blanda;;300;1835;30;1110;1240;720;5235
+PRIMARY;Vitamina E 400UI Capsula blanda;;1035;550;6250;4920;1960;2655;17370
+PRIMARY;Warfarina sodica 5mg Tableta;;3898;2676;1389;3070;2572;2813;16418
+PRIMARY;Zopiclona 7.5mg Tableta;;274;290;410;315;685;510;2484
+PRIMARY;Poliacrilico acido (carbomero 974P) 0,25% [25mg/10g] Gel oftalmico;;0;5;0;0;0;0;5
+PRIMARY;Alopurinol 100mg Tableta;;0;30;372;793;333;22;1550
+PRIMARY;Betametasona sodio fosfato [4mg/mL] Solucion inyectable;;0;3;12;54;30;140;239
+PRIMARY;Brimonidina tartrato 2mg/mL Solucion oftalmica Frasco gotero x 5mL;;0;5;3;0;0;1;9
+PRIMARY;Carbamazepina 2% [100mg/5mL] Suspension oral Frasco x 100mL;;0;3;0;54;10;0;67
+PRIMARY;Ciprofloxacina + Dexametasona 3mg + 1mg/mL Solucion otica;;0;1;1;3;3;3;11
+PRIMARY;Calcio carbonato + Vitamina D3 600mg + 400UI Tableta;;0;15;0;120;1020;90;1245
+PRIMARY;Cromoglicato de sodio 2% [20mg/mL] Solucion intranasal;;0;1;4;5;1;5;16
+PRIMARY;Eplerenona 25mg Tableta;;0;90;0;0;90;0;180
+PRIMARY;Eritropoyetina humana recombinante 4,000UI Solucion inyectable Ampolla x 1mL;;0;12;0;12;12;36;72
+PRIMARY;Metotrexato [25mg/0,5mL] Solucion inyectable Jeringa prellenada x 0,5mL;;0;4;12;12;16;0;44
+PRIMARY;Hialuronato de sodio + Condroitin sulfato 1,6% + 2% [800mg + 1g/50mL] Jeringa prellenada x 50mL;;0;28;0;0;16;0;44
+PRIMARY;Hidromorfona clorhidrato [2mg/mL] Solucion inyectable;;0;630;0;180;2;0;812
+PRIMARY;Hidrosmina 200mg Capsula dura;;0;60;0;0;0;0;60
+PRIMARY;Indapamida 1,5mg Tableta de liberacion prolongada;;0;60;90;0;30;0;180
+PRIMARY;Hidroclorotiazida + Irbesartan 12,5mg + 300mg Tableta;;0;60;120;0;0;0;180
+PRIMARY;Lamotrigina 25mg Tableta orodispersable;;0;30;0;150;0;180;360
+PRIMARY;Levotiroxina sodica 137mcg Tableta;;0;180;50;150;100;90;570
+PRIMARY;Melatonina 3mg Tableta;;0;60;180;180;300;780;1500
+PRIMARY;Mesalazina 500mg Supositorio;;0;14;114;60;8;8;204
+PRIMARY;Metadona clorhidrato 10mg Tableta;;0;337;150;0;165;90;742
+PRIMARY;Metilprednisolona 500mg Polvo esteril para reconstituir Vial;;0;12;0;3;0;1;16
+PRIMARY;Nebivolol 5mg Tableta;;0;90;0;0;0;0;90
+PRIMARY;Olmesartan medoxomil 40mg Tableta;;0;236;0;0;90;420;746
+PRIMARY;Zinc oxido 10% [1g/10g] Crema topica;;0;4;8;10;1;2;25
+PRIMARY;Pancreatina (amilasa + lipasa + proteasa) 300mg Capsula de liberacion retardada;;0;450;0;0;0;0;450
+PRIMARY;Metformina + Sitagliptina 850mg + 50mg Tableta;;0;427;0;0;0;0;427
+PRIMARY;Tapentadol 50mg Tableta;;0;30;120;210;0;210;570
+PRIMARY;Tramadol clorhidrato 50mg/mL [100mg/2mL] Solucion inyectable;;0;91;0;0;2;5;98
+PRIMARY;Tramadol clorhidrato [50mg/mL] Solucion inyectable;;0;60;198;90;130;17;495
+PRIMARY;Umeclidinio + Vilanterol 55mcg + 22mcg/puff Polvo para inhalacion Inhalador x 30 dosis;;0;15;0;3;0;0;18
+PRIMARY;Indapamida 2,5mg Tableta;;0;0;90;90;90;0;270
+PRIMARY;Betametasona acetato + Betametasona sodio fosfato [3mg + 3mg/mL] Solucion inyectable;;0;0;2;0;1;2;5
+PRIMARY;Brimonidina tartrato + Brinzolamida 2mg + 10mg/mL Solucion oftalmica Frasco gotero x 2,5mL;;0;0;2;0;0;0;2
+PRIMARY;Calcio carbonato + Vitamina D3 + Zinc [300mg + 100UI + 7,5mg/5mL] Suspension oral;;0;0;2;0;5;0;7
+PRIMARY;Cefuroxima 500mg Tableta;;0;0;82;104;30;32;248
+PRIMARY;Insulina glargina 100UI/mL [1000UI/10mL] Solucion inyectable Vial x 10mL;;0;0;16;30;2;0;48
+PRIMARY;Ketotifeno 1mg Tableta;;0;0;1;0;0;0;1
+PRIMARY;Carbidopa + Entacapona + Levodopa 12,5mg + 200mg + 50mg Tableta;;0;0;180;0;0;0;180
+PRIMARY;Loteprednol 2mg/mL Solucion oftalmica;;0;0;1;12;1;5;19
+PRIMARY;Paroxetina 12.5mg Tableta de liberacion prolongada;;0;0;30;0;0;0;30
+PRIMARY;Propiltiouracilo 100mg Tableta;;0;0;180;0;0;0;180
+PRIMARY;Amlodipino + Valsartan 10mg + 160mg Tableta;;0;0;258;0;354;56;668
+PRIMARY;Amlodipino + Valsartan 5mg + 320mg Tableta;;0;0;84;90;0;84;258
+PRIMARY;Guante de examen de nitrilo M Caja x 100 Unidades;;0;0;0;3;0;0;3
+PRIMARY;Linagliptina + Metformina 2,5mg + 1000mg Tableta;;0;0;0;120;60;420;600
+PRIMARY;Metilprednisolona acetato 40mg/mL [200mg/5mL] Solucion inyectable Vial x 5mL;;0;0;0;8;0;0;8
+PRIMARY;Rifampicina 300mg Capsula dura;;0;0;0;60;0;0;60
+PRIMARY;Isosorbide dinitrato 10mg Tableta;;0;0;0;0;30;20;50
+PRIMARY;Fenitoina [125mg/5mL] Suspension oral;;0;0;0;0;6;3;9
+PRIMARY;Guayacolato de glicerilo 2% [100mg/5mL] Jarabe;;0;0;0;0;1;0;1
+PRIMARY;Levosulpiride 25mg Tableta;;0;0;0;0;90;90;180
+PRIMARY;Mebendazol 100mg Tableta;;0;0;0;0;6;0;6
+PRIMARY;Dabigatran 150mg Capsula dura;;0;0;0;0;0;60;60
+PRIMARY;Dicloxacilina 5% [250mg/5mL] Polvo para reconstituir a solucion oral;;0;0;0;0;0;1;1
+PRIMARY;Drospirenona 4mg Tableta;;0;0;0;0;0;90;90
+PRIMARY;Telmisartan 40mg Tableta;;0;0;0;0;0;360;360
