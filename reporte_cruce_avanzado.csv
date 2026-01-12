@@ -23,8 +23,9 @@ Ascorbico acido + Cianocobalamina (vitamina B12) + Folico acido + Fumarato ferro
 Ascorbico acido 100mg/mL Solucion oral;;61;61
 Ascorbico acido 500mg Tableta masticable;;31639;31639
 Amoxicilina + Clavulanico acido 875mg + 125mg Tableta;;587;587
-Fenofibrico acido + Rosuvastatina 135mg + 10mg Capsula dura;;1290;1290
+Fenofibrico acido + Rosuvastatina 135mg + 10mg Capsula dura;;1050;1050
 Fenofibrico acido + Rosuvastatina 135mg + 20mg Capsula dura;;1770;1770
+Fenofibrato de colina 135mg Capsula de liberacion retardada;;240;240
 Folico acido 1mg Tableta;;16525;16525
 Folico acido 5mg Tableta;;1737;1737
 Fusidico acido 2% [200mg/10g] Crema topica;;90;90
@@ -109,8 +110,7 @@ Bolsa recolectora de orina 2000mL;;20;20
 Bortezomib 3,5mg Polvo esteril para reconstituir Vial;;20;20
 Bosentan 125mg Tableta;;150;150
 Bosentan 62.5mg Tableta;;60;60
-Brimonidina tartrato + Timolol 2mg + 5mg/mL Solucion oftalmica Frasco gotero x 10mL;;6;6
-Brimonidina tartrato 2mg/mL Solucion oftalmica Frasco gotero x 5mL;;5;5
+Brimonidina tartrato + Timolol 2mg + 5mg/mL Solucion oftalmica Frasco gotero x 10mL;;11;11
 Brivaracetam 100mg Tableta;;214;214
 Bromfenaco 0,9mg/mL Solucion oftalmica Frasco gotero x 5mL;;33;33
 Fenoterol bromhidrato + Ipratropio bromuro 50mcg + 20mcg/puff Aerosol Inhalador x 200 dosis;;386;386
@@ -120,6 +120,7 @@ Tiotropio bromuro 18mcg Capsula dura para inhalacion;;464;464
 Tiotropio bromuro 2,5mcg/puff Aerosol Inhalador x 30 dosis;;23;23
 Budesonida + Formoterol 160mcg + 4.5mcg/dosis Aerosol Inhalador x 120 dosis;;46;46
 Budesonida + Formoterol 200mcg + 6mcg Capsula dura para inhalacion;;15;15
+Bupropion 150mg Tableta de liberacion prolongada;;2460;2460
 Cabergolina 0,5mg Tableta;;514;514
 Calcio carbonato + vitamina D3 600mg + 200UI Tableta;;270;270
 Calcitriol 0,25mcg Capsula blanda;;12329;12329
@@ -218,7 +219,7 @@ Dexametasona + Neomicina + Polimixina B 1mg + 3,5mg + 6000UI/mL Solucion oftalmi
 Dexametasona 4mg Tableta;;60;60
 Dexametasona fosfato [4mg/mL] Solucion inyectable;;40;40
 Dexametasona fosfato [8mg/2mL] Solucion inyectable;;1635;1635
-Nifedipina 30mg Capsula de liberacion prolongada;;25597;25597
+Nifedipina 30mg Capsula de liberacion prolongada;;35660;35660
 Dextrosa en agua destilada 50% [500mL] Solucion inyectable;;87;87
 Sodio cloruro 0,9% [500mL] Solucion inyectable;;6;6
 Diacereina 50mg Capsula dura;;19350;19350
@@ -238,7 +239,7 @@ Diosmina + Hesperidina 450mg + 50mg Tableta;;26578;26578
 Diosmina + Hesperidina [900mg + 100mg/10mL] Solucion oral;;30;30
 Diosmina + Hesperidina 900mg + 100mg Tableta;;420;420
 Dipirona sodica 1g/2mL Solucion inyectable;;31;31
-Levonorgestrel 52mg Dispositivo intrauterino;;2;2
+Levonorgestrel 52mg Dispositivo intrauterino;;17;17
 Divalproato de sodio (valproico acido) 250mg Tableta de liberacion prolongada;;6930;6930
 Divalproato de sodio (valproico acido) 500mg Tableta de liberacion prolongada;;6640;6640
 Docetaxel [80mg/4mL] Solucion inyectable concentrada Vial x 4mL;;56;56
@@ -320,6 +321,8 @@ Fluticasona + Vilanterol 200mcg + 25mcg/puff Polvo para inhalacion Inhalador x 3
 Fluticasona 27,5mcg/puff Solucion intranasal Inhalador x 120 dosis;;35;35
 Furosemida 20mg/2mL Solucion inyectable;;252;252
 Furosemida 40mg Tableta;;28363;28363
+Gabapentina 300mg Capsula dura;;2590;2590
+Gabapentina 400mg Capsula dura;;120;120
 Gemcitabina 1g Polvo esteril para reconstituir Vial;;60;60
 Gemfibrozilo 600mg Tableta;;5925;5925
 Gentamicina sulfato [3mg/mL] Solucion oftalmica;;22;22
@@ -331,6 +334,7 @@ Glimepirida 4mg Tableta;;1220;1220
 Glucometro digital;;136;136
 Guante de examen de nitrilo L Caja x 100 Unidades;;1;1
 Guante esteril No. 7,5 con talco - Par;;58;58
+Guante esteril No. 8 con talco - Par;;35;35
 Haloperidol 10mg Tableta;;90;90
 Haloperidol 2mg/mL Solucion oral;;70;70
 Haloperidol 5mg Tableta;;902;902
@@ -385,6 +389,7 @@ Jeringa esteril de 10mL - Unidad;;350;350
 Jeringa esteril de 20mL - Unidad;;275;275
 Jeringa esteril de 3mL - Unidad;;10;10
 Jeringa esteril de 1mL - Unidad;;352;352
+Agua destilada esteril 10mL Solucion inyectable;;10;10
 Jeringa punta cateter esteril de 60mL - Unidad;;4;4
 Ketoconazol 200mg Tableta;;77;77
 Ketotifeno 0,02% [1mg/5mL] Jarabe;;59;59
@@ -496,7 +501,7 @@ Naproxeno 250mg Tableta;;17890;17890
 Naproxeno 500mg Tableta;;881;881
 Naratriptan 2.5mg Tableta;;14;14
 Nepafenaco 1mg/mL Solucion oftalmica Frasco x 3mL;;2;2
-Nistatina + Zinc oxido 2% (10,000,000) + 20% [200mg (1,000,000) + 2g/10g] Crema topica;;149;149
+Nistatina + Zinc oxido 2% (10,000,000) + 20% [200mg (1,000,000) + 2g/10g] Crema topica;;193;193
 Nistatina [100,000UI/10g] Crema topica;;13;13
 Nistatina 10.000.000UI [500.000UI/5mL] Solucion oral;;40;40
 Nitazoxanida 2% [100mg/5mL] Polvo para reconstituir a solucion oral;;19;19
@@ -509,7 +514,7 @@ Olmesartan medoxomil 20mg Tableta;;40;40
 Olodaterol + Tiotropio 2,5mcg + 2,5mcg Aerosol Inhalador x 30 dosis;;66;66
 Olopatadina 2mg/mL Solucion oftalmica;;73;73
 Omeprazol 20mg Capsula dura;;28874;28874
-Omeprazol 40mg Capsula dura;;538;538
+Omeprazol 40mg Capsula dura;;556;556
 Ondansetron 8mg Tableta;;2025;2025
 Ondansetron [8mg/4mL] Solucion inyectable;;1079;1079
 Otilonio bromuro 40mg Tableta;;30;30
@@ -622,8 +627,8 @@ Sucralfato 1g Tableta;;7334;7334
 Sucralfato 20% [1g/5mL] Suspension oral;;88;88
 Sulfadiazina de plata 1% [100mg/10g] Crema topica;;77;77
 Sulfasalazina 500mg Tableta de liberacion retardada;;2343;2343
+Zinc sulfato 20mg Tableta;;24;24
 Zinc sulfato 0,2% [10mg/5mL] Solucion oral;;145;145
-Zinc sulfato 20mg Tableta;;5;5
 Sulfato ferroso (hierro) 200mg Tableta;;1725;1725
 Sulfato ferroso (hierro) 300mg Tableta;;11658;11658
 Sultamicilina 375mg Tableta;;818;818
@@ -641,10 +646,11 @@ Tiamina monohidrato [1g/10mL] Solucion inyectable;;130;130
 Tiamina monohidrato 300mg Tableta;;17536;17536
 Tibolona 2,5mg Tableta;;3828;3828
 Ticagrelor 90mg Tableta;;660;660
-Timolol maleato 5mg/mL Solucion oftalmica Frasco gotero x 5mL;;69;69
+Brimonidina tartrato + Timolol 2mg + 5mg/mL Solucion oftalmica Frasco gotero x 2,5mL;;69;69
 Tinidazol 500mg Tableta;;372;372
 Tiocolchicosido 4mg Tableta;;20;20
 Tiocolchicosido 8mg Tableta;;259;259
+Tiras de glucometria;;240;240
 Tizanidina 2mg Tableta;;782;782
 Tizanidina 4mg Tableta;;130;130
 Dexametasona + Tobramicina 1mg + 3mg/mL Solucion oftalmica;;17;17

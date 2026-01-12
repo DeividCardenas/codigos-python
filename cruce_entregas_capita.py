@@ -91,6 +91,47 @@ STOP_WORDS = {
     'HIDROCLORURO', 'CLORHIDRATO', 'BROMURO', 'TARTRATO', 'CITRATO'
 }
 
+def simple_soundex(token):
+    """
+    Implementación simple de Soundex para Español/Farmacéutico.
+    Retorna un código fonético.
+    """
+    if not token: return ""
+    token = token.upper()
+
+    # 1. Primera letra
+    first_char = token[0]
+
+    # 2. Mapeos
+    # B, F, P, V -> 1
+    # C, G, J, K, Q, S, X, Z -> 2
+    # D, T -> 3
+    # L -> 4
+    # M, N -> 5
+    # R -> 6
+    # Vocales, H, W, Y -> 0 (se ignoran)
+
+    mapping = {
+        'B': '1', 'F': '1', 'P': '1', 'V': '1',
+        'C': '2', 'G': '2', 'J': '2', 'K': '2', 'Q': '2', 'S': '2', 'X': '2', 'Z': '2',
+        'D': '3', 'T': '3',
+        'L': '4',
+        'M': '5', 'N': '5',
+        'R': '6'
+    }
+
+    code = first_char
+    prev_digit = mapping.get(first_char, '0')
+
+    for char in token[1:]:
+        digit = mapping.get(char, '0')
+        if digit != '0' and digit != prev_digit:
+            code += digit
+            prev_digit = digit
+
+    # Pad or trim to 4 chars
+    return (code + "0000")[:4]
+
 LABORATORIES = {
     'TECNOQUIMICAS', 'SIEGFRIED', 'FARMACAPSULAS', 'SANOFI', 'GRUNENTHAL',
     'PROCAPS', 'NOVAMED', 'WINTHROP', 'ASTRAZENECA', 'TECNOFARMA', 'COLMED',
@@ -201,24 +242,29 @@ def check_key_token_match(src_text, tgt_text):
         # Fallback a intersección simple si se eliminó todo
         return bool(set(s_list) & set(t_list)) if s_list or t_list else True
 
-    # REGLA ESTRICTA: El primer token significativo debe coincidir (fuzzy > 85)
+    # REGLA ESTRICTA: El primer token significativo debe coincidir (fuzzy > 85 O Fonetico)
     # Esto previene "ACIDO URSODEOXICOLICO" (1er=URSODEOXICOLICO) vs "ACIDO TIOCTICO" (1er=TIOCTICO)
     # (Asumiendo que ACIDO esta en STOP_WORDS)
 
     s_first = s_list[0]
     t_first = t_list[0]
 
-    match_first = False
+    # 1. Match Exacto
     if s_first == t_first:
-        match_first = True
-    elif _HAS_RAPIDFUZZ:
-        if fuzz.ratio(s_first, t_first) > 85:
-            match_first = True
-    else:
-        if s_first.startswith(t_first) or t_first.startswith(s_first):
-            match_first = True
+        return True
 
-    return match_first
+    # 2. Match Fuzzy Alto
+    if _HAS_RAPIDFUZZ:
+        if fuzz.ratio(s_first, t_first) > 85:
+            return True
+
+    # 3. Match Fonético (Soundex)
+    # Solo si la longitud es decente para evitar falsos positivos en cortos (ej: GEL vs GEL)
+    if len(s_first) >= 4 and len(t_first) >= 4:
+        if simple_soundex(s_first) == simple_soundex(t_first):
+            return True
+
+    return False
 
 def extract_features(text):
     """
@@ -518,15 +564,15 @@ class SmartMatcher:
                     final_score = max(score_no_nums, score_with_nums)
 
                     # LOGICA DE RESCATE (RESCUE LOGIC)
-                    # Si el score está entre 70 y 75, pero la compatibilidad de dosis es PERFECTA (1.0)
-                    # Y ademas pasa la validacion de Tokens Clave (evitar acido X vs acido Y)
+                    # Si el score está entre 60 y 75, pero la compatibilidad de dosis es PERFECTA (1.0)
+                    # Y ademas pasa la validacion de Tokens Clave (Fonetica/Fuzzy)
                     # Le subimos artificialmente el score para que pase el corte RELAXED (75.0)
-                    # O lo marcamos de otra forma. Aquí simplemente ajustamos final_score si cumple.
-                    if 70.0 <= final_score < 75.0:
+                    if 60.0 <= final_score < 75.0:
                         if check_key_token_match(clean_desc_no_nums, tgt_clean_no_nums):
-                            # Bonus para cruzar el umbral
-                            final_score += 5.0
-                            best_method = "RESCUED_70+"
+                            # Bonus variable para asegurar cruce
+                            # Si es >70, +5 basta. Si es 60, necesitamos +15
+                            final_score = 75.1
+                            best_method = "RESCUED_PHONETIC_60+"
 
                 else:
                     # Compatibilidad dudosa o mala, usar texto completo y penalizar
@@ -603,13 +649,14 @@ def process_file(filepath, matcher, rescued_matches_list, output_unmatched_list)
                 local_results[tidx] += qty_val
 
                 # Capture rescued matches for audit
-                if method == "RESCUED_70+" and rescued_matches_list is not None:
+                if "RESCUED" in method and rescued_matches_list is not None:
                      tgt_desc = matcher.target_df.iloc[tidx][matcher.col_desc] if tidx is not None else ""
                      rescued_matches_list.append({
                         'Archivo': filepath.name,
                         'Descripcion_Original': batch_descs[j],
                         'Match_Target': tgt_desc,
-                        'Score': score
+                        'Score': score,
+                        'Method': method
                      })
             else:
                 # Guardar no encontrado
@@ -691,10 +738,11 @@ def main():
     # Resumen de Rescates
     if rescued_matches:
         print("\n" + "="*40)
-        print(f"RESUMEN DE RESCATES (Score Original 70-75% + KeyMatch) - Total: {len(rescued_matches)}")
-        print("Muestra de los primeros 20:")
+        print(f"RESUMEN DE RESCATES (Score Original 60-75% + Phonetic) - Total: {len(rescued_matches)}")
+        print("Muestra de los primeros 20 (Ordenados por Score Asc):")
+        rescued_matches.sort(key=lambda x: x['Score'])
         for r in rescued_matches[:20]:
-            print(f"   [{r['Score']:.1f}] {r['Descripcion_Original'][:35]}... -> {r['Match_Target'][:35]}...")
+            print(f"   [{r['Score']:.1f}|{r.get('Method','')}] {r['Descripcion_Original'][:30]}... -> {r['Match_Target'][:30]}...")
         print("="*40 + "\n")
 
     # Reporte No Encontrados
