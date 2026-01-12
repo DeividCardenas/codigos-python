@@ -70,7 +70,25 @@ PHARMA_ABBREVIATIONS = {
     'LEUPROLIDE': 'LEUPRORELINA', 'JERINGA': 'INYECTABLE', 'PRELLENADA': '',
     'IMPLANTE': 'INYECTABLE', 'VIAL': '', 'AMPOLLA': '', 'AMPO': '', 'AMP': '',
     'ESTERIL': '', 'RECONSTITUIR': '', 'PARA': '', 'DE': '',
-    'ADAPALENE': 'ADAPALENO'
+    'ADAPALENE': 'ADAPALENO',
+    'URSODEOXICOLICO': 'URSODESOXICOLICO'
+}
+
+# Palabras de parada para validación estricta (no cuentan como coincidencias clave)
+# Se incluyen sales comunes y prefijos genéricos para forzar match en el principio activo real
+STOP_WORDS = {
+    'TABLETA', 'TABLETAS', 'CAPSULA', 'CAPSULAS', 'SOLUCION', 'SUSPENSION',
+    'INYECTABLE', 'JARABE', 'CREMA', 'GEL', 'UNGUENTO', 'POMADA',
+    'MG', 'MCG', 'G', 'ML', 'L', 'UI', 'IU', 'POR', 'DE', 'PARA', 'Y', 'CON',
+    'CAJA', 'FRASCO', 'AMPOLLA', 'VIAL', 'SOBRE', 'TUBO', 'BLISTER',
+    'ORAL', 'TOPICO', 'VAGINAL', 'NASAL', 'OFTALMICO', 'RECUBIERTA',
+    'LIBERACION', 'PROLONGADA', 'RETARD', 'FORTE', 'PLUS', 'DIA', 'NOCHE',
+    'ADULTO', 'PEDIATRICO', 'INFANTIL', 'NEONATAL',
+    'ACIDO', 'SODIO', 'CALCIO', 'CARBONATO', 'SULFATO', 'CLORURO',
+    'NITRATO', 'OXIDO', 'POTASIO', 'MAGNESIO', 'HIDROXIDO', 'FOSFATO',
+    'ACETATO', 'ZINC', 'HIERRO', 'FUMARATO', 'MALEATO', 'SUCCINATO',
+    'VALERATO', 'PROPIONATO', 'DIPROPIONATO', 'BETAMETASONA', # Generic component
+    'HIDROCLORURO', 'CLORHIDRATO', 'BROMURO', 'TARTRATO', 'CITRATO'
 }
 
 LABORATORIES = {
@@ -135,6 +153,72 @@ def clean_text_advanced(text):
 
 def remove_numbers(text):
     return re.sub(r'\d+', '', text)
+
+def check_key_token_match(src_text, tgt_text):
+    """
+    Verifica que al menos un token 'clave' (no stopword, no numero) coincida.
+    Ayuda a evitar falsos positivos como 'Acido Ursodeoxicolico' vs 'Acido Tioctico'.
+    """
+    def get_tokens(t):
+        # Tokenizar, quitar numeros y stopwords
+        raw_tokens = t.upper().replace('.', ' ').split()
+        clean = set()
+        for tok in raw_tokens:
+            if tok.isdigit(): continue
+            if re.match(r'^\d+[\.,]?\d*$', tok): continue # float like
+            if len(tok) < 3: continue # muy cortos
+            if tok in STOP_WORDS: continue
+            clean.add(tok)
+        return clean
+
+    s_toks = get_tokens(src_text)
+    t_toks = get_tokens(tgt_text)
+
+    # Si no quedan tokens (ej: solo dosis), asumimos match valido si paso las otras reglas
+    if not s_toks or not t_toks:
+        return True
+
+    # Verificar PRIMER TOKEN SIGNIFICATIVO (First Token Check)
+    # Ordenamos tokens? No, tomamos el orden original pero filtrado.
+    # Requerimos que tokens de entrada esten ordenados para esto.
+    # Mejor: Tomamos la lista original y filtramos stop words en orden.
+
+    def get_ordered_tokens(t):
+        raw = t.upper().replace('.', ' ').split()
+        clean = []
+        for tok in raw:
+            if tok.isdigit(): continue
+            if re.match(r'^\d+[\.,]?\d*$', tok): continue
+            if len(tok) < 3: continue
+            if tok in STOP_WORDS: continue
+            clean.append(tok)
+        return clean
+
+    s_list = get_ordered_tokens(src_text)
+    t_list = get_ordered_tokens(tgt_text)
+
+    if not s_list or not t_list:
+        # Fallback a intersección simple si se eliminó todo
+        return bool(set(s_list) & set(t_list)) if s_list or t_list else True
+
+    # REGLA ESTRICTA: El primer token significativo debe coincidir (fuzzy > 85)
+    # Esto previene "ACIDO URSODEOXICOLICO" (1er=URSODEOXICOLICO) vs "ACIDO TIOCTICO" (1er=TIOCTICO)
+    # (Asumiendo que ACIDO esta en STOP_WORDS)
+
+    s_first = s_list[0]
+    t_first = t_list[0]
+
+    match_first = False
+    if s_first == t_first:
+        match_first = True
+    elif _HAS_RAPIDFUZZ:
+        if fuzz.ratio(s_first, t_first) > 85:
+            match_first = True
+    else:
+        if s_first.startswith(t_first) or t_first.startswith(s_first):
+            match_first = True
+
+    return match_first
 
 def extract_features(text):
     """
@@ -432,6 +516,18 @@ class SmartMatcher:
 
                     # Usar el mejor de los dos mundos
                     final_score = max(score_no_nums, score_with_nums)
+
+                    # LOGICA DE RESCATE (RESCUE LOGIC)
+                    # Si el score está entre 70 y 75, pero la compatibilidad de dosis es PERFECTA (1.0)
+                    # Y ademas pasa la validacion de Tokens Clave (evitar acido X vs acido Y)
+                    # Le subimos artificialmente el score para que pase el corte RELAXED (75.0)
+                    # O lo marcamos de otra forma. Aquí simplemente ajustamos final_score si cumple.
+                    if 70.0 <= final_score < 75.0:
+                        if check_key_token_match(clean_desc_no_nums, tgt_clean_no_nums):
+                            # Bonus para cruzar el umbral
+                            final_score += 5.0
+                            best_method = "RESCUED_70+"
+
                 else:
                     # Compatibilidad dudosa o mala, usar texto completo y penalizar
                     if _HAS_RAPIDFUZZ:
@@ -450,7 +546,7 @@ class SmartMatcher:
 
 # ---------------- PROCESAMIENTO PRINCIPAL ----------------
 
-def process_file(filepath, matcher, output_audit_list, output_unmatched_list):
+def process_file(filepath, matcher, rescued_matches_list, output_unmatched_list):
     print(f"\nProcesando archivo: {filepath.name}")
     try:
         df = read_csv_robust(filepath)
@@ -505,6 +601,16 @@ def process_file(filepath, matcher, output_audit_list, output_unmatched_list):
             if is_match:
                 matched_qty += qty_val
                 local_results[tidx] += qty_val
+
+                # Capture rescued matches for audit
+                if method == "RESCUED_70+" and rescued_matches_list is not None:
+                     tgt_desc = matcher.target_df.iloc[tidx][matcher.col_desc] if tidx is not None else ""
+                     rescued_matches_list.append({
+                        'Archivo': filepath.name,
+                        'Descripcion_Original': batch_descs[j],
+                        'Match_Target': tgt_desc,
+                        'Score': score
+                     })
             else:
                 # Guardar no encontrado
                 output_unmatched_list.append({
@@ -555,6 +661,7 @@ def main():
 
     # 3. Procesar
     audit_unmatched = []
+    rescued_matches = []
 
     target_info = {}
     for idx, row in target_df.iterrows():
@@ -569,7 +676,7 @@ def main():
 
     for fname in files:
         fpath = Path(fname)
-        results, f_total, f_matched = process_file(fpath, matcher, None, audit_unmatched)
+        results, f_total, f_matched = process_file(fpath, matcher, rescued_matches, audit_unmatched)
 
         global_total += f_total
         global_matched += f_matched
@@ -580,6 +687,15 @@ def main():
 
     # 4. Generar Reportes
     print("\nGenerando reporte final...")
+
+    # Resumen de Rescates
+    if rescued_matches:
+        print("\n" + "="*40)
+        print(f"RESUMEN DE RESCATES (Score Original 70-75% + KeyMatch) - Total: {len(rescued_matches)}")
+        print("Muestra de los primeros 20:")
+        for r in rescued_matches[:20]:
+            print(f"   [{r['Score']:.1f}] {r['Descripcion_Original'][:35]}... -> {r['Match_Target'][:35]}...")
+        print("="*40 + "\n")
 
     # Reporte No Encontrados
     if audit_unmatched:
