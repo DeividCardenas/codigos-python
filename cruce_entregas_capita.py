@@ -925,6 +925,78 @@ def main():
     print("-" * 60)
     print(f"Reporte Primarios:        {file_primary} (Filas: {len(df_primary)})")
     print(f"Reporte Secundarios:      {file_secondary} (Filas: {len(df_secondary)})")
+
+    # -------------------------------------------------------------------------
+    # NUEVO REPORTE: SABANA COMPLETA DE TARGETS (Row-by-Row Integrity)
+    # -------------------------------------------------------------------------
+    print("-" * 60)
+    print("Generando REPORTE_SABANA_TARGETS.csv (Estructura Master preservada)...")
+
+    sabana_rows = []
+
+    # 1. Procesar Targets Primarios (Orden original)
+    for idx, row in target_df.iterrows():
+        # Recuperar columnas originales clave (nombre/codigo)
+        # Usamos los nombres detectados por matcher para consistencia
+        desc_val = row[matcher.col_desc] if matcher.col_desc else ""
+        code_val = row[matcher.col_code] if matcher.col_code else ""
+
+        out_row = {
+            'FUENTE_LISTA': 'PRIMARY',
+            'INDICE_ORIGINAL': idx, # Util para debugging
+            'DESCRIPCION_MASTER': desc_val,
+            'CODIGO_MASTER': code_val
+        }
+
+        row_total = Decimal('0')
+        # Llenar meses
+        for m in all_months:
+            # Buscar en pivot usando la llave compuesta (ID, 'PRIMARY')
+            qty = pivot_data.get((idx, 'PRIMARY'), {}).get(m, Decimal('0'))
+            out_row[m] = str(qty).replace('.', ',') if qty > 0 else '0'
+            row_total += qty
+
+        out_row['TOTAL_GENERAL'] = str(row_total).replace('.', ',')
+        sabana_rows.append(out_row)
+
+    # 2. Procesar Targets Secundarios (si existen)
+    if matcher_secondary:
+        for idx, row in matcher_secondary.target_df.iterrows():
+            desc_val = row[matcher_secondary.col_desc] if matcher_secondary.col_desc else ""
+            code_val = row[matcher_secondary.col_code] if matcher_secondary.col_code else ""
+
+            out_row = {
+                'FUENTE_LISTA': 'SECONDARY',
+                'INDICE_ORIGINAL': idx,
+                'DESCRIPCION_MASTER': desc_val,
+                'CODIGO_MASTER': code_val
+            }
+
+            row_total = Decimal('0')
+            for m in all_months:
+                # Buscar en pivot usando la llave compuesta (ID, 'SECONDARY')
+                qty = pivot_data.get((idx, 'SECONDARY'), {}).get(m, Decimal('0'))
+                out_row[m] = str(qty).replace('.', ',') if qty > 0 else '0'
+                row_total += qty
+
+            out_row['TOTAL_GENERAL'] = str(row_total).replace('.', ',')
+            sabana_rows.append(out_row)
+
+    # Crear DataFrame y Exportar
+    if sabana_rows:
+        df_sabana = pd.DataFrame(sabana_rows)
+        # Ordenar columnas
+        cols_fixed = ['FUENTE_LISTA', 'INDICE_ORIGINAL', 'DESCRIPCION_MASTER', 'CODIGO_MASTER']
+        cols_final_sabana = cols_fixed + all_months + ['TOTAL_GENERAL']
+        # Filtrar solo existentes
+        cols_final_sabana = [c for c in cols_final_sabana if c in df_sabana.columns]
+
+        df_sabana = df_sabana[cols_final_sabana]
+
+        file_sabana = "REPORTE_SABANA_TARGETS.csv"
+        df_sabana.to_csv(file_sabana, index=False, sep=';', encoding='utf-8-sig')
+        print(f"Reporte Sabana:           {file_sabana} (Filas: {len(df_sabana)})")
+
     print("="*60)
 
 if __name__ == "__main__":
