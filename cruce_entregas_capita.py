@@ -751,12 +751,33 @@ def main():
         unmatched_file = f"no_encontrados_avanzado_{datetime.datetime.now().strftime('%Y%m%d')}.csv"
         df_unmatched.to_csv(unmatched_file, index=False, sep=';', encoding='utf-8-sig')
         print(f"Reporte de NO cruzados guardado en: {unmatched_file}")
+
+        # Generar Reporte de Top Faltantes para accionabilidad
         try:
-            top_missed = df_unmatched.groupby('Codigo_Original')['Cantidad'].sum().sort_values(ascending=False).head(20)
-            print("\nTop 20 Productos NO encontrados (por código/cantidad):")
-            print(top_missed)
-        except:
-            pass
+            # Agrupar por Descripcion Original para ver qué falta crear en Targets
+            missing_agg = df_unmatched.groupby('Descripcion_Original').agg({
+                'Cantidad': 'sum',
+                'Codigo_Original': 'first' # Un ejemplo de codigo
+            }).reset_index()
+
+            # Ordenar por cantidad descendente
+            missing_agg = missing_agg.sort_values('Cantidad', ascending=False).head(50)
+
+            missing_file = f"top_missing_targets_{datetime.datetime.now().strftime('%Y%m%d')}.csv"
+            missing_agg.to_csv(missing_file, index=False, sep=';', encoding='utf-8-sig')
+
+            print("\n" + "="*60)
+            print("TOP 50 PRODUCTOS FALTANTES (Candidatos para agregar a Master):")
+            print(f"Archivo guardado en: {missing_file}")
+            print("-" * 60)
+            # Imprimir bonito
+            print(f"{'CANTIDAD':>10} | {'CODIGO':<10} | {'DESCRIPCION'}")
+            for _, row in missing_agg.iterrows():
+                print(f"{row['Cantidad']:10.0f} | {str(row['Codigo_Original'])[:10]:<10} | {row['Descripcion_Original'][:60]}")
+            print("="*60 + "\n")
+
+        except Exception as e:
+            print(f"No se pudo generar reporte de faltantes: {e}")
 
     # Reporte Cruzado (Pivot)
     final_rows = []
