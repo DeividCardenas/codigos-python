@@ -10,10 +10,17 @@ import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class DeliverySanitizer:
-    LAB_KEYWORDS = [
-        'GENFAR', 'LAPROFF', 'ECAR', 'TECNOQUIMICAS', 'LA SANTE',
-        'SIEGFRIED', 'NOVAMED', 'BAYER', 'PROCAPS'
-    ]
+    LAB_MAP = {
+        'GENFAR': 'GENFAR', 'TECNOQUIMICAS': 'TECNOQUIMICAS', 'TQ': 'TECNOQUIMICAS',
+        'LA SANTE': 'LA_SANTE', 'LASANTE': 'LA_SANTE', 'LAPROFF': 'LAPROFF',
+        'ECAR': 'ECAR', 'PROCAPS': 'PROCAPS', 'MK': 'MK', 'HUMAX': 'HUMAX',
+        'BAYER': 'BAYER', 'ABBOTT': 'ABBOTT', 'SANOFI': 'SANOFI', 'PFIZER': 'PFIZER',
+        'NOVARTIS': 'NOVARTIS', 'GSK': 'GSK', 'ASTRAZENECA': 'ASTRAZENECA',
+        'JANSSEN': 'JANSSEN', 'MERCK': 'MERCK', 'MSD': 'MERCK', 'SIEGFRIED': 'SIEGFRIED',
+        'NOVAMED': 'NOVAMED', 'SYNTHESIS': 'SYNTHESIS', 'CHALVER': 'CHALVER',
+        'WINTHROP': 'WINTHROP', 'GRUNENTHAL': 'GRUNENTHAL', 'BIOQUIFAR': 'BIOQUIFAR',
+        'FARMACAPSULAS': 'FARMACAPSULAS'
+    }
 
     # Strictly defined known units per user requirement
     KNOWN_UNITS = ['MG', 'ML', 'MCG', 'TABLETA', 'CAPSULA']
@@ -62,7 +69,7 @@ class DeliverySanitizer:
         """
         Extract Laboratory based on rules:
         A: Between pipes | LAB |
-        B: Keyword search
+        B: Keyword search (LAB_MAP)
         C: NO_IDENTIFICADO
         """
         if not isinstance(text, str):
@@ -76,51 +83,60 @@ class DeliverySanitizer:
                 if potential_lab:
                     return potential_lab.upper()
 
-        # Rule B: Keywords
+        # Rule B: Keywords from LAB_MAP
         text_upper = text.upper()
-        for keyword in self.LAB_KEYWORDS:
-            if keyword in text_upper:
-                return keyword
+        for key, val in self.LAB_MAP.items():
+            # Check for the key (alias) in text
+            # Use strict word boundary if key is short to avoid false positives?
+            # User example keys are distinct enough (TQ, MK might need care).
+            # We will search for the key string.
+            if key in text_upper:
+                return val
 
         # Rule C
         return "NO_IDENTIFICADO"
 
-    def normalize_key(self, text):
+    def normalize_key(self, row):
         """
         Create the cross-reference key (llave_de_cruce).
-        - Uppercase
-        - Remove accents
-        - Remove special chars (keep letters, numbers, %, dots)
-        - Normalize units (remove space between number and unit: 500 MG -> 500MG)
+        Accepts the whole row to check quantity as well.
         """
+        text = row.get('descripcion_original')
+        qty = row.get('cantidad')
+
+        # Check for missing description or quantity
+        # Quantity check: Assuming 0 is "missing" or literal 0 deliveries which are invalid for processing usually.
+        # But we must preserve the row.
+        if pd.isna(qty) or qty == 0:
+            return "POR_REVISAR"
+
         if pd.isna(text) or text == "":
             return "POR_REVISAR"
 
+        text = str(text)
+
         # 1. Basic Clean
-        clean = self.remove_accents(str(text)).upper()
+        clean = self.remove_accents(text).upper()
 
         # 2. Remove pipes and other noise, keep alphanumeric, space, %, .
-        # Note: We remove special chars like *, |, etc.
         clean = re.sub(r'[^A-Z0-9\s\.\%]', ' ', clean)
 
         # 3. Normalize Units (Remove spaces: 500 MG -> 500MG)
         # Regex to find Number + Space + Unit
+        # Added flags=re.IGNORECASE just in case, though we uppercased already.
         unit_pattern = r'(\d)\s+(' + '|'.join(self.KNOWN_UNITS) + r')\b'
-        clean = re.sub(unit_pattern, r'\1\2', clean)
+        clean = re.sub(unit_pattern, r'\1\2', clean, flags=re.IGNORECASE)
 
         # 4. Collapse multiple spaces
         clean = re.sub(r'\s+', ' ', clean).strip()
 
-        # 5. Check "POR_REVISAR" criteria
-        # - Empty
+        # 5. Check "POR_REVISAR" criteria (Structure check)
         if not clean:
             return "POR_REVISAR"
 
-        # - No known unit present? (Strict check: Regex with word boundaries)
         # We must allow digits before the unit because we just removed the space (e.g., '500MG')
-        # \b fails between '0' and 'M' because both are word characters.
         search_pattern = r'(?:^|[\s\d])(' + '|'.join(self.KNOWN_UNITS) + r')\b'
-        if not re.search(search_pattern, clean):
+        if not re.search(search_pattern, clean, flags=re.IGNORECASE):
             return "POR_REVISAR"
 
         return clean
@@ -128,31 +144,22 @@ class DeliverySanitizer:
     def clean_quantity_colombian(self, val):
         """
         Parses a string quantity assuming strict Colombian formatting:
-        - '.' is a thousands separator (Removed)
-        - ',' is a decimal separator (Replaced by '.')
-
-        Example: "1.000,50" -> 1000.50
-
-        If the value is not a string (e.g. already float/int), it is returned as is.
+        "1.000,50" -> 1000.50
         """
         if not isinstance(val, str):
             return val
-
-        # Remove dots (thousands)
         val = val.replace('.', '')
-        # Replace commas with dots (decimals)
         val = val.replace(',', '.')
-
         return val
 
     def load_files(self, pattern="*.csv"):
         """
-        Load all CSV files matching pattern, skip those without required columns.
+        Load all CSV files matching pattern.
         """
         files = glob.glob(pattern)
         logging.info(f"Found {len(files)} files matching '{pattern}'")
 
-        # Filter out known report/output files to avoid double counting
+        # Filter out known report/output files
         excluded_prefixes = ['no_encontrados', 'top_missing', 'reporte', 'REPORTE', 'Consolidado', 'Targets']
         filtered_files = []
         for f in files:
@@ -166,33 +173,29 @@ class DeliverySanitizer:
 
         for f in filtered_files:
             try:
-                # Try reading with different separators if needed, but assuming comma/pipe handling
-                # First try standard read (comma default)
+                # Try reading with different separators
                 try:
                     df = pd.read_csv(f, dtype=str, on_bad_lines='skip')
                 except:
-                    # Fallback to semicolon
                     df = pd.read_csv(f, sep=';', dtype=str, on_bad_lines='skip')
 
                 col_map = self.detect_columns(df)
                 if not col_map:
-                    logging.warning(f"Skipping {f}: Missing required columns (nombre/cantidad).")
+                    logging.warning(f"Skipping {f}: Missing required columns.")
                     continue
 
-                # Rename columns for consistency
+                # Rename columns
                 df = df.rename(columns={
                     col_map['descripcion_original']: 'descripcion_original',
                     col_map['cantidad']: 'cantidad'
                 })
 
-                # Keep only relevant columns plus others if needed?
-                # Request says "Identificar ... y renombrarlas ... preservar estructura original"
-                # We will keep all, but ensure our key columns exist.
+                # Add Metadata (mes_entrega)
+                # Extract simple filename without extension
+                fname_clean = os.path.splitext(os.path.basename(f))[0]
+                df['mes_entrega'] = fname_clean
 
-                # Add Metadata
-                df['mes_archivo'] = os.path.splitext(os.path.basename(f))[0]
-
-                # Clean quantity using explicit helper
+                # Clean quantity
                 df['cantidad'] = df['cantidad'].apply(self.clean_quantity_colombian)
                 df['cantidad'] = pd.to_numeric(df['cantidad'], errors='coerce').fillna(0)
 
@@ -219,46 +222,72 @@ class DeliverySanitizer:
 
         # 2. Sanitize / Normalize
         logging.info("Starting normalization...")
-
-        # Use assign to create new columns without mutating original messy structure too much
-        # However, we concatenated everything into raw_df. We will work on a copy or directly.
-
         self.processed_df = self.raw_df.copy()
 
         # Extract Lab
         self.processed_df['Laboratorio'] = self.processed_df['descripcion_original'].apply(self.extract_lab)
 
-        # Create Key
-        self.processed_df['llave_de_cruce'] = self.processed_df['descripcion_original'].apply(self.normalize_key)
+        # Create Key (Pass row)
+        self.processed_df['llave_de_cruce'] = self.processed_df.apply(self.normalize_key, axis=1)
 
-        # 3. Consolidation
-        logging.info("Consolidating...")
+        # 3. Save Individual Processed Files
+        output_dir = "procesados"
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+
+        months = self.processed_df['mes_entrega'].unique()
+        audit_data = []
+
+        for m in months:
+            m_df = self.processed_df[self.processed_df['mes_entrega'] == m].copy()
+            m_total_qty = m_df['cantidad'].sum()
+            m_count = len(m_df)
+
+            # Save individual file
+            out_name = f"{m}_LIMPIO.csv"
+            out_path = os.path.join(output_dir, out_name)
+            m_df.to_csv(out_path, index=False, encoding='utf-8-sig')
+
+            audit_data.append({
+                'Nombre del Archivo': m,
+                'Registros Procesados': m_count,
+                'Suma Total Cantidad': m_total_qty
+            })
+
+        # 4. Consolidate Master
+        logging.info("Consolidating Master...")
 
         # Group by Key + Lab
-        # Aggregation: Sum Quantity, Count Occurrences
-
         self.consolidated_df = self.processed_df.groupby(['llave_de_cruce', 'Laboratorio']).agg(
             Cantidad_Total_Entregada=('cantidad', 'sum'),
-            Numero_de_Entregas_Asociadas=('cantidad', 'count') # Count rows
+            Numero_de_Entregas_Asociadas=('cantidad', 'count')
         ).reset_index()
 
-        # Rename for final output requirements: Medicamento_Estandarizado
         self.consolidated_df = self.consolidated_df.rename(columns={'llave_de_cruce': 'Medicamento_Estandarizado'})
 
-        # 4. Integrity Validation
+        # 5. Integrity Validation
         total_qty_final = self.consolidated_df['Cantidad_Total_Entregada'].sum()
-        logging.info(f"Total Final Quantity: {total_qty_final:,.2f}")
 
-        # Using a small epsilon for float comparison just in case, though pandas sum should be consistent
+        # Using a small epsilon
         assert abs(total_qty_initial - total_qty_final) < 0.01, \
             f"Integrity Check Failed! Initial: {total_qty_initial}, Final: {total_qty_final}"
 
-        logging.info("Integrity Check PASSED.")
+        # 6. Export Master
+        master_file = "Consolidado_Total_Entregas.csv"
+        self.consolidated_df.to_csv(master_file, index=False, encoding='utf-8-sig')
+        logging.info(f"Saved master consolidated report to {master_file}")
 
-        # 5. Export
-        output_file = "Consolidado_Entregas_Limpio.csv"
-        self.consolidated_df.to_csv(output_file, index=False, encoding='utf-8-sig')
-        logging.info(f"Saved consolidated report to {output_file}")
+        # 7. Print Audit Summary
+        print("\n" + "="*60)
+        print("RESUMEN DE CONTROL DE INTEGRIDAD")
+        print("="*60)
+        print(f"{'Nombre del Archivo':<30} | {'Registros':<10} | {'Suma Cantidad':<20}")
+        print("-" * 65)
+        for row in audit_data:
+            print(f"{row['Nombre del Archivo']:<30} | {row['Registros Procesados']:<10} | {row['Suma Total Cantidad']:<20,.2f}")
+        print("-" * 65)
+        print(f"{'TOTAL GENERAL':<30} | {len(self.processed_df):<10} | {total_qty_final:<20,.2f}")
+        print("="*60 + "\n")
 
 
 if __name__ == "__main__":
