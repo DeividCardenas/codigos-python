@@ -9,9 +9,11 @@ import numpy as np
 sns.set_theme(style="whitegrid")
 
 class ReportGenerator:
-    def __init__(self, input_file="Consolidado_Final_Auditable.csv"):
-        self.input_file = input_file
-        self.output_dir = "reportes_visuales"
+    def __init__(self):
+        # Path definitions
+        self.INPUT_FILE = os.path.join("output", "consolidated", "Consolidado_Final_Auditable.csv")
+        self.OUTPUT_DIR = os.path.join("output", "reports")
+
         self.df = None
 
         # Month mapping: Number -> Name
@@ -22,9 +24,9 @@ class ReportGenerator:
         }
 
     def setup_directories(self):
-        if not os.path.exists(self.output_dir):
-            os.makedirs(self.output_dir)
-            print(f"Created directory: {self.output_dir}")
+        if not os.path.exists(self.OUTPUT_DIR):
+            os.makedirs(self.OUTPUT_DIR)
+            print(f"Created directory: {self.OUTPUT_DIR}")
 
     def parse_month(self, month_str):
         """
@@ -40,13 +42,13 @@ class ReportGenerator:
         return 99, str(month_str)
 
     def load_data(self):
-        if not os.path.exists(self.input_file):
-            print(f"Error: Input file {self.input_file} not found.")
+        if not os.path.exists(self.INPUT_FILE):
+            print(f"Error: Input file {self.INPUT_FILE} not found. Please run delivery_processor_pro.py first.")
             return False
 
         try:
-            print(f"Loading data from {self.input_file}...")
-            self.df = pd.read_csv(self.input_file)
+            print(f"Loading data from {self.INPUT_FILE}...")
+            self.df = pd.read_csv(self.INPUT_FILE)
 
             # Enrich data with month order and standard name
             # Apply parsing
@@ -114,7 +116,7 @@ class ReportGenerator:
             ax2.text(v + 1, i, f'{v:.1f}%', color='red', va='center', fontsize=8, fontweight='bold')
 
         plt.tight_layout()
-        plt.savefig(os.path.join(self.output_dir, 'Pareto_Top30_Medicamentos.png'), dpi=300)
+        plt.savefig(os.path.join(self.OUTPUT_DIR, 'Pareto_Top30_Medicamentos.png'), dpi=300)
         plt.close()
 
     def generate_lab_chart(self):
@@ -152,7 +154,7 @@ class ReportGenerator:
 
         plt.title('Participación de Mercado - Top 10 Laboratorios', fontsize=16)
         plt.tight_layout()
-        plt.savefig(os.path.join(self.output_dir, 'Top10_Laboratorios.png'), dpi=300)
+        plt.savefig(os.path.join(self.OUTPUT_DIR, 'Top10_Laboratorios.png'), dpi=300)
         plt.close()
 
     def generate_evolution_chart(self):
@@ -195,12 +197,12 @@ class ReportGenerator:
 
         plt.title('Evolución Mensual: Unidades vs Transacciones', fontsize=16)
         fig.tight_layout()
-        plt.savefig(os.path.join(self.output_dir, 'Evolucion_Mensual_Operativa.png'), dpi=300)
+        plt.savefig(os.path.join(self.OUTPUT_DIR, 'Evolucion_Mensual_Operativa.png'), dpi=300)
         plt.close()
 
     def generate_kpi_report(self):
         print("Generating KPI report...")
-        output_file = "Indicadores_Gestion.txt"
+        output_file = os.path.join(self.OUTPUT_DIR, "Indicadores_Gestion.txt")
 
         # 1. Average units per delivery
         total_units = self.df['total_unidades'].sum()
@@ -244,7 +246,7 @@ class ReportGenerator:
         print(f"KPI report saved to {output_file}")
 
     def generate_top50_excel(self):
-        output_excel = "Ranking_Top50_Medicamentos.xlsx"
+        output_excel = os.path.join(self.OUTPUT_DIR, "Ranking_Top50_Medicamentos.xlsx")
         print(f"Generating Top 50 Excel report: {output_excel}...")
 
         try:

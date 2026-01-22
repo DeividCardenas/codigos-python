@@ -5,3 +5,7 @@ reportes_visuales/
 *.xlsx
 *.png
 Indicadores_Gestion.txt
+data/processed/
+output/
+data/
+output/
