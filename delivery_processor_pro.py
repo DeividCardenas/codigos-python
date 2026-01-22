@@ -40,6 +40,18 @@ class DeliveryProcessorPro:
         self.processed_data = [] # List of DataFrames
         self.audit_records = []
 
+        # Path definitions
+        self.INPUT_DIR = os.path.join("data", "raw")
+        self.CATALOG_DIR = os.path.join("data", "catalog")
+        self.PROCESSED_DIR = os.path.join("data", "processed")
+        self.OUTPUT_DIR = os.path.join("output", "consolidated")
+
+        # Ensure directories exist
+        for directory in [self.INPUT_DIR, self.CATALOG_DIR, self.PROCESSED_DIR, self.OUTPUT_DIR]:
+            if not os.path.exists(directory):
+                os.makedirs(directory)
+                logging.info(f"Created directory: {directory}")
+
     def remove_accents(self, text):
         if not isinstance(text, str):
             return str(text) if text is not None else ""
@@ -73,12 +85,13 @@ class DeliveryProcessorPro:
 
         return clean
 
-    def load_catalog(self, filepath="productos - Hoja 1.csv"):
+    def load_catalog(self, filename="productos - Hoja 1.csv"):
         """
         Load and normalize the master catalog.
         """
+        filepath = os.path.join(self.CATALOG_DIR, filename)
         if not os.path.exists(filepath):
-            logging.error(f"Catalog file not found: {filepath}")
+            logging.error(f"Catalog file not found in {filepath}. Please ensure the catalog is in {self.CATALOG_DIR}")
             return
 
         try:
@@ -207,19 +220,15 @@ class DeliveryProcessorPro:
         return col_map
 
     def process_files(self, pattern="*.csv"):
-        files = glob.glob(pattern)
-        exclude_prefixes = ['no_encontrados', 'Consolidado', 'procesados', 'reporte', 'top_missing', 'REPORTE', 'Targets', 'productos']
+        # Search in INPUT_DIR
+        search_path = os.path.join(self.INPUT_DIR, pattern)
+        files = glob.glob(search_path)
 
-        files_to_process = [f for f in files if not any(os.path.basename(f).startswith(p) for p in exclude_prefixes)]
-
-        if not files_to_process:
-            logging.warning("No files found to process.")
+        if not files:
+            logging.warning(f"No files found in {self.INPUT_DIR}. Please add input CSV files.")
             return
 
-        if not os.path.exists('procesados'):
-            os.makedirs('procesados')
-
-        for f in files_to_process:
+        for f in files:
             logging.info(f"Processing {f}...")
             try:
                 # 1. Read
@@ -288,7 +297,7 @@ class DeliveryProcessorPro:
                 df['match_found'] = df['llave_cruce'].map(lambda k: key_map.get(k, (0, 0.0))[1])
 
                 # 6. Save Individual File
-                output_path = os.path.join('procesados', f"{filename}_LIMPIO.csv")
+                output_path = os.path.join(self.PROCESSED_DIR, f"{filename}_LIMPIO.csv")
                 df.to_csv(output_path, index=False, encoding='utf-8-sig')
 
                 # 7. Add to list for consolidation
@@ -336,7 +345,7 @@ class DeliveryProcessorPro:
             'laboratorio_estandar': 'laboratorio'
         })
 
-        output_file = "Consolidado_Final_Auditable.csv"
+        output_file = os.path.join(self.OUTPUT_DIR, "Consolidado_Final_Auditable.csv")
         consolidado.to_csv(output_file, index=False, encoding='utf-8-sig')
         logging.info(f"Consolidated report saved to {output_file}")
 
