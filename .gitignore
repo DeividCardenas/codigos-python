@@ -1,1 +1,7 @@
 
+procesados/
+Consolidado_Final_Auditable.csv
+reportes_visuales/
+*.xlsx
+*.png
+Indicadores_Gestion.txt
