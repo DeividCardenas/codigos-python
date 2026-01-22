@@ -1,69 +1,70 @@
-# Sistema de Cruce de Entregas Farmacéuticas (Advanced Matching)
+# Documentación del Sistema de Procesamiento y Reportes (GenHospi)
 
-Este sistema permite cruzar archivos de entregas de medicamentos (archivos "Evento") contra un maestro de productos ("Targets"), utilizando algoritmos avanzados para maximizar el porcentaje de coincidencia incluso con errores de ortografía, abreviaturas o diferencias en la descripción.
+Este documento sirve como la guía oficial para la operación de las herramientas de limpieza de datos y generación de reportes ejecutivos: `delivery_processor_pro.py` y `report_generator.py`.
 
-## Características Principales
+## 1. Resumen del Ecosistema de Datos
 
-*   **Coincidencia Híbrida Inteligente:**
-    1.  **Código Exacto:** Prioridad máxima si el `codigo_neg` o `CUM` coinciden.
-    2.  **Búsqueda Semántica (TF-IDF):** Utiliza vectores de texto y N-gramas para encontrar similitudes incluso si las palabras están desordenadas o mal escritas (ej. "Acetaminofen 500mg Tab" vs "Tab. 500 mg Acetaminofén").
-    3.  **Validación de Dosis:** Un algoritmo de seguridad verifica que las dosis (números) coincidan para evitar falsos positivos (ej. evita cruzar "Losartan 50 mg" con "Losartan 100 mg").
-*   **Alto Rendimiento:** Procesamiento por lotes (batch processing) que permite manejar millones de registros en segundos/minutos.
-*   **Normalización Automática:** Limpieza de texto, acentos, y estandarización de unidades (mg, ml, g) y abreviaturas farmacéuticas (TAB -> TABLETA, AMP -> AMPOLLA).
+El sistema está diseñado para transformar datos crudos de dispensación de medicamentos en información estratégica para la toma de decisiones.
 
-## Requisitos
+### Archivos de Entrada
+*   **Archivos de Eventos:** Archivos CSV mensuales que contienen los registros de dispensación. Deben seguir la nomenclatura cronológica para asegurar el ordenamiento correcto (ej. `6junioEvento.csv`, `7julioEvento.csv`, ..., `11noviembreEvento.csv`).
+*   **Catálogo Maestro:** El archivo `productos - Hoja 1.csv` que actúa como la fuente de verdad para normalizar nombres de medicamentos y laboratorios.
 
-El sistema requiere Python 3.8+ y las siguientes librerías:
+### Flujo de Datos
+1.  **Entrada Cruda:** Recepción de archivos CSV con descripciones heterogéneas.
+2.  **Limpieza y Validación (`delivery_processor_pro.py`):** Normalización de textos, estandarización de laboratorios y cruce difuso (fuzzy matching) contra el catálogo maestro.
+3.  **Consolidado:** Generación de una base de datos maestra unificada (`Consolidado_Final_Auditable.csv`).
+4.  **Reportes Visuales (`report_generator.py`):** Creación de rankings, gráficas y KPIs de gestión.
 
-```bash
-pip install pandas numpy rapidfuzz scikit-learn tqdm psutil
-```
+## 2. Requisitos del Sistema
 
-## Estructura de Archivos
+El sistema requiere **Python 3.8+** y las siguientes librerías especializadas para análisis de datos y visualización.
 
-*   **Targets (Maestro):** Debe ser un CSV (`Targets.csv`) con al menos una columna de `codigo_neg` y opcionalmente `descripcion`.
-*   **Archivos de Entrada (Eventos):** Archivos CSV con los movimientos. El sistema detecta automáticamente columnas como `codigo_neg`, `descripcion`, `cantidad_entregada`.
-
-## Uso
-
-Para ejecutar el cruce automáticamente con todos los archivos CSV en la carpeta que contengan "Evento" en el nombre:
+### Instalación de Dependencias
+Ejecute el siguiente comando en su terminal:
 
 ```bash
-python3 cruce_entregas_capita.py
+pip install pandas matplotlib seaborn openpyxl
 ```
 
-Para especificar archivos puntuales:
+## 3. Guía de Ejecución
+
+Para procesar la información desde cero, ejecute los scripts en el siguiente orden estricto:
+
+### Paso 1: Limpieza y Consolidación
+Procesa los archivos mensuales, limpia los datos y genera el archivo maestro.
 
 ```bash
-python3 cruce_entregas_capita.py --files AbrilEvento.csv MayoEvento.csv
+python delivery_processor_pro.py
 ```
 
-Para especificar un archivo de targets diferente:
+### Paso 2: Generación de Reportes
+Toma el consolidado generado en el paso anterior y crea las visualizaciones y el Excel de ranking.
 
 ```bash
-python3 cruce_entregas_capita.py --targets MiMaestro.csv
+python report_generator.py
 ```
 
-### Opciones Avanzadas
+## 4. Estructura de Salida
 
-*   `--batch_size`: Ajusta el tamaño del lote para procesamiento en memoria (defecto: 5000). Útil para optimizar RAM.
+Al finalizar la ejecución, el sistema generará los siguientes recursos:
 
-## Reportes Generados
+*   **Carpeta `/procesados/`:** Contiene los archivos CSV individuales de cada mes, ya limpios y auditables (ej. `6junioEvento_LIMPIO.csv`).
+*   **Archivo `Consolidado_Final_Auditable.csv`:** La base de datos unificada que sirve como insumo para el generador de reportes.
+*   **Carpeta `/reportes_visuales/`:** Contiene los entregables para la gerencia y el cliente:
+    *   `Ranking_Top50_Medicamentos.xlsx` (Excel con pestañas mensual y global).
+    *   `Pareto_Top30_Medicamentos.png` (Gráfico de barras horizontales).
+    *   `Top10_Laboratorios.png` (Gráfico de participación de mercado).
+    *   `Evolucion_Mensual_Operativa.png` (Gráfico lineal comparativo).
+*   **Archivo `Indicadores_Gestion.txt`:** Resumen de texto con KPIs operativos (promedios, variación porcentual).
 
-1.  **`reporte_cruce_avanzado.csv`**: Tabla dinámica con los productos del maestro (filas) y las cantidades entregadas por mes/archivo (columnas). Incluye una columna de total acumulado.
-2.  **`no_encontrados_avanzado_AAAAMMDD.csv`**: Listado detallado de los registros que no lograron cruzarse con el maestro, útil para depuración y actualización del maestro.
-3.  **Resumen en Consola**: Muestra el porcentaje de cobertura total y estadísticas por archivo.
+## 5. Notas de Mantenimiento
 
-## Estrategia de Optimización
+### Actualización del Catálogo Maestro
+Si ingresan nuevos medicamentos al mercado o al contrato:
+1.  Abra el archivo `productos - Hoja 1.csv`.
+2.  Agregue las nuevas referencias manteniendo el formato de las columnas existentes.
+3.  Guarde el archivo y vuelva a ejecutar `delivery_processor_pro.py` para que los nuevos datos se reconozcan en el cruce.
 
-El algoritmo sigue este flujo para cada registro de entrada:
-
-1.  **Limpieza:** Estandariza el texto (quita "LABORATORIO X", expande "TAB", quita acentos).
-2.  **Indexación:** Si existe código, busca en un índice hash (O(1)).
-3.  **Vectorización:** Si no hay código, convierte la descripción en un vector numérico TF-IDF.
-4.  **Búsqueda:** Encuentra los 5 vecinos más cercanos en el espacio vectorial.
-5.  **Re-ranking:** Refina los candidatos usando distancia de edición (Levenshtein) y validación de características numéricas.
-6.  **Decisión:** Acepta el match si el puntaje supera el umbral de confianza (88%).
-
----
-**Nota:** Si los archivos de entrada solo contienen códigos (sin descripciones), el sistema funcionará en modo "solo código" de máxima velocidad. Para aprovechar la búsqueda difusa, asegúrese de incluir columnas de descripción en los archivos de entrada.
+### Nomenclatura de Archivos
+Es crucial mantener la estructura de nombres de los archivos mensuales (ej. iniciar con el número del mes `6...`, `7...`) para que el script `report_generator.py` pueda ordenar cronológicamente la evolución mensual y calcular correctamente las variaciones de crecimiento o decrecimiento.
