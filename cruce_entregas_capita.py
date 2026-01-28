@@ -42,8 +42,8 @@ getcontext().prec = 28
 
 # ---------------- Configuración ----------------
 # Umbrales
-THRESHOLD_CONFIDENT = 88.0  # Coincidencia muy segura
-THRESHOLD_RELAXED = 75.0    # Coincidencia probable (revisar si es crítico)
+THRESHOLD_CONFIDENT = 95.0  # Coincidencia muy segura
+THRESHOLD_RELAXED = 85.0    # Coincidencia probable (revisar si es crítico)
 PENALTY_MISMATCH_UNIT = 50.0 # Penalización masiva si la dosis no coincide
 BATCH_SIZE = 5000 # Tamaño del lote para procesamiento vectorizado
 
@@ -292,9 +292,9 @@ def extract_features(text):
     # Primero normalizamos espacios alrededor de unidades para regex simple
     # clean_text ya separa numeros de letras (500 MG)
 
-    # Buscar: \bNUMBER\s+(MG|MCG|G|UI|IU|GR|%)\b
+    # Buscar: \bNUMBER\s+(MG|MCG|G|UI|IU|GR|ML|%)\b
     # Nota: % no tiene word boundary \b al final necesariamente
-    matches = re.findall(r'\b(\d+(?:[\.,]\d+)?)\s+(?:(MG|MCG|G|UI|IU|GR)\b|(%))', text)
+    matches = re.findall(r'\b(\d+(?:[\.,]\d+)?)\s+(?:(MG|MCG|G|UI|IU|GR|ML)\b|(%))', text)
     for m in matches:
         val_str = m[0]
         unit = m[1] if m[1] else m[2]
@@ -347,7 +347,8 @@ def check_feature_compatibility(src_feats, tgt_feats):
         return 1.0
 
     # Penalizar si los números son completamente disjuntos
-    return 0.5
+    # REGLA ESTRICTA (High Standards): Si hay numeros extraidos y no coinciden, es incompatible (0.0).
+    return 0.0
 
 # ---------------- Utilidades IO ----------------
 
@@ -597,7 +598,7 @@ class SmartMatcher:
 
 # ---------------- PROCESAMIENTO PRINCIPAL ----------------
 
-def process_file(filepath, matcher, matcher_secondary, rescued_matches_list, output_unmatched_list):
+def process_file(filepath, matcher, matcher_secondary, rescued_matches_list, output_unmatched_list, full_audit_log=None):
     print(f"\nProcesando archivo: {filepath.name}")
     try:
         df = read_csv_robust(filepath)
@@ -695,6 +696,33 @@ def process_file(filepath, matcher, matcher_secondary, rescued_matches_list, out
                     source_type = "SECONDARY"
                     is_match = True
 
+            # --- LOGICA DE AUDITORIA COMPLETA ---
+            if full_audit_log is not None:
+                tgt_desc_log = ""
+                tgt_code_log = ""
+
+                if final_tidx is not None:
+                    if source_type == "PRIMARY":
+                        row_tgt = matcher.target_df.iloc[final_tidx]
+                        tgt_desc_log = row_tgt[matcher.col_desc]
+                        tgt_code_log = row_tgt[matcher.col_code] if matcher.col_code else ""
+                    else:
+                        row_tgt = matcher_secondary.target_df.iloc[final_tidx]
+                        tgt_desc_log = row_tgt[matcher_secondary.col_desc]
+                        tgt_code_log = row_tgt[matcher_secondary.col_code] if matcher_secondary.col_code else ""
+
+                full_audit_log.append({
+                    'Archivo': filepath.name,
+                    'Descripcion_Original': batch_descs[j],
+                    'Codigo_Original': batch_codes[j],
+                    'Match_Status': 'CRUZADO' if is_match else 'NO_CRUZADO',
+                    'Target_Descripcion': tgt_desc_log,
+                    'Target_Codigo': tgt_code_log,
+                    'Score': f"{final_score:.1f}",
+                    'Metodo': final_method,
+                    'Fuente': source_type if is_match else "-"
+                })
+
             if is_match:
                 matched_qty += qty_val
                 # Key for aggregation needs to be unique across primary/secondary or handled downstream
@@ -787,6 +815,7 @@ def main():
     # 4. Procesar
     audit_unmatched = []
     rescued_matches = []
+    full_audit_log = [] # New: Detailed log for user audit
 
     # Map ID -> Info (Need separate maps for Primary and Secondary)
     # Aggregated Pivot: Key = (ID, SourceType)
@@ -811,7 +840,7 @@ def main():
 
     for fname in files:
         fpath = Path(fname)
-        results, f_total, f_matched = process_file(fpath, matcher, matcher_secondary, rescued_matches, audit_unmatched)
+        results, f_total, f_matched = process_file(fpath, matcher, matcher_secondary, rescued_matches, audit_unmatched, full_audit_log)
 
         global_total += f_total
         global_matched += f_matched
@@ -833,6 +862,12 @@ def main():
         for r in rescued_matches[:20]:
             print(f"   [{r['Score']:.1f}|{r.get('Method','')}] {r['Descripcion_Original'][:30]}... -> {r['Match_Target'][:30]}...")
         print("="*40 + "\n")
+
+    # Exportar Auditoria Completa (Peticion Usuario)
+    if full_audit_log:
+        audit_file_name = f"auditoria_matches_{datetime.datetime.now().strftime('%Y%m%d')}.csv"
+        print(f"Generando Reporte de Auditoría Detallada: {audit_file_name}")
+        pd.DataFrame(full_audit_log).to_csv(audit_file_name, index=False, sep=';', encoding='utf-8-sig')
 
     # Reporte No Encontrados
     if audit_unmatched:
