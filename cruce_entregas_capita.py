@@ -491,7 +491,7 @@ class StrictMatcher:
             # 1. Búsqueda Exacta
             if key_exact in self.exact_index:
                 res['idx'] = self.exact_index[key_exact]
-                res['status'] = 'MATCH_CONTRATO'
+                res['status'] = 'MATCH EXACTO'
                 res['score'] = 100.0
                 res['method'] = 'EXACTO_QUIMICO'
                 results.append(res)
@@ -504,7 +504,7 @@ class StrictMatcher:
                 best_match = forms_list[0] # (Form, Idx)
 
                 res['idx'] = best_match[1]
-                res['status'] = 'CAMBIO_DE_PRESENTACION'
+                res['status'] = 'CAMBIO DE PRESENTACIÓN'
                 res['observacion'] = f"Se solicito {parsed['form']} pero contrato tiene {best_match[0]}"
                 res['score'] = 90.0 # Alto pero no 100
                 res['method'] = 'PRESENTACION_DIFERENTE'
@@ -523,7 +523,7 @@ class StrictMatcher:
 
                     if len(common) > 0 and input_comps != target_comps:
                         # Encontrado!
-                        res['status'] = 'SUGERENCIA_DE_SUSTITUCION'
+                        res['status'] = 'SUGERENCIA DE SUSTITUCIÓN'
                         tgt_desc = self.target_df.iloc[cand_idx][self.col_desc]
                         res['observacion'] = f"Sugerido: {tgt_desc} (Base comun: {list(common)})"
                         # No asignamos idx para que NO se sume al contrato (Regla User: 'Prohibido... No Match')
@@ -617,7 +617,7 @@ def process_file(filepath, matcher, matcher_secondary, rescued_matches_list, out
             # Determine if it is a 'Valid Match' for aggregation
             # Only Exact and Presentation Change are counted as matches for contract
             # Substitution is just a suggestion, doesn't count as sold contract item
-            is_valid_match = final_res['status'] in ['MATCH_CONTRATO', 'CAMBIO_DE_PRESENTACION']
+            is_valid_match = final_res['status'] in ['MATCH EXACTO', 'CAMBIO DE PRESENTACIÓN']
 
             final_tidx = final_res['idx']
             final_method = final_res['method']
@@ -639,7 +639,7 @@ def process_file(filepath, matcher, matcher_secondary, rescued_matches_list, out
                         row_tgt = matcher_secondary.target_df.iloc[final_tidx]
                         tgt_desc_log = row_tgt[matcher_secondary.col_desc]
                         tgt_code_log = row_tgt[matcher_secondary.col_code] if matcher_secondary.col_code else ""
-                elif final_status == 'SUGERENCIA_DE_SUSTITUCION':
+                elif final_status == 'SUGERENCIA DE SUSTITUCIÓN':
                     # En sustitucion no tenemos idx oficial pero tenemos obs
                     tgt_desc_log = final_obs
 
@@ -648,13 +648,13 @@ def process_file(filepath, matcher, matcher_secondary, rescued_matches_list, out
                     'Descripcion_Original': batch_descs[j],
                     'Codigo_Original': batch_codes[j],
                     'Estado_Match': final_status, # New Column
-                    'Target_Descripcion': tgt_desc_log,
-                    'Target_Codigo': tgt_code_log,
+                    'Producto_Contrato_Sugerido': tgt_desc_log, # Renamed Column
+                    'Codigo_Contrato_Sugerido': tgt_code_log, # Renamed Column
                     'Score': f"{final_score:.1f}",
                     'Metodo': final_method,
                     'Fuente': source_type if is_valid_match else "-",
                     'Observaciones_Auditoria': final_obs, # New Column
-                    'Posible_Sustituto': "SI" if final_status == 'SUGERENCIA_DE_SUSTITUCION' else "" # New Column
+                    'Posible_Sustituto': "SI" if final_status == 'SUGERENCIA DE SUSTITUCIÓN' else "" # New Column
                 })
 
             if is_valid_match and final_tidx is not None:
