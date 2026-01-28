@@ -38,6 +38,8 @@ except ImportError:
     _HAS_SKLEARN = False
     print("ADVERTENCIA: scikit-learn no instalado. Se usará modo básico (lento).")
 
+from logic.medication_parser import parse_medication
+
 getcontext().prec = 28
 
 # ---------------- Configuración ----------------
@@ -414,185 +416,123 @@ def detect_columns(df):
 
     return mapping
 
-# ---------------- CLASE MATCHER INTELIGENTE ----------------
+# ---------------- CLASE MATCHER STRICTO ----------------
 
-class SmartMatcher:
+class StrictMatcher:
     def __init__(self, target_df):
         self.target_df = target_df.copy()
-        print("Preprocesando targets...")
+        print("Indexando Targets para Búsqueda Estricta...")
 
-        # 1. Normalización
+        # Detectar columnas
         cols = detect_columns(self.target_df)
         self.col_desc = cols['nombre'] or self.target_df.columns[0]
         self.col_code = cols['codigo']
 
-        # Limpieza previa
-        self.target_df['_clean'] = self.target_df[self.col_desc].apply(clean_text_advanced)
-        self.target_df['_clean_no_nums'] = self.target_df['_clean'].apply(remove_numbers)
-        self.target_df['_features'] = self.target_df['_clean'].apply(extract_features)
+        # Estructuras de búsqueda
+        # Exact Index: Key=(ComponentsTuple, DosagesTuple, FormStr) -> TargetIdx
+        self.exact_index = {}
 
-        # Indexar códigos para match exacto (rápido)
-        self.code_index = {}
-        if self.col_code:
-            # Limpiar códigos
-            self.target_df['_code_clean'] = self.target_df[self.col_code].astype(str).str.strip().str.upper()
-            for idx, row in self.target_df.iterrows():
-                c = row['_code_clean']
-                if c and c != 'NAN':
-                    self.code_index[c] = idx
+        # Presentation Index: Key=(ComponentsTuple, DosagesTuple) -> List[(FormStr, TargetIdx)]
+        self.presentation_index = defaultdict(list)
 
-        # 2. Vectorización TF-IDF
-        if _HAS_SKLEARN:
-            print("Entrenando vectorizador TF-IDF (3-gramas)...")
-            self.vectorizer = TfidfVectorizer(analyzer='char_wb', ngram_range=(3, 3), min_df=1, strip_accents='unicode')
-            self.tfidf_matrix = self.vectorizer.fit_transform(self.target_df['_clean'].tolist())
+        # Substitution Index (Por Dosis): Key=(DosagesTuple) -> List[(ComponentsTuple, TargetIdx)]
+        # Heurística: Si comparten base (1 componente) y misma dosis
+        self.substitution_index = defaultdict(list)
 
-            # Nearest Neighbors para búsqueda rápida
-            # Ajustar n_neighbors dinámicamente si hay pocos targets (caso Secondary)
-            n_samples = self.target_df.shape[0]
-            k_neighbors = min(5, n_samples)
-            if k_neighbors < 1: k_neighbors = 1
+        # Parsear Targets
+        for idx, row in self.target_df.iterrows():
+            raw_desc = str(row[self.col_desc])
+            parsed = parse_medication(raw_desc)
 
-            self.nn = NearestNeighbors(n_neighbors=k_neighbors, metric='cosine', n_jobs=-1)
-            self.nn.fit(self.tfidf_matrix)
-        else:
-            self.vectorizer = None
+            key_exact = (parsed['components'], parsed['dosages'], parsed['form'])
+            key_pres = (parsed['components'], parsed['dosages'])
+            key_sub = parsed['dosages']
+
+            # 1. Exact Index (Last one wins or keep first? Keep first preference usually)
+            if key_exact not in self.exact_index:
+                self.exact_index[key_exact] = idx
+
+            # 2. Presentation Index
+            self.presentation_index[key_pres].append((parsed['form'], idx))
+
+            # 3. Substitution Index (Guardamos para busqueda)
+            self.substitution_index[key_sub].append((parsed['components'], idx))
 
     def match_batch(self, descriptions, codes):
         """
-        Procesa un lote de filas.
-        descriptions: lista de strings crudos.
-        codes: lista de códigos crudos (o None).
-        Retorna lista de tuplas: (target_idx, score, method)
+        Retorna lista de diccionarios con info de auditoría:
+        {
+            'idx': target_idx (si hay match exacto o presentacion),
+            'status': MATCH | CAMBIO_PRESENTACION | SUGERENCIA_SUSTITUCION | NO_ENCONTRADO,
+            'observacion': str
+        }
         """
-        results = [(None, 0.0, "NONE")] * len(descriptions)
-
-        # 1. Match Exacto por Código (Prioridad Absoluta)
-        unmatched_indices = []
-        clean_descs_unmatched = []
+        results = []
 
         for i, (desc, code) in enumerate(zip(descriptions, codes)):
-            # Intento match por código
-            matched_by_code = False
-            if code:
-                rc = str(code).strip().upper()
-                if rc in self.code_index:
-                    results[i] = (self.code_index[rc], 100.0, "CODE_EXACT")
-                    matched_by_code = True
+            res = {
+                'idx': None,
+                'status': 'NO_ENCONTRADO',
+                'observacion': '',
+                'score': 0.0,
+                'method': 'NONE'
+            }
 
-            if not matched_by_code:
-                if desc:
-                    unmatched_indices.append(i)
-                    clean_descs_unmatched.append(clean_text_advanced(desc))
-                else:
-                    results[i] = (None, 0.0, "EMPTY")
-
-        if not unmatched_indices:
-            return results
-
-        # 2. Búsqueda Semántica (Batch)
-        candidates_map = {} # i -> [target_indices]
-
-        if _HAS_SKLEARN and self.vectorizer and clean_descs_unmatched:
-            try:
-                # Transformar todo el lote a la vez (Mucho más rápido)
-                vec_batch = self.vectorizer.transform(clean_descs_unmatched)
-                distances_batch, indices_batch = self.nn.kneighbors(vec_batch)
-
-                for k, local_idx in enumerate(unmatched_indices):
-                    # Obtener candidatos para esta fila
-                    # indices_batch[k] son los indices en target_df
-                    cands = []
-                    for j, tgt_idx in enumerate(indices_batch[k]):
-                        sim = 1 - distances_batch[k][j]
-                        if sim > 0.3: # Threshold de filtrado
-                            cands.append(tgt_idx)
-                    candidates_map[local_idx] = cands
-            except Exception as e:
-                logging.error(f"Error en batch vectorization: {e}")
-
-        # 3. Re-ranking (CPU intensive but on small candidate set)
-        # Si no hay SKLEARN, esto será muy lento (fallback a scan completo o nada)
-        if not _HAS_SKLEARN:
-             # Fallback simple: usar RapidFuzz process.extract si disponible para cada fila
-             # Esto es lento O(N*M), pero mejor que nada.
-             if _HAS_RAPIDFUZZ:
-                 choices = self.target_df['_clean'].tolist()
-                 for local_idx, txt in zip(unmatched_indices, clean_descs_unmatched):
-                     # ExtractOne es lento contra toda la lista, pero necesario sin TF-IDF
-                     res = process.extractOne(txt, choices, scorer=fuzz.token_sort_ratio, score_cutoff=60)
-                     if res:
-                         # res es (match_str, score, index)
-                         target_idx = res[2]
-                         score = res[1]
-                         results[local_idx] = (target_idx, score, "FUZZ_FALLBACK")
-             return results
-
-        # Re-ranking normal para candidatos TF-IDF
-        for i, local_idx in enumerate(unmatched_indices):
-            candidates = candidates_map.get(local_idx, [])
-            if not candidates:
+            if not desc:
+                results.append(res)
                 continue
 
-            # Acceso directo por índice en lugar de .index()
-            clean_desc = clean_descs_unmatched[i]
-            clean_desc_no_nums = remove_numbers(clean_desc)
-            src_feats = extract_features(clean_desc)
+            parsed = parse_medication(str(desc))
 
-            best_score = 0.0
-            best_idx = None
-            best_method = "TFIDF+FUZZ"
+            key_exact = (parsed['components'], parsed['dosages'], parsed['form'])
+            key_pres = (parsed['components'], parsed['dosages'])
+            key_sub = parsed['dosages']
 
-            for idx in candidates:
-                tgt_row = self.target_df.iloc[idx]
-                tgt_clean = tgt_row['_clean']
-                tgt_feats = tgt_row['_features']
+            # 1. Búsqueda Exacta
+            if key_exact in self.exact_index:
+                res['idx'] = self.exact_index[key_exact]
+                res['status'] = 'MATCH_CONTRATO'
+                res['score'] = 100.0
+                res['method'] = 'EXACTO_QUIMICO'
+                results.append(res)
+                continue
 
-                compatibility = check_feature_compatibility(src_feats, tgt_feats)
+            # 2. Cambio de Presentación
+            if key_pres in self.presentation_index:
+                # Tomamos el primero disponible
+                forms_list = self.presentation_index[key_pres]
+                best_match = forms_list[0] # (Form, Idx)
 
-                base_score = 0
-                final_score = 0
+                res['idx'] = best_match[1]
+                res['status'] = 'CAMBIO_DE_PRESENTACION'
+                res['observacion'] = f"Se solicito {parsed['form']} pero contrato tiene {best_match[0]}"
+                res['score'] = 90.0 # Alto pero no 100
+                res['method'] = 'PRESENTACION_DIFERENTE'
+                results.append(res)
+                continue
 
-                # Lógica Avanzada: Si hay compatibilidad numérica perfecta, ignorar números en texto
-                if compatibility == 1.0:
-                    tgt_clean_no_nums = tgt_row['_clean_no_nums']
-                    score_no_nums = 0
-                    score_with_nums = 0
+            # 3. Sugerencia de Sustitución
+            # Regla: Misma dosis exacta, y al menos un componente base en común.
+            if key_sub in self.substitution_index:
+                candidates = self.substitution_index[key_sub]
+                input_comps = set(parsed['components'])
 
-                    if _HAS_RAPIDFUZZ:
-                        score_no_nums = fuzz.token_set_ratio(clean_desc_no_nums, tgt_clean_no_nums)
-                        score_with_nums = fuzz.token_set_ratio(clean_desc, tgt_clean)
-                    else:
-                        score_no_nums = 50 if clean_desc_no_nums in tgt_clean_no_nums else 0
-                        score_with_nums = 50 if clean_desc in tgt_clean else 0
+                for cand_comps, cand_idx in candidates:
+                    target_comps = set(cand_comps)
+                    common = input_comps.intersection(target_comps)
 
-                    # Usar el mejor de los dos mundos
-                    final_score = max(score_no_nums, score_with_nums)
+                    if len(common) > 0 and input_comps != target_comps:
+                        # Encontrado!
+                        res['status'] = 'SUGERENCIA_DE_SUSTITUCION'
+                        tgt_desc = self.target_df.iloc[cand_idx][self.col_desc]
+                        res['observacion'] = f"Sugerido: {tgt_desc} (Base comun: {list(common)})"
+                        # No asignamos idx para que NO se sume al contrato (Regla User: 'Prohibido... No Match')
+                        res['idx'] = None
+                        res['score'] = 0.0
+                        res['method'] = 'SUSTITUCION_TERAPEUTICA'
+                        break
 
-                    # LOGICA DE RESCATE (RESCUE LOGIC)
-                    # Si el score está entre 60 y 75, pero la compatibilidad de dosis es PERFECTA (1.0)
-                    # Y ademas pasa la validacion de Tokens Clave (Fonetica/Fuzzy)
-                    # Le subimos artificialmente el score para que pase el corte RELAXED (75.0)
-                    if 60.0 <= final_score < 75.0:
-                        if check_key_token_match(clean_desc_no_nums, tgt_clean_no_nums):
-                            # Bonus variable para asegurar cruce
-                            # Si es >70, +5 basta. Si es 60, necesitamos +15
-                            final_score = 75.1
-                            best_method = "RESCUED_PHONETIC_60+"
-
-                else:
-                    # Compatibilidad dudosa o mala, usar texto completo y penalizar
-                    if _HAS_RAPIDFUZZ:
-                        base_score = fuzz.token_set_ratio(clean_desc, tgt_clean)
-                    else:
-                        base_score = 50 if clean_desc in tgt_clean else 0
-                    final_score = base_score * compatibility
-
-                if final_score > best_score:
-                    best_score = final_score
-                    best_idx = idx
-
-            results[local_idx] = (best_idx, best_score, best_method)
+            results.append(res)
 
         return results
 
@@ -635,23 +575,18 @@ def process_file(filepath, matcher, matcher_secondary, rescued_matches_list, out
         batch_codes = raw_codes[i:end_ix]
         batch_qties = raw_qties[i:end_ix]
 
-        # 1. Match Batch PRIMARIO
+        # 1. Match Batch PRIMARIO (Strict)
+        # res list of dicts: {idx, status, observacion, score, method}
         match_results = matcher.match_batch(batch_descs, batch_codes)
 
         # 2. Match Batch SECUNDARIO (Cascade)
-        # Identificar indices que fallaron en primario
+        # Si Primary retorna NO_ENCONTRADO, intentamos secondary
         secondary_indices = []
         secondary_inputs_desc = []
         secondary_inputs_code = []
 
-        # Pre-scan results to find what needs secondary
-        for j, (tidx, score, method) in enumerate(match_results):
-             is_match = False
-             if tidx is not None:
-                if score >= THRESHOLD_CONFIDENT or score >= THRESHOLD_RELAXED:
-                    is_match = True
-
-             if not is_match and matcher_secondary:
+        for j, res in enumerate(match_results):
+             if res['status'] == 'NO_ENCONTRADO' and matcher_secondary:
                  secondary_indices.append(j)
                  secondary_inputs_desc.append(batch_descs[j])
                  secondary_inputs_code.append(batch_codes[j])
@@ -662,39 +597,33 @@ def process_file(filepath, matcher, matcher_secondary, rescued_matches_list, out
 
         # Procesar resultados del lote (Merge Primary + Secondary)
         sec_ptr = 0
-        for j, (tidx, score, method) in enumerate(match_results):
+        for j, res in enumerate(match_results):
             qty_val = parse_decimal(batch_qties[j])
             total_qty += qty_val
 
-            final_tidx = tidx
-            final_score = score
-            final_method = method
+            final_res = res
             source_type = "PRIMARY"
 
-            # Check if Primary was success
-            is_match = False
-            if final_tidx is not None:
-                if final_score >= THRESHOLD_CONFIDENT or final_score >= THRESHOLD_RELAXED:
-                    is_match = True
-
-            # If not matched in primary, check secondary
-            if not is_match and matcher_secondary and sec_ptr < len(secondary_results):
-                # Check secondary result
-                s_tidx, s_score, s_method = secondary_results[sec_ptr]
+            # Check Secondary override
+            if final_res['status'] == 'NO_ENCONTRADO' and matcher_secondary and sec_ptr < len(secondary_results):
+                sec_res = secondary_results[sec_ptr]
                 sec_ptr += 1
 
-                # Check threshold for secondary
-                is_sec_match = False
-                if s_tidx is not None:
-                     if s_score >= THRESHOLD_CONFIDENT or s_score >= THRESHOLD_RELAXED:
-                        is_sec_match = True
-
-                if is_sec_match:
-                    final_tidx = s_tidx
-                    final_score = s_score
-                    final_method = s_method
+                # Si secundario encuentra algo util (Match, Presentacion, Sustitucion)
+                if sec_res['status'] != 'NO_ENCONTRADO':
+                    final_res = sec_res
                     source_type = "SECONDARY"
-                    is_match = True
+
+            # Determine if it is a 'Valid Match' for aggregation
+            # Only Exact and Presentation Change are counted as matches for contract
+            # Substitution is just a suggestion, doesn't count as sold contract item
+            is_valid_match = final_res['status'] in ['MATCH_CONTRATO', 'CAMBIO_DE_PRESENTACION']
+
+            final_tidx = final_res['idx']
+            final_method = final_res['method']
+            final_score = final_res['score']
+            final_status = final_res['status']
+            final_obs = final_res['observacion']
 
             # --- LOGICA DE AUDITORIA COMPLETA ---
             if full_audit_log is not None:
@@ -710,50 +639,37 @@ def process_file(filepath, matcher, matcher_secondary, rescued_matches_list, out
                         row_tgt = matcher_secondary.target_df.iloc[final_tidx]
                         tgt_desc_log = row_tgt[matcher_secondary.col_desc]
                         tgt_code_log = row_tgt[matcher_secondary.col_code] if matcher_secondary.col_code else ""
+                elif final_status == 'SUGERENCIA_DE_SUSTITUCION':
+                    # En sustitucion no tenemos idx oficial pero tenemos obs
+                    tgt_desc_log = final_obs
 
                 full_audit_log.append({
                     'Archivo': filepath.name,
                     'Descripcion_Original': batch_descs[j],
                     'Codigo_Original': batch_codes[j],
-                    'Match_Status': 'CRUZADO' if is_match else 'NO_CRUZADO',
+                    'Estado_Match': final_status, # New Column
                     'Target_Descripcion': tgt_desc_log,
                     'Target_Codigo': tgt_code_log,
                     'Score': f"{final_score:.1f}",
                     'Metodo': final_method,
-                    'Fuente': source_type if is_match else "-"
+                    'Fuente': source_type if is_valid_match else "-",
+                    'Observaciones_Auditoria': final_obs, # New Column
+                    'Posible_Sustituto': "SI" if final_status == 'SUGERENCIA_DE_SUSTITUCION' else "" # New Column
                 })
 
-            if is_match:
+            if is_valid_match and final_tidx is not None:
                 matched_qty += qty_val
-                # Key for aggregation needs to be unique across primary/secondary or handled downstream
-                # Since Target IDs might overlap (0, 1, 2...), we need to disambiguate or ensure IDs are unique.
-                # Here we will store tuple (ID, SourceType)
                 local_results[(final_tidx, source_type)] += qty_val
 
-                # Capture rescued matches for audit (Primary or Secondary)
-                if "RESCUED" in final_method and rescued_matches_list is not None:
-                     # Fetch description from correct dataframe
-                     if source_type == "PRIMARY":
-                         tgt_desc = matcher.target_df.iloc[final_tidx][matcher.col_desc]
-                     else:
-                         tgt_desc = matcher_secondary.target_df.iloc[final_tidx][matcher_secondary.col_desc]
-
-                     rescued_matches_list.append({
-                        'Archivo': filepath.name,
-                        'Descripcion_Original': batch_descs[j],
-                        'Match_Target': tgt_desc,
-                        'Score': final_score,
-                        'Method': final_method + f" ({source_type})"
-                     })
             else:
-                # Guardar no encontrado
+                # Guardar no encontrado (o sustitucion)
                 output_unmatched_list.append({
                     'Archivo': filepath.name,
                     'Descripcion_Original': batch_descs[j],
                     'Codigo_Original': batch_codes[j],
                     'Cantidad': qty_val,
-                    'Mejor_Candidato_Idx': tidx if tidx is not None else '',
-                    'Score': score
+                    'Estado': final_status,
+                    'Observacion': final_obs
                 })
 
     pct = (matched_qty / total_qty * 100) if total_qty > 0 else 0
@@ -782,7 +698,8 @@ def main():
     print(f"Cargando maestro PRIMARIO: {target_path}")
     target_df = read_csv_robust(target_path)
     print(f" -> Filas Primarias: {len(target_df)}")
-    matcher = SmartMatcher(target_df)
+    # SWAPPED: Use StrictMatcher instead of SmartMatcher
+    matcher = StrictMatcher(target_df)
 
     # 2. Cargar Targets Secundarios
     matcher_secondary = None
@@ -795,7 +712,8 @@ def main():
             target_sec_df = read_csv_robust(target_sec_path)
             print(f" -> Filas Secundarias: {len(target_sec_df)}")
             if not target_sec_df.empty:
-                matcher_secondary = SmartMatcher(target_sec_df)
+                # SWAPPED: Use StrictMatcher
+                matcher_secondary = StrictMatcher(target_sec_df)
                 print(" -> Matcher Secundario Activo")
         except Exception as e:
             print(f"Advertencia: Error cargando targets secundarios: {e}")
